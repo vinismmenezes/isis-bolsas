@@ -289,8 +289,8 @@
 <!-- ── Login overlay ────────────────────────────────────────────────────── -->
 <div id="login-overlay">
   <div class="login-box">
-    <div class="login-title">🧵 ISIS Bolsas</div>
-    <div class="login-sub">Consulta de Preços 2026</div>
+    <img id="login-logo" style="width:150px;margin-bottom:4px;border-radius:6px" alt="ISIS Bolsas">
+    <div class="login-sub" style="margin-top:0;margin-bottom:20px">Consulta de Preços 2026</div>
     <input class="login-inp" type="email" id="login-email" placeholder="Email" autocomplete="email"
       onkeydown="if(event.key==='Enter')document.getElementById('login-senha').focus()">
     <input class="login-inp" type="password" id="login-senha" placeholder="Senha"
@@ -732,6 +732,7 @@ async function costuraConfirmar() {
       if (error) throw error;
       costuraPadrao.push({ nome, grupo: _ceditAddGrupo, valor: valFmt, updatedAt: hoje, id: data[0].id });
       costuraRender(); admCosturaRender();
+      await registrarLog('criou', 'costura', nome, 'R$ ' + valFmt + ' [' + _ceditAddGrupo + ']');
     } catch(e) { alert('Erro ao adicionar: ' + e.message); return; }
   } else {
     const dados = costuraCarregar();
@@ -745,6 +746,7 @@ async function costuraConfirmar() {
       const padIdx = costuraPadrao.findIndex(p => p.id === item.id);
       if (padIdx >= 0) { costuraPadrao[padIdx].valor = valFmt; costuraPadrao[padIdx].updatedAt = hoje; }
       costuraRender(); admCosturaRender();
+      await registrarLog('editou', 'costura', item.nome, 'R$ ' + valFmt);
     } catch(e) { alert('Erro ao salvar: ' + e.message); return; }
   }
   costuraCancelar();
@@ -842,6 +844,10 @@ async function fazerLogout() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // Copia logo do header para a tela de login
+  const hLogo = document.querySelector('.logo-wrap img');
+  const lLogo = document.getElementById('login-logo');
+  if (hLogo && lLogo) lLogo.src = hLogo.src;
   const { data: { session } } = await _supa.auth.getSession();
   if (session) {
     document.getElementById('login-overlay').style.display = 'none';
@@ -958,7 +964,7 @@ function admRender() {
       <td><span style="font-size:.75rem;background:#1e3a6e;color:#93c5fd;padding:2px 7px;border-radius:4px">${p.tabela}</span></td>
       <td>${p.material||'-'}</td>
       <td style="font-size:.8rem;color:#fbbf24">${p.medidas||'-'}</td>
-      <td style="color:#4ade80;font-weight:600">R$ ${p.preco}</td>
+      <td style="color:#1a2e4a;font-weight:700">R$ ${p.preco}</td>
       <td>
         <button class="adm-btn" style="font-size:.72rem;padding:4px 8px;margin-right:4px" onclick="admAbrirEdit(${p._idx})">✏️</button>
         <button class="adm-btn adm-btn-danger" style="font-size:.72rem;padding:4px 8px" onclick="admDeletar(${p._idx})">🗑️</button>
@@ -1015,11 +1021,13 @@ async function admSalvar() {
       const { data, error } = await _supa.from('produtos').insert([registro]).select();
       if (error) throw error;
       admProdutos.push({ ...registro, id: data[0].id, preco: precoRaw });
+      await registrarLog('criou', 'produto', nome, 'R$ ' + precoRaw);
     } else {
       const id = admProdutos[admEditIdx].id;
       const { error } = await _supa.from('produtos').update(registro).eq('id', id);
       if (error) throw error;
       admProdutos[admEditIdx] = { ...registro, id, preco: precoRaw };
+      await registrarLog('editou', 'produto', nome, 'R$ ' + precoRaw);
     }
     admFecharModal('adm-modal');
     admRenderFiltros();
@@ -1036,10 +1044,12 @@ async function admDeletar(idx) {
   try {
     const { error } = await _supa.from('produtos').delete().eq('id', id);
     if (error) throw error;
+    const nomeExcluido = admProdutos[idx].nome;
     admProdutos.splice(idx, 1);
     admRenderFiltros();
     admFiltrar();
     produtos.splice(0, produtos.length, ...admProdutos);
+    await registrarLog('deletou', 'produto', nomeExcluido, '');
   } catch(e) {
     alert('Erro ao excluir: ' + e.message);
   }
@@ -1057,8 +1067,10 @@ let admCosturaBuscaAtual = '';
 
 function admMostrarCostura() {
   document.getElementById('adm-produtos-section').style.display = 'none';
+  document.getElementById('adm-historico-section').style.display = 'none';
   document.getElementById('adm-costura-section').style.display = '';
   document.getElementById('adm-btn-costura').style.display = 'none';
+  document.getElementById('adm-btn-historico').style.display = 'none';
   document.getElementById('adm-btn-produtos').style.display = '';
   admCosturaGrupoAtual = 'GERAL';
   admCosturaBuscaAtual = '';
@@ -1070,9 +1082,11 @@ function admMostrarCostura() {
 
 function admVoltarProdutos() {
   document.getElementById('adm-costura-section').style.display = 'none';
+  document.getElementById('adm-historico-section').style.display = 'none';
   document.getElementById('adm-produtos-section').style.display = '';
   document.getElementById('adm-btn-produtos').style.display = 'none';
   document.getElementById('adm-btn-costura').style.display = '';
+  document.getElementById('adm-btn-historico').style.display = '';
 }
 
 function admCosturaGrupo(g) {
@@ -1153,9 +1167,75 @@ async function admCosturaDeletar(idx) {
   try {
     const { error } = await _supa.from('costura').delete().eq('id', p.id);
     if (error) throw error;
+    const nomeCostura = p.nome;
     costuraPadrao.splice(idx, 1);
     admCosturaRender();
+    await registrarLog('deletou', 'costura', nomeCostura, '');
   } catch(e) { alert('Erro ao deletar: ' + e.message); }
+}
+
+
+// ===== LOG DE ALTERAÇÕES =====
+async function registrarLog(acao, tipo, nomeItem, detalhe) {
+  try {
+    const { data: { session } } = await _supa.auth.getSession();
+    const email = session?.user?.email || 'desconhecido';
+    await _supa.from('log_alteracoes').insert([{
+      usuario_email: email,
+      acao,
+      tipo,
+      nome_item: nomeItem,
+      detalhe: detalhe || ''
+    }]);
+  } catch(e) { console.warn('Erro ao registrar log:', e); }
+}
+
+function admMostrarHistorico() {
+  document.getElementById('adm-produtos-section').style.display = 'none';
+  document.getElementById('adm-costura-section').style.display = 'none';
+  document.getElementById('adm-historico-section').style.display = '';
+  document.getElementById('adm-btn-costura').style.display = 'none';
+  document.getElementById('adm-btn-historico').style.display = 'none';
+  document.getElementById('adm-btn-produtos').style.display = '';
+  admHistoricoRender();
+}
+
+async function admHistoricoRender() {
+  const tbody = document.getElementById('adm-historico-tbody');
+  const info = document.getElementById('adm-historico-info');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:#64748b">Carregando...</td></tr>';
+  try {
+    const { data, error } = await _supa
+      .from('log_alteracoes')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(200);
+    if (error) throw error;
+    if (info) info.textContent = data.length + ' registro(s) — últimas 200 alterações';
+    const badge = {
+      'criou':  'background:#dcfce7;color:#166534',
+      'editou': 'background:#fef9c3;color:#854d0e',
+      'deletou':'background:#fee2e2;color:#991b1b'
+    };
+    tbody.innerHTML = data.length === 0
+      ? '<tr><td colspan="6" style="text-align:center;padding:24px;color:#64748b">Nenhum registro ainda.</td></tr>'
+      : data.map(r => {
+          const dt = new Date(r.created_at).toLocaleString('pt-BR');
+          const usuario = (r.usuario_email || '').replace('@isisbolsas.com.br','').replace('@gmail.com','');
+          const estilo = badge[r.acao] || '';
+          return `<tr>
+            <td style="font-size:.78rem;color:#64748b;white-space:nowrap">${dt}</td>
+            <td style="font-size:.82rem;font-weight:600">${usuario}</td>
+            <td><span style="${estilo};padding:2px 9px;border-radius:12px;font-size:.74rem;font-weight:700;white-space:nowrap">${r.acao}</span></td>
+            <td style="font-size:.8rem;color:#64748b">${r.tipo}</td>
+            <td style="font-weight:600;font-size:.88rem">${r.nome_item || '—'}</td>
+            <td style="font-size:.8rem;color:#64748b">${r.detalhe || '—'}</td>
+          </tr>`;
+        }).join('');
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="6" style="color:#991b1b;padding:16px">Erro: ${e.message}</td></tr>`;
+  }
 }
 
 </script>
@@ -1179,6 +1259,7 @@ async function admCosturaDeletar(idx) {
     <h2>Admin — Consulta de Preços ISIS 2026</h2>
     <div class="adm-header-btns">
       <button class="adm-btn" id="adm-btn-costura" onclick="admMostrarCostura()">🧵 Costura</button>
+      <button class="adm-btn" id="adm-btn-historico" onclick="admMostrarHistorico()">📋 Histórico</button>
       <button class="adm-btn" id="adm-btn-produtos" onclick="admVoltarProdutos()" style="display:none">📦 Produtos</button>
       <button class="adm-btn adm-btn-close" onclick="admSair()">✕ Sair</button>
     </div>
@@ -1233,6 +1314,27 @@ async function admCosturaDeletar(idx) {
           <th style="width:80px">Ações</th>
         </tr></thead>
         <tbody id="adm-costura-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+  <!-- HISTORICO SECTION -->
+  <div id="adm-historico-section" style="display:none">
+    <div class="adm-toolbar">
+      <span style="color:#64748b;font-size:.85rem;font-weight:600">📋 Histórico de Alterações</span>
+      <button class="adm-btn" onclick="admHistoricoRender()" style="margin-left:auto">🔄 Atualizar</button>
+    </div>
+    <div class="adm-table-wrap">
+      <div class="adm-info" id="adm-historico-info"></div>
+      <table class="adm-table">
+        <thead><tr>
+          <th style="width:140px">Data/Hora</th>
+          <th style="width:130px">Usuário</th>
+          <th style="width:75px">Ação</th>
+          <th style="width:75px">Tipo</th>
+          <th>Item</th>
+          <th>Detalhe</th>
+        </tr></thead>
+        <tbody id="adm-historico-tbody"></tbody>
       </table>
     </div>
   </div>

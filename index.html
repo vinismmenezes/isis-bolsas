@@ -1052,20 +1052,7 @@ async function admDeletar(idx) {
 
 function admFecharModal(id) {
   const el = document.getElementById(id);
-  
-}
-
-        try { const j = await deployRes.json(); msg = j.message || msg; } catch(e){}
-        if (deployRes.status === 401) msg = 'Token inválido ou expirado.';
-        if (deployRes.status === 404) msg = 'Site ID não encontrado.';
-        alert('❌ Erro ao publicar:\n' + msg);
-      }
-    }
-  } catch(e) {
-    alert('❌ Erro ao publicar:\n' + e.message);
-  } finally {
-    btns.forEach(b => { b.disabled = false; b.textContent = b.classList.contains('') ? '☁️ Publicar' : '☁️ Publicar'; });
-  }
+  if (el) el.style.display = 'none';
 }
 
 </script>

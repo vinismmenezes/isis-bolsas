@@ -25,6 +25,38 @@
   .btn-logout:hover{background:rgba(255,255,255,.3)}
   .btn-admin{background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:6px 14px;font-size:.8rem;font-weight:600;cursor:pointer;transition:.15s;margin-right:6px}
   .btn-admin:hover{background:rgba(255,255,255,.28)}
+  .btn-dashboard{background:rgba(255,255,255,.12);color:white;border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:6px 14px;font-size:.8rem;font-weight:600;cursor:pointer;transition:.15s;margin-right:4px}
+  .btn-dashboard:hover{background:rgba(255,255,255,.25)}
+  .dash-overlay{position:fixed;inset:0;background:#f1f5f9;z-index:3100;display:none;flex-direction:column;overflow:hidden}
+  .dash-overlay.on{display:flex}
+  .dash-header{background:linear-gradient(90deg,#1A3580,#2154A8);padding:12px 24px;display:flex;align-items:center;gap:14px;flex-shrink:0}
+  .dash-header img{height:40px}
+  .dash-header h2{color:white;font-size:1rem;font-weight:700;flex:1}
+  .dash-header-btns{display:flex;gap:8px}
+  .dash-content{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:16px}
+  .dash-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+  .dash-card{background:white;border-radius:12px;padding:16px 20px;border:1px solid #e2e8f0;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+  .dash-card-icon{font-size:1.4rem;margin-bottom:6px}
+  .dash-card-val{font-size:1.8rem;font-weight:800;color:#1a2e4a;line-height:1}
+  .dash-card-label{font-size:.75rem;color:#64748b;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+  .dash-card-sub{font-size:.78rem;color:#94a3b8;margin-top:2px}
+  .dash-card.warn{border-left:4px solid #f59e0b;background:#fffbeb}
+  .dash-card.warn .dash-card-val{color:#b45309}
+  .dash-card.danger{border-left:4px solid #ef4444;background:#fff5f5}
+  .dash-card.danger .dash-card-val{color:#dc2626}
+  .dash-card.ok{border-left:4px solid #22c55e}
+  .dash-row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .dash-section{background:white;border-radius:12px;padding:18px 20px;border:1px solid #e2e8f0;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+  .dash-section-title{font-size:.82rem;font-weight:700;color:#1a2e4a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #f1f5f9}
+  .dash-table{width:100%;border-collapse:collapse;font-size:.83rem}
+  .dash-table th{text-align:left;color:#64748b;font-size:.72rem;text-transform:uppercase;padding:6px 8px;border-bottom:1px solid #e2e8f0}
+  .dash-table td{padding:7px 8px;border-bottom:1px solid #f1f5f9;color:#1a2e4a}
+  .dash-table tr:last-child td{border-bottom:none}
+  .dash-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.7rem;font-weight:700}
+  .dash-bar-wrap{margin-bottom:8px}
+  .dash-bar-label{display:flex;justify-content:space-between;font-size:.78rem;color:#64748b;margin-bottom:3px}
+  .dash-bar-track{background:#f1f5f9;border-radius:4px;height:8px;overflow:hidden}
+  .dash-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#2154A8,#3b82f6);transition:width .6s ease}
 
   header { background: #2154A8; border-radius: 18px; padding: 24px 28px; margin-bottom: 20px; box-shadow: 0 6px 24px rgba(33,84,168,0.25); display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
   .logo-wrap { background: white; border-radius: 12px; padding: 8px 14px; display: flex; align-items: center; flex-shrink: 0; }
@@ -310,6 +342,7 @@
       <p>Tabelas ISIS Bolsas, Variadas &amp; Campanhas</p>
       <p class="slogan">sempre com você</p>
     </div>
+      <button class="btn-dashboard" id="btn-dashboard" onclick="dashAbrir()" title="Dashboard" style="display:none">📊 Dashboard</button>
       <button class="btn-admin" id="btn-admin" onclick="admAbrir()" title="Painel Admin" style="display:none">⚙️ Admin</button>
       <button class="btn-logout" onclick="fazerLogout()" title="Sair da conta">⬅️ Sair</button>
   </header>
@@ -834,6 +867,11 @@ async function fazerLogin() {
   }
   const { data: { session: s2 } } = await _supa.auth.getSession();
   await carregarPermissoes(s2.user.email);
+  // Log de login
+  try {
+    const nav = navigator.userAgent.substring(0,120);
+    await _supa.from('log_logins').insert([{ user_email: s2.user.email, navegador: nav }]);
+  } catch(e) { console.warn('log login:', e); }
   document.getElementById('login-overlay').style.display = 'none';
   admLogado = true;
   await carregarDados();
@@ -1294,6 +1332,9 @@ function aplicarPermissoes() {
   // Botão Admin no header
   const btnAdm = document.getElementById('btn-admin');
   if (btnAdm) btnAdm.style.display = temAdm ? '' : 'none';
+  // Botão Dashboard (só admin master)
+  const btnDash = document.getElementById('btn-dashboard');
+  if (btnDash) btnDash.style.display = userEmail === ADMIN_MASTER ? '' : 'none';
 
   // Botão Permissões no painel admin (só master)
   const btnPerm = document.getElementById('adm-btn-permissoes');
@@ -1406,6 +1447,379 @@ async function admPermRemoverUsuario(email) {
   } catch(e) { alert('Erro: ' + e.message); }
 }
 
+
+// ===== SISTEMA DE PERMISSÕES =====
+
+function temPermissao(secao) {
+  if (userEmail === ADMIN_MASTER) return true;
+  return userPermissoes.includes(secao);
+}
+
+async function carregarPermissoes(email) {
+  userEmail = email;
+  if (email === ADMIN_MASTER) {
+    userPermissoes = ['produtos', 'costura', 'admin'];
+    return;
+  }
+  try {
+    const { data, error } = await _supa
+      .from('permissoes').select('secao').eq('user_email', email);
+    if (!error && data) userPermissoes = data.map(p => p.secao);
+    else userPermissoes = [];
+  } catch(e) { console.warn('Erro ao carregar permissões:', e); userPermissoes = []; }
+}
+
+function aplicarPermissoes() {
+  // Tabs principais
+  const btnR = document.getElementById('btnRapido');
+  const btnA = document.getElementById('btnAvancado');
+  const btnC = document.getElementById('btnCostura');
+  const temProd = temPermissao('produtos');
+  const temCost = temPermissao('costura');
+  const temAdm  = temPermissao('admin');
+
+  if (btnR) btnR.style.display = temProd ? '' : 'none';
+  if (btnA) btnA.style.display = temProd ? '' : 'none';
+  if (btnC) btnC.style.display = temCost ? '' : 'none';
+
+  // Botão Admin no header
+  const btnAdm = document.getElementById('btn-admin');
+  if (btnAdm) btnAdm.style.display = temAdm ? '' : 'none';
+
+  // Botão Permissões no painel admin (só master)
+  const btnPerm = document.getElementById('adm-btn-permissoes');
+  if (btnPerm) btnPerm.style.display = userEmail === ADMIN_MASTER ? '' : 'none';
+
+  // Se modo atual não permitido, muda para o primeiro disponível
+  if (modoAtual === 'costura' && !temCost) {
+    if (temProd) setModo('rapido');
+  }
+  if ((modoAtual === 'rapido' || modoAtual === 'avancado') && !temProd) {
+    if (temCost) setModo('costura');
+  }
+}
+
+// ===== GESTÃO DE PERMISSÕES (admin master) =====
+
+function admMostrarPermissoes() {
+  document.getElementById('adm-produtos-section').style.display = 'none';
+  document.getElementById('adm-costura-section').style.display = 'none';
+  document.getElementById('adm-historico-section').style.display = 'none';
+  document.getElementById('adm-perm-section').style.display = '';
+  document.getElementById('adm-btn-costura').style.display = 'none';
+  document.getElementById('adm-btn-historico').style.display = 'none';
+  document.getElementById('adm-btn-permissoes').style.display = 'none';
+  document.getElementById('adm-btn-produtos').style.display = '';
+  admPermRender();
+}
+
+async function admPermRender() {
+  const tbody = document.getElementById('adm-perm-tbody');
+  const info  = document.getElementById('adm-perm-info');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:#64748b">Carregando...</td></tr>';
+  try {
+    const { data, error } = await _supa.from('permissoes').select('*').order('user_email');
+    if (error) throw error;
+
+    // Agrupa por usuário
+    const users = {};
+    data.forEach(p => {
+      if (!users[p.user_email]) users[p.user_email] = { secoes: [], ids: {} };
+      users[p.user_email].secoes.push(p.secao);
+      users[p.user_email].ids[p.secao] = p.id;
+    });
+    // Garante que admin master aparece
+    if (!users[ADMIN_MASTER]) users[ADMIN_MASTER] = { secoes: ['produtos','costura','admin'], ids: {} };
+
+    if (info) info.textContent = Object.keys(users).length + ' usuário(s)';
+
+    tbody.innerHTML = Object.entries(users).map(([email, u]) => {
+      const isMaster = email === ADMIN_MASTER;
+      const secoes = ['produtos','costura','admin'];
+      const cols = secoes.map(s => {
+        if (isMaster) return '<td style="text-align:center;font-size:1rem">✅</td>';
+        const checked = u.secoes.includes(s) ? 'checked' : '';
+        return `<td style="text-align:center">
+          <input type="checkbox" ${checked}
+            style="width:18px;height:18px;cursor:pointer;accent-color:#2154A8"
+            onchange="admPermToggle('${email}','${s}',this.checked)">
+        </td>`;
+      }).join('');
+      const badge = isMaster ? ' <span style="background:#fef9c3;color:#92400e;padding:1px 7px;border-radius:10px;font-size:.7rem;font-weight:700">master</span>' : '';
+      const acao = isMaster ? '<td style="text-align:center;color:#94a3b8">—</td>'
+        : `<td style="text-align:center"><button class="adm-btn-del" onclick="admPermRemoverUsuario('${email}')" title="Remover usuário">🗑️</button></td>`;
+      return `<tr>
+        <td style="font-weight:600;font-size:.88rem">${email}${badge}</td>
+        ${cols}${acao}
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="5" style="color:#991b1b;padding:16px">Erro: ${e.message}</td></tr>`;
+  }
+}
+
+async function admPermToggle(email, secao, ativar) {
+  try {
+    if (ativar) {
+      const { error } = await _supa.from('permissoes').insert([{ user_email: email, secao }]);
+      if (error) throw error;
+    } else {
+      const { error } = await _supa.from('permissoes').delete()
+        .eq('user_email', email).eq('secao', secao);
+      if (error) throw error;
+    }
+    await registrarLog(ativar ? 'editou' : 'editou', 'permissao', email, `${secao}: ${ativar ? 'ativou' : 'removeu'}`);
+  } catch(e) {
+    alert('Erro ao alterar permissão: ' + e.message);
+    admPermRender(); // reverte visual
+  }
+}
+
+async function admPermAddUser() {
+  const email = prompt('Email do novo usuário:');
+  if (!email || !email.includes('@')) return;
+  // Adiciona com permissão de produtos por padrão
+  try {
+    const { error } = await _supa.from('permissoes')
+      .insert([{ user_email: email.toLowerCase().trim(), secao: 'produtos' }]);
+    if (error && error.code !== '23505') throw error; // ignora duplicado
+    await admPermRender();
+  } catch(e) { alert('Erro: ' + e.message); }
+}
+
+async function admPermRemoverUsuario(email) {
+  if (!confirm('Remover todas as permissões de "' + email + '"?')) return;
+  try {
+    const { error } = await _supa.from('permissoes').delete().eq('user_email', email);
+    if (error) throw error;
+    await admPermRender();
+  } catch(e) { alert('Erro: ' + e.message); }
+}
+
+
+// ===== DASHBOARD =====
+
+function dashAbrir() {
+  const ov = document.getElementById('dash-overlay');
+  if (ov) ov.classList.add('on');
+  // Copia logo
+  const hl = document.querySelector('.logo-wrap img');
+  const dl = document.getElementById('dash-logo');
+  if (hl && dl) dl.src = hl.src;
+  dashAtualizar();
+}
+
+function dashFechar() {
+  const ov = document.getElementById('dash-overlay');
+  if (ov) ov.classList.remove('on');
+}
+
+async function dashAtualizar() {
+  const cont = document.getElementById('dash-content');
+  if (!cont) return;
+  cont.innerHTML = '<div style="text-align:center;padding:40px;color:#64748b">Carregando...</div>';
+  try {
+    // Carrega tudo em paralelo
+    const [
+      { data: prods },
+      { data: cost },
+      { data: perms },
+      { data: logAlt },
+      { data: logLog }
+    ] = await Promise.all([
+      _supa.from('produtos').select('id,nome,medidas,preco,updated_at').eq('ativo', true),
+      _supa.from('costura').select('id'),
+      _supa.from('permissoes').select('user_email,secao'),
+      _supa.from('log_alteracoes').select('*').order('created_at',{ascending:false}).limit(200),
+      _supa.from('log_logins').select('*').order('created_at',{ascending:false}).limit(100)
+    ]);
+
+    // --- MÉTRICAS ---
+    const totalProd = prods?.length || 0;
+    const totalCost = cost?.length || 0;
+    const semMedidas = prods?.filter(p => !p.medidas || p.medidas.trim() === '' || p.medidas === '-').length || 0;
+    const semPreco   = prods?.filter(p => !p.preco).length || 0;
+
+    // Alterações hoje
+    const hoje = new Date().toLocaleDateString('pt-BR');
+    const alteracoesHoje = logAlt?.filter(r => new Date(r.created_at).toLocaleDateString('pt-BR') === hoje).length || 0;
+
+    // Última atualização de preço
+    const ultimaAlt = logAlt?.find(r => r.tipo === 'produto' && r.acao === 'editou');
+    const ultimaAltStr = ultimaAlt
+      ? `${ultimaAlt.nome_item} — ${new Date(ultimaAlt.created_at).toLocaleString('pt-BR')}`
+      : 'Nenhuma alteração registrada';
+
+    // Usuários únicos
+    const usuarios = {};
+    (perms || []).forEach(p => {
+      if (!usuarios[p.user_email]) usuarios[p.user_email] = [];
+      usuarios[p.user_email].push(p.secao);
+    });
+    if (!usuarios[ADMIN_MASTER]) usuarios[ADMIN_MASTER] = ['produtos','costura','admin'];
+    const totalUsuarios = Object.keys(usuarios).length;
+
+    // Último login por usuário
+    const ultimoLogin = {};
+    (logLog || []).forEach(r => {
+      if (!ultimoLogin[r.user_email]) ultimoLogin[r.user_email] = r.created_at;
+    });
+
+    // Gráfico: alterações por dia (últimos 7 dias)
+    const diasMap = {};
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      diasMap[d.toLocaleDateString('pt-BR')] = 0;
+    }
+    (logAlt || []).forEach(r => {
+      const d = new Date(r.created_at).toLocaleDateString('pt-BR');
+      if (diasMap[d] !== undefined) diasMap[d]++;
+    });
+    const maxBar = Math.max(...Object.values(diasMap), 1);
+    const barHTML = Object.entries(diasMap).map(([dia, qtd]) => `
+      <div class="dash-bar-wrap">
+        <div class="dash-bar-label"><span>${dia}</span><span>${qtd}</span></div>
+        <div class="dash-bar-track"><div class="dash-bar-fill" style="width:${Math.round((qtd/maxBar)*100)}%"></div></div>
+      </div>`).join('');
+
+    // Badge de permissões
+    const secLabels = { produtos: '📦', costura: '🧵', admin: '⚙️' };
+    function permBadges(secs) {
+      return ['produtos','costura','admin'].map(s =>
+        `<span class="dash-badge" style="background:${secs.includes(s)?'#dbeafe':'#f1f5f9'};color:${secs.includes(s)?'#1e40af':'#94a3b8'}">${secLabels[s]}</span>`
+      ).join(' ');
+    }
+
+    // Últimas 10 alterações
+    const logRows = (logAlt||[]).slice(0,10).map(r => {
+      const badge = {'criou':'#dcfce7;color:#166534','editou':'#fef9c3;color:#854d0e','deletou':'#fee2e2;color:#991b1b'}[r.acao] || '#f1f5f9;color:#64748b';
+      return `<tr>
+        <td>${new Date(r.created_at).toLocaleString('pt-BR')}</td>
+        <td>${(r.usuario_email||'').split('@')[0]}</td>
+        <td><span class="dash-badge" style="background:${badge}">${r.acao}</span></td>
+        <td>${r.tipo}</td>
+        <td style="font-weight:600">${r.nome_item||'—'}</td>
+        <td style="color:#64748b">${r.detalhe||'—'}</td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="6" style="color:#94a3b8;padding:12px">Nenhuma alteração ainda.</td></tr>';
+
+    // Últimos 8 logins
+    const loginRows = (logLog||[]).slice(0,8).map(r => {
+      const nav = (r.navegador||'').includes('Chrome') ? '🌐 Chrome' :
+                  (r.navegador||'').includes('Firefox') ? '🦊 Firefox' :
+                  (r.navegador||'').includes('Safari') ? '🧭 Safari' : '🌐 Navegador';
+      return `<tr>
+        <td>${new Date(r.created_at).toLocaleString('pt-BR')}</td>
+        <td style="font-weight:600">${(r.user_email||'').split('@')[0]}</td>
+        <td style="color:#64748b;font-size:.78rem">${nav}</td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="3" style="color:#94a3b8;padding:12px">Nenhum login registrado.</td></tr>';
+
+    // Produtos sem medidas (lista)
+    const semMedidasList = (prods||[]).filter(p => !p.medidas || p.medidas.trim()===''||p.medidas==='-').slice(0,8)
+      .map(p => `<tr><td style="font-weight:600">${p.nome}</td><td style="color:#94a3b8">sem medidas</td></tr>`).join('');
+
+    // Renderiza o dashboard
+    cont.innerHTML = `
+      <!-- Cards principais -->
+      <div class="dash-cards">
+        <div class="dash-card ok">
+          <div class="dash-card-icon">📦</div>
+          <div class="dash-card-val">${totalProd}</div>
+          <div class="dash-card-label">Produtos Ativos</div>
+        </div>
+        <div class="dash-card ok">
+          <div class="dash-card-icon">🧵</div>
+          <div class="dash-card-val">${totalCost}</div>
+          <div class="dash-card-label">Itens de Costura</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-icon">👥</div>
+          <div class="dash-card-val">${totalUsuarios}</div>
+          <div class="dash-card-label">Usuários</div>
+        </div>
+        <div class="dash-card ${alteracoesHoje > 0 ? 'ok' : ''}">
+          <div class="dash-card-icon">🔄</div>
+          <div class="dash-card-val">${alteracoesHoje}</div>
+          <div class="dash-card-label">Alterações Hoje</div>
+        </div>
+        <div class="dash-card ${semMedidas > 0 ? 'warn' : 'ok'}">
+          <div class="dash-card-icon">⚠️</div>
+          <div class="dash-card-val">${semMedidas}</div>
+          <div class="dash-card-label">Sem Medidas</div>
+        </div>
+        <div class="dash-card ${semPreco > 0 ? 'danger' : 'ok'}">
+          <div class="dash-card-icon">💰</div>
+          <div class="dash-card-val">${semPreco}</div>
+          <div class="dash-card-label">Sem Preço</div>
+        </div>
+      </div>
+
+      <!-- Última atualização -->
+      <div class="dash-section">
+        <div class="dash-section-title">🕐 Última Atualização de Preço</div>
+        <div style="font-size:.9rem;color:#1a2e4a;font-weight:600">${ultimaAltStr}</div>
+      </div>
+
+      <!-- Gráfico + Usuários -->
+      <div class="dash-row2">
+        <div class="dash-section">
+          <div class="dash-section-title">📈 Alterações — Últimos 7 Dias</div>
+          ${barHTML}
+        </div>
+        <div class="dash-section">
+          <div class="dash-section-title">👥 Usuários e Permissões</div>
+          <table class="dash-table">
+            <thead><tr><th>Email</th><th>Permissões</th><th>Último Acesso</th></tr></thead>
+            <tbody>
+              ${Object.entries(usuarios).map(([email, secs]) => {
+                const isMaster = email === ADMIN_MASTER;
+                const ul = ultimoLogin[email] ? new Date(ultimoLogin[email]).toLocaleString('pt-BR') : '—';
+                return `<tr>
+                  <td style="font-size:.8rem">${email.split('@')[0]}${isMaster?' <span class="dash-badge" style="background:#fef9c3;color:#92400e">master</span>':''}</td>
+                  <td>${permBadges(isMaster?['produtos','costura','admin']:secs)}</td>
+                  <td style="font-size:.75rem;color:#64748b">${ul}</td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Últimas alterações -->
+      <div class="dash-section">
+        <div class="dash-section-title">📋 Últimas Alterações</div>
+        <table class="dash-table">
+          <thead><tr><th>Data/Hora</th><th>Usuário</th><th>Ação</th><th>Tipo</th><th>Item</th><th>Detalhe</th></tr></thead>
+          <tbody>${logRows}</tbody>
+        </table>
+      </div>
+
+      <!-- Log de logins -->
+      <div class="dash-section">
+        <div class="dash-section-title">🔐 Log de Logins</div>
+        <table class="dash-table">
+          <thead><tr><th>Data/Hora</th><th>Usuário</th><th>Navegador</th></tr></thead>
+          <tbody>${loginRows}</tbody>
+        </table>
+      </div>
+
+      ${semMedidas > 0 ? `
+      <!-- Produtos sem medidas -->
+      <div class="dash-section">
+        <div class="dash-section-title">⚠️ Produtos Sem Medidas (${semMedidas} total)</div>
+        <table class="dash-table">
+          <thead><tr><th>Nome do Produto</th><th>Status</th></tr></thead>
+          <tbody>${semMedidasList}${semMedidas>8?`<tr><td colspan="2" style="color:#94a3b8;font-style:italic">...e mais ${semMedidas-8} produto(s)</td></tr>`:''}</tbody>
+        </table>
+      </div>` : ''}
+    `;
+  } catch(e) {
+    cont.innerHTML = `<div style="color:#dc2626;padding:24px">Erro ao carregar dashboard: ${e.message}</div>`;
+  }
+}
+
 </script>
 
 <!-- ===== ADMIN PASSWORD MODAL ===== -->
@@ -1428,6 +1842,7 @@ async function admPermRemoverUsuario(email) {
     <div class="adm-header-btns">
       <button class="adm-btn" id="adm-btn-costura" onclick="admMostrarCostura()">🧵 Costura</button>
       <button class="adm-btn" id="adm-btn-historico" onclick="admMostrarHistorico()">📋 Histórico</button>
+      <button class="adm-btn" id="adm-btn-permissoes" onclick="admMostrarPermissoes()" style="display:none">🔑 Permissões</button>
       <button class="adm-btn" id="adm-btn-permissoes" onclick="admMostrarPermissoes()" style="display:none">🔑 Permissões</button>
       <button class="adm-btn" id="adm-btn-produtos" onclick="admVoltarProdutos()" style="display:none">📦 Produtos</button>
       <button class="adm-btn adm-btn-close" onclick="admSair()">✕ Sair</button>
@@ -1527,6 +1942,26 @@ async function admPermRemoverUsuario(email) {
       </table>
     </div>
   </div>
+  <!-- PERMISSÕES SECTION -->
+  <div id="adm-perm-section" style="display:none">
+    <div class="adm-toolbar">
+      <span style="color:#64748b;font-size:.85rem;font-weight:600">🔑 Gestão de Permissões</span>
+      <button class="adm-btn-add" onclick="admPermAddUser()" style="margin-left:auto">➕ Adicionar usuário</button>
+    </div>
+    <div class="adm-table-wrap">
+      <div class="adm-info" id="adm-perm-info"></div>
+      <table class="adm-table">
+        <thead><tr>
+          <th>Usuário (email)</th>
+          <th style="width:110px;text-align:center">📦 Produtos</th>
+          <th style="width:110px;text-align:center">🧵 Costura</th>
+          <th style="width:110px;text-align:center">⚙️ Admin</th>
+          <th style="width:60px;text-align:center">Ações</th>
+        </tr></thead>
+        <tbody id="adm-perm-tbody"></tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
 <!-- ===== ADMIN PRODUCT MODAL ===== -->
@@ -1600,6 +2035,22 @@ async function admPermRemoverUsuario(email) {
     
                       </div>
 </div>
+
+<!-- ===== DASHBOARD OVERLAY ===== -->
+<div class="dash-overlay" id="dash-overlay">
+  <div class="dash-header">
+    <img id="dash-logo" style="height:40px">
+    <h2>📊 Dashboard — Admin Master</h2>
+    <div class="dash-header-btns">
+      <button class="adm-btn" onclick="dashAtualizar()" style="background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.3)">🔄 Atualizar</button>
+      <button class="adm-btn adm-btn-close" onclick="dashFechar()">✕ Fechar</button>
+    </div>
+  </div>
+  <div class="dash-content" id="dash-content">
+    <div style="text-align:center;padding:40px;color:#64748b">Carregando...</div>
+  </div>
+</div>
+
 
 </body>
 </html>

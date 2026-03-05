@@ -2,11 +2,14 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Consulta de Preços — ISIS Bolsas 2026</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f9; min-height: 100vh; padding: 20px 16px 40px; }
+  body { font-family: 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif; background: #f0f4f9; min-height: 100vh; padding: 20px 16px 40px; }
   .container { max-width: 960px; margin: 0 auto; }
 
   /* ── Login overlay ───────────────────────────────────────────────────── */
@@ -17,16 +20,16 @@
   .login-sub{color:#64748b;font-size:.85rem;margin-bottom:24px}
   .login-inp{width:100%;box-sizing:border-box;padding:10px 14px;border:1.5px solid #d1dff0;border-radius:9px;font-size:.95rem;margin-bottom:10px;outline:none;transition:.2s}
   .login-inp:focus{border-color:#2154A8}
-  .login-btn{width:100%;padding:11px;background:linear-gradient(135deg,#1A3580,#2154A8);color:white;border:none;border-radius:9px;font-size:.97rem;font-weight:700;cursor:pointer;margin-top:4px;transition:.18s}
-  .login-btn:hover{background:linear-gradient(135deg,#122a68,#1A3580)}
+  .login-btn{width:100%;padding:11px;background:linear-gradient(135deg,#1A3580 0%,#2154A8 55%,#E5007D 100%);color:white;border:none;border-radius:9px;font-size:.97rem;font-weight:700;cursor:pointer;margin-top:4px;transition:.18s;box-shadow:0 4px 14px rgba(229,0,125,.3)}
+  .login-btn:hover{opacity:.92}
   .login-btn:disabled{opacity:.6;cursor:not-allowed}
   .login-erro{color:#ef4444;font-size:.82rem;margin-top:8px;min-height:18px}
-  .btn-logout{background:rgba(255,255,255,.18);color:white;border:1px solid rgba(255,255,255,.35);border-radius:8px;padding:6px 14px;font-size:.8rem;font-weight:600;cursor:pointer;transition:.18s;white-space:nowrap}
-  .btn-logout:hover{background:rgba(255,255,255,.3)}
-  .btn-admin{background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:6px 14px;font-size:.8rem;font-weight:600;cursor:pointer;transition:.15s;margin-right:6px}
-  .btn-admin:hover{background:rgba(255,255,255,.28)}
-  .btn-dashboard{background:rgba(255,255,255,.12);color:white;border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:6px 14px;font-size:.8rem;font-weight:600;cursor:pointer;transition:.15s;margin-right:4px}
-  .btn-dashboard:hover{background:rgba(255,255,255,.25)}
+  .btn-logout{background:transparent;color:rgba(255,255,255,.7);border:none;font-size:1.1rem;cursor:pointer;padding:4px 8px;border-radius:6px;transition:.15s;line-height:1}
+  .btn-logout:hover{color:white;background:rgba(255,255,255,.12)}
+  .btn-admin{background:transparent;color:rgba(255,255,255,.7);border:none;font-size:1.1rem;cursor:pointer;padding:4px 8px;border-radius:6px;transition:.15s;line-height:1}
+  .btn-admin:hover{color:white;background:rgba(255,255,255,.12)}
+  .btn-dashboard{background:transparent;color:rgba(255,255,255,.7);border:none;font-size:1.1rem;cursor:pointer;padding:4px 8px;border-radius:6px;transition:.15s;line-height:1}
+  .btn-dashboard:hover{color:white;background:rgba(255,255,255,.12)}
   /* Calculadora Novo Molde */
   .molde-overlay{position:fixed;inset:0;background:rgba(15,23,42,.85);z-index:3200;display:none;flex-direction:column}
   .molde-overlay.aberta{display:flex}
@@ -148,6 +151,15 @@
     .molde-header { background:#1A3580 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
     .molde-header-btns, .molde-btn-limpar, .molde-btn-print { display:none !important; }
   }
+  /* Skeleton Loading */
+  @keyframes sk-shimmer{0%{background-position:-600px 0}100%{background-position:600px 0}}
+  .sk{display:block;background:linear-gradient(90deg,#f1f5f9 25%,#e2e8f2 50%,#f1f5f9 75%);background-size:600px 100%;animation:sk-shimmer 1.4s infinite linear;border-radius:6px}
+  .sk-card-wrap{background:white;border-radius:14px;padding:16px 18px;border:1px solid #e8eef6;box-shadow:0 2px 8px rgba(0,0,0,.05);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+  .sk-left{flex:1;display:flex;flex-direction:column;gap:8px}
+  .sk-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .sk-item{border-radius:12px;border:1px solid #e2e8f0;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+  .sk-row{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+  .sk-track{flex:1;height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden}
   /* Costureiras */
   .costureiras-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:8px}
   .costureira-card{background:white;border-radius:12px;border:1px solid #e2e8f0;padding:16px 18px;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);transition:.15s}
@@ -163,7 +175,7 @@
   .cost-controles{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid #f1f5f9}
   .cost-ctrl-btn{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:7px;padding:5px 12px;font-size:.78rem;font-weight:600;color:#64748b;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:5px}
   .cost-ctrl-btn:hover{background:#e2e8f0;color:#1a2e4a}
-  .cost-ctrl-btn.ativo{background:#1A3580;color:white;border-color:#1A3580}
+  .cost-ctrl-btn.ativo{background:#E5007D;color:white;border-color:#E5007D}
   .cost-busca{flex:1;min-width:180px;border:1px solid #e2e8f0;border-radius:7px;padding:5px 10px;font-size:.82rem;outline:none;color:#1a2e4a}
   .cost-busca:focus{border-color:#2154A8}
   /* View lista */
@@ -205,9 +217,9 @@
   .dash-bar-wrap{margin-bottom:8px}
   .dash-bar-label{display:flex;justify-content:space-between;font-size:.78rem;color:#64748b;margin-bottom:3px}
   .dash-bar-track{background:#f1f5f9;border-radius:4px;height:8px;overflow:hidden}
-  .dash-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#2154A8,#3b82f6);transition:width .6s ease}
+  .dash-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#2154A8,#E5007D);transition:width .6s ease}
 
-  header { background: #2154A8; border-radius: 18px; padding: 24px 28px; margin-bottom: 20px; box-shadow: 0 6px 24px rgba(33,84,168,0.25); display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+  header { background: #2154A8; border-radius: 14px; padding: 14px 24px; margin-bottom: 20px; box-shadow: 0 4px 16px rgba(33,84,168,.2); display: flex; align-items: center; gap: 16px; flex-wrap: wrap; border-bottom: 4px solid #E5007D; }
   .logo-wrap { background: white; border-radius: 12px; padding: 8px 14px; display: flex; align-items: center; flex-shrink: 0; }
   .logo-wrap img { height: 66px; width: auto; display: block; }
   .header-text h1 { color: white; font-size: 1.4rem; font-weight: 700; margin-bottom: 3px; }
@@ -215,10 +227,10 @@
   .header-text .slogan { color: #a8c8f8; font-size: 0.81rem; margin-top: 2px; font-style: italic; }
 
   /* TOGGLE MODO */
-  .modo-toggle { display: flex; background: white; border-radius: 14px; padding: 6px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); border: 1px solid #e8eef6; gap: 4px; }
-  .btn-modo { flex: 1; padding: 12px 20px; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; background: transparent; color: #94a3b8; display: flex; align-items: center; justify-content: center; gap: 8px; }
-  .btn-modo:hover { color: #475569; background: #f8fafc; }
-  .btn-modo.ativo { background: #2154A8; color: white; box-shadow: 0 3px 12px rgba(33,84,168,0.25); }
+  .modo-toggle { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 20px; gap: 0; }
+  .btn-modo { flex: 1; padding: 11px 16px; border: none; border-bottom: 3px solid transparent; margin-bottom: -2px; background: transparent; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; color: #94a3b8; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .btn-modo:hover { color: #2154A8; background: transparent; }
+  .btn-modo.ativo { background: transparent; color: #2154A8; border-bottom-color: #E5007D; }
   .btn-modo .modo-desc { font-size: 0.75rem; font-weight: 400; opacity: 0.85; }
 
   .card { background: white; border-radius: 14px; padding: 20px 22px; margin-bottom: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); border: 1px solid #e8eef6; }
@@ -228,16 +240,16 @@
   .section-hint { font-size: 0.75rem; color: #94a3b8; font-weight: 400; text-transform: none; letter-spacing: 0; font-style: italic; }
 
   input[type="text"] { width: 100%; padding: 13px 16px; border: 2px solid #d1dff0; border-radius: 10px; font-size: 1rem; outline: none; color: #1a2e4a; transition: border-color 0.2s, box-shadow 0.2s; }
-  input[type="text"]:focus { border-color: #2154A8; box-shadow: 0 0 0 3px rgba(33,84,168,0.1); }
+  input[type="text"]:focus { border-color: #E5007D; box-shadow: 0 0 0 3px rgba(229,0,125,.1); }
   input[type="text"]::placeholder { color: #94a3b8; }
   .results-info { font-size: 0.87rem; color: #6b7280; margin-top: 10px; }
-  .results-info span { color: #2154A8; font-weight: 700; }
+  .results-info span { color: #E5007D; font-weight: 700; }
 
   .filtros-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
   .btn-tab { padding: 9px 16px; border: 2px solid #d1dff0; border-radius: 20px; background: white; font-size: 0.84rem; font-weight: 600; color: #475569; cursor: pointer; transition: all 0.18s; display: flex; align-items: center; gap: 6px; user-select: none; }
   .btn-tab .ck { font-size: 0.75rem; opacity: 0; transition: opacity 0.15s; }
-  .btn-tab:hover { border-color: #2154A8; color: #2154A8; background: #f0f5ff; }
+  .btn-tab:hover { border-color: #E5007D; color: #E5007D; background: #fff0f7; }
   .btn-tab.sel { background: #2154A8; border-color: #2154A8; color: white; }
   .btn-tab.sel .ck { opacity: 1; }
   .btn-tab.cp { border-color: #f97316; color: #c2410c; }
@@ -346,13 +358,13 @@
   .adm-btn-publish{background:#16a34a;color:white}.adm-btn-publish:hover{background:#15803d}
   .adm-btn-publish:disabled{opacity:.6;cursor:not-allowed}
   .adm-btn-config{background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.3)}.adm-btn-config:hover{background:rgba(255,255,255,.25)}
-  .adm-btn-close{background:#dc2626;color:white}.adm-btn-close:hover{background:#b91c1c}
+  .adm-btn-close{background:#fff0f7;color:#E5007D;border:1.5px solid #E5007D}.adm-btn-close:hover{background:#ffe0f0}
   .adm-toolbar{background:#ffffff;padding:10px 24px;display:flex;gap:8px;align-items:center;flex-shrink:0;flex-wrap:wrap;border-bottom:1px solid #e2e8f0}
   .adm-search{flex:1;min-width:200px;padding:8px 13px;border:1.5px solid #d1dff0;border-radius:8px;background:#f8faff;color:#1a2e4a;font-size:.88rem;outline:none}
   .adm-search:focus{border-color:#2154A8;background:white}
   .adm-search::placeholder{color:#94a3b8}
   .adm-sel{padding:8px 11px;border:1.5px solid #d1dff0;border-radius:8px;background:#f8faff;color:#1a2e4a;font-size:.84rem;outline:none;cursor:pointer}
-  .adm-btn-add{padding:8px 14px;background:#2154A8;color:white;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer}.adm-btn-add:hover{background:#1A3580}
+  .adm-btn-add{padding:8px 14px;background:linear-gradient(135deg,#2154A8,#E5007D);color:white;border:none;border-radius:9px;font-size:.84rem;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(229,0,125,.25)}.adm-btn-add:hover{opacity:.9}
   .adm-table-wrap{flex:1;overflow:auto;padding:16px 24px}
   .adm-info{font-size:.82rem;color:#64748b;margin-bottom:8px}
   .adm-table{width:100%;border-collapse:collapse;background:white;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0}
@@ -551,24 +563,24 @@
       <p>Tabelas ISIS Bolsas, Variadas &amp; Campanhas</p>
       <p class="slogan">sempre com você</p>
     </div>
-      <button class="btn-dashboard" id="btn-dashboard" onclick="dashAbrir()" title="Dashboard" style="display:none">📊 Dashboard</button>
-      <button class="btn-admin" id="btn-admin" onclick="admAbrir()" title="Painel Admin" style="display:none">⚙️ Admin</button>
-      <button class="btn-logout" onclick="fazerLogout()" title="Sair da conta">⬅️ Sair</button>
+      <button class="btn-dashboard" id="btn-dashboard" onclick="dashAbrir()" title="Dashboard" style="display:none">📊</button>
+      <span id="btn-admin-sep" style="display:none;width:1px;height:22px;background:rgba(255,255,255,.2);margin:0 2px"></span><button class="btn-admin" id="btn-admin" onclick="admAbrir()" title="Painel Admin" style="display:none">⚙️</button>
+      <span style="width:1px;height:22px;background:rgba(255,255,255,.2);margin:0 2px"></span><button class="btn-logout" onclick="fazerLogout()" title="Sair">⬅️</button>
   </header>
 
   <!-- TOGGLE -->
   <div class="modo-toggle">
     <button class="btn-modo ativo" id="btnRapido" onclick="setModo('rapido')">
-      🔍 Modo Rápido <span class="modo-desc">— Busca direta</span>
+      🔍 Modo Rápido
     </button>
     <button class="btn-modo" id="btnAvancado" onclick="setModo('avancado')">
-      ⚙️ Modo Avançado <span class="modo-desc">— Filtros &amp; Margem</span>
+      ⚙️ Modo Avançado
     </button>
     <button class="btn-modo" id="btnCostura" onclick="setModo('costura')">
-      🧵 Costura <span class="modo-desc">— Valores de costura</span>
+      🧵 Costura
     </button>
     <button class="btn-modo" id="btnCostureiras" onclick="setModo('costureiras')" style="display:none">
-      ✂️ Costureiras <span class="modo-desc">— Envios em andamento</span>
+      ✂️ Costureiras
     </button>
   </div>
 
@@ -668,7 +680,7 @@
         <button class="cost-ctrl-btn" id="cost-btn-sort" onclick="costureirasToggleSort()" title="Ordenar por nome">A→Z</button>
       </div>
       <div id="costureiras-list">
-        <div style="text-align:center;padding:20px;color:#64748b">Carregando...</div>
+        <div class="sk-grid"><div class="sk-item"><div style="display:flex;gap:10px;align-items:center"><span class="sk" style="width:36px;height:36px;border-radius:50%;flex-shrink:0"></span><div style="flex:1;display:flex;flex-direction:column;gap:6px"><span class="sk" style="width:70%;height:12px"></span><span class="sk" style="width:45%;height:9px"></span></div></div><span class="sk" style="width:90%;height:9px"></span></div><div class="sk-item"><div style="display:flex;gap:10px;align-items:center"><span class="sk" style="width:36px;height:36px;border-radius:50%;flex-shrink:0"></span><div style="flex:1;display:flex;flex-direction:column;gap:6px"><span class="sk" style="width:60%;height:12px"></span><span class="sk" style="width:38%;height:9px"></span></div></div><span class="sk" style="width:80%;height:9px"></span></div><div class="sk-item"><div style="display:flex;gap:10px;align-items:center"><span class="sk" style="width:36px;height:36px;border-radius:50%;flex-shrink:0"></span><div style="flex:1;display:flex;flex-direction:column;gap:6px"><span class="sk" style="width:75%;height:12px"></span><span class="sk" style="width:50%;height:9px"></span></div></div><span class="sk" style="width:85%;height:9px"></span></div><div class="sk-item"><div style="display:flex;gap:10px;align-items:center"><span class="sk" style="width:36px;height:36px;border-radius:50%;flex-shrink:0"></span><div style="flex:1;display:flex;flex-direction:column;gap:6px"><span class="sk" style="width:65%;height:12px"></span><span class="sk" style="width:40%;height:9px"></span></div></div><span class="sk" style="width:92%;height:9px"></span></div></div>
       </div>
     </div>
   </div>
@@ -1581,6 +1593,7 @@ function aplicarPermissoes() {
 
   // Botão Admin no header
   const btnAdm = document.getElementById('btn-admin');
+  const sepAdm = document.getElementById('btn-admin-sep'); if (sepAdm) sepAdm.style.display = temAdm ? '' : 'none';
   if (btnAdm) btnAdm.style.display = temAdm ? '' : 'none';
   // Botão Dashboard (só admin master)
   const btnDash = document.getElementById('btn-dashboard');
@@ -1710,7 +1723,7 @@ function dashFechar() {
 async function dashAtualizar() {
   const cont = document.getElementById('dash-content');
   if (!cont) return;
-  cont.innerHTML = '<div style="text-align:center;padding:40px;color:#64748b">Carregando...</div>';
+  cont.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px"><div style="border-radius:12px;border:1px solid #e2e8f0;padding:14px 16px"><span class="sk" style="width:55%;height:10px;display:block;margin-bottom:8px"></span><span class="sk" style="width:40%;height:22px;border-radius:8px;display:block"></span></div><div style="border-radius:12px;border:1px solid #e2e8f0;padding:14px 16px"><span class="sk" style="width:60%;height:10px;display:block;margin-bottom:8px"></span><span class="sk" style="width:45%;height:22px;border-radius:8px;display:block"></span></div><div style="border-radius:12px;border:1px solid #e2e8f0;padding:14px 16px"><span class="sk" style="width:50%;height:10px;display:block;margin-bottom:8px"></span><span class="sk" style="width:38%;height:22px;border-radius:8px;display:block"></span></div></div><div class="sk-row"><span class="sk" style="width:90px;height:10px"></span><div class="sk-track"><span class="sk sk-bar-fill" style="width:65%;height:100%;display:block"></span></div><span class="sk" style="width:38px;height:10px"></span></div><div class="sk-row"><span class="sk" style="width:90px;height:10px"></span><div class="sk-track"><span class="sk sk-bar-fill" style="width:40%;height:100%;display:block"></span></div><span class="sk" style="width:38px;height:10px"></span></div><div class="sk-row"><span class="sk" style="width:90px;height:10px"></span><div class="sk-track"><span class="sk sk-bar-fill" style="width:80%;height:100%;display:block"></span></div><span class="sk" style="width:38px;height:10px"></span></div><div class="sk-row"><span class="sk" style="width:90px;height:10px"></span><div class="sk-track"><span class="sk sk-bar-fill" style="width:55%;height:100%;display:block"></span></div><span class="sk" style="width:38px;height:10px"></span></div>';
   try {
     // Carrega tudo em paralelo
     const [
@@ -1935,7 +1948,7 @@ let costureirasSort = 'az';    // 'az' ou 'za'
 async function carregarCostureiras() {
   const list = document.getElementById('costureiras-list');
   if (!list) return;
-  list.innerHTML = '<div style="text-align:center;padding:20px;color:#64748b">Carregando...</div>';
+  list.innerHTML = '<div class="sk-grid"><div class="sk-item"><div style="display:flex;gap:10px;align-items:center;margin-bottom:8px"><span class="sk" style="width:36px;height:36px;border-radius:50%;flex-shrink:0"></span><div style="flex:1"><span class="sk" style="width:70%;height:12px;display:block;margin-bottom:6px"></span><span class="sk" style="width:45%;height:9px;display:block"></span></div></div><span class="sk" style="width:90%;height:9px;display:block;margin-bottom:5px"></span><span class="sk" style="width:60%;height:9px;display:block"></span></div><div class="sk-item"><div style="display:flex;gap:10px;align-items:center;margin-bottom:8px"><span class="sk" style="width:36px;height:36px;border-radius:50%;flex-shrink:0"></span><div style="flex:1"><span class="sk" style="width:60%;height:12px;display:block;margin-bottom:6px"></span><span class="sk" style="width:38%;height:9px;display:block"></span></div></div><span class="sk" style="width:85%;height:9px;display:block;margin-bottom:5px"></span><span class="sk" style="width:50%;height:9px;display:block"></span></div><div class="sk-item"><div style="display:flex;gap:10px;align-items:center;margin-bottom:8px"><span class="sk" style="width:36px;height:36px;border-radius:50%;flex-shrink:0"></span><div style="flex:1"><span class="sk" style="width:75%;height:12px;display:block;margin-bottom:6px"></span><span class="sk" style="width:50%;height:9px;display:block"></span></div></div><span class="sk" style="width:80%;height:9px;display:block;margin-bottom:5px"></span><span class="sk" style="width:55%;height:9px;display:block"></span></div><div class="sk-item"><div style="display:flex;gap:10px;align-items:center;margin-bottom:8px"><span class="sk" style="width:36px;height:36px;border-radius:50%;flex-shrink:0"></span><div style="flex:1"><span class="sk" style="width:65%;height:12px;display:block;margin-bottom:6px"></span><span class="sk" style="width:40%;height:9px;display:block"></span></div></div><span class="sk" style="width:92%;height:9px;display:block;margin-bottom:5px"></span><span class="sk" style="width:48%;height:9px;display:block"></span></div></div>';
   try {
     const { data, error } = await _supa
       .from('costureiras').select('*').eq('ativa', true).order('nome');

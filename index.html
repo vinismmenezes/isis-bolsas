@@ -743,9 +743,19 @@ function setModo(modo) {
   }
 }
 
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 function highlight(t, q) {
-  if (!q) return t;
-  return t.replace(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark>$1</mark>');
+  const safe = escapeHtml(t);
+  if (!q) return safe;
+  return safe.replace(new RegExp('('+escapeHtml(q).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark>$1</mark>');
 }
 
 function precoComMargem(p, pct) {
@@ -841,12 +851,12 @@ function filtrar() {
     const nomeSafe = p.nome.replace(/'/g,"\'");
     const precoSafe = precoExib.replace(/'/g,"\'");
     const medSafe = (p.medidas||'').replace(/'/g,"\'");
-    const medExib = p.medidas ? `<span class="b-med">${p.medidas}</span>` : '<span style="color:#94a3b8">—</span>';
+    const medExib = p.medidas ? `<span class="b-med">${escapeHtml(p.medidas)}</span>` : '<span style="color:#94a3b8">—</span>';
     const msgClip = `Segue valor da ${nomeSafe}${medSafe ? ' ('+medSafe+')' : ''} ${precoSafe}`;
     html+=`<tr>
       <td>${highlight(p.nome,busca)}</td>
       <td><span class="badge ${bc}">${bl}</span></td>
-      <td><span class="b-mat">${p.material}</span></td>
+      <td><span class="b-mat">${escapeHtml(p.material)}</span></td>
       <td>${medExib}</td>
       <td class="preco-custo">R$ ${p.preco}</td>
       ${vCell}
@@ -875,8 +885,8 @@ function filtrar() {
       <div class="prod-card-nome">${highlight(p.nome,busca)}</div>
       <div class="prod-card-badges">
         <span class="badge ${bc}">${bl}</span>
-        <span class="b-mat">${p.material}</span>
-        ${p.medidas ? `<span class="b-med">${p.medidas}</span>` : ''}
+        <span class="b-mat">${escapeHtml(p.material)}</span>
+        ${p.medidas ? `<span class="b-med">${escapeHtml(p.medidas)}</span>` : ''}
       </div>
       <div class="prod-card-preco">${vBlock}</div>
       <div class="clip-wrap">
@@ -942,7 +952,7 @@ function costuraRender() {
     const valDisplay = p.valor || '';
     const semVal = !p.valor;
     return `<tr>
-      <td class="costura-nome">${p.nome}</td>
+      <td class="costura-nome">${escapeHtml(p.nome)}</td>
       <td><span class="costura-data ${dataClass}" id="cdata-${idx}">${dataLabel}</span></td>
       <td>
         <span class="costura-val-display${semVal?' sem-val':''}" id="cval-${idx}">${valDisplay||'—'}</span>
@@ -1268,7 +1278,7 @@ function admRender() {
   tbody.innerHTML = slice.map((p, i) => `
     <tr>
       <td>${(admPage-1)*ADM_PAGE_SIZE + i + 1}</td>
-      <td style="font-weight:600">${p.nome}</td>
+      <td style="font-weight:600">${escapeHtml(p.nome)}</td>
       <td><span style="font-size:.75rem;background:#1e3a6e;color:#93c5fd;padding:2px 7px;border-radius:4px">${p.tabela}</span></td>
       <td>${p.material||'-'}</td>
       <td style="font-size:.8rem;color:#fbbf24">${p.medidas||'-'}</td>
@@ -1429,8 +1439,8 @@ function admCosturaRender() {
     const valDisplay = p.valor ? 'R$ ' + p.valor : '—';
     return `<tr>
       <td style="color:#64748b;font-size:.8rem">${i+1}</td>
-      <td style="font-weight:600">${p.nome}</td>
-      <td style="font-size:.85rem;color:#64748b">${p.grupo}</td>
+      <td style="font-weight:600">${escapeHtml(p.nome)}</td>
+      <td style="font-size:.85rem;color:#64748b">${escapeHtml(p.grupo)}</td>
       <td style="font-size:.85rem">${p.updatedAt || '—'}</td>
       <td style="font-weight:700;color:#1a2e4a">${valDisplay}</td>
       <td>
@@ -1543,7 +1553,7 @@ async function admHistoricoRender() {
             <td style="font-size:.82rem;font-weight:600">${usuario}</td>
             <td><span style="${estilo};padding:2px 9px;border-radius:12px;font-size:.74rem;font-weight:700;white-space:nowrap">${r.acao}</span></td>
             <td style="font-size:.8rem;color:#64748b">${r.tipo}</td>
-            <td style="font-weight:600;font-size:.88rem">${r.nome_item || '—'}</td>
+            <td style="font-weight:600;font-size:.88rem">${escapeHtml(r.nome_item) || '—'}</td>
             <td style="font-size:.8rem;color:#64748b">${r.detalhe || '—'}</td>
           </tr>`;
         }).join('');
@@ -1804,7 +1814,7 @@ async function dashAtualizar() {
         <td>${(r.usuario_email||'').split('@')[0]}</td>
         <td><span class="dash-badge" style="background:${badge}">${r.acao}</span></td>
         <td>${r.tipo}</td>
-        <td style="font-weight:600">${r.nome_item||'—'}</td>
+        <td style="font-weight:600">${escapeHtml(r.nome_item)||'—'}</td>
         <td style="color:#64748b">${r.detalhe||'—'}</td>
       </tr>`;
     }).join('') || '<tr><td colspan="6" style="color:#94a3b8;padding:12px">Nenhuma alteração ainda.</td></tr>';
@@ -1823,7 +1833,7 @@ async function dashAtualizar() {
 
     // Produtos sem medidas (lista)
     const semMedidasList = (prods||[]).filter(p => !p.medidas || p.medidas.trim()===''||p.medidas==='-').slice(0,8)
-      .map(p => `<tr><td style="font-weight:600">${p.nome}</td><td style="color:#94a3b8">sem medidas</td></tr>`).join('');
+      .map(p => `<tr><td style="font-weight:600">${escapeHtml(p.nome)}</td><td style="color:#94a3b8">sem medidas</td></tr>`).join('');
 
     // Renderiza o dashboard
     cont.innerHTML = `
@@ -2004,7 +2014,7 @@ function renderCostureiras(lista) {
         : `<button class="btn-status-vermelho" style="padding:4px 10px;font-size:.75rem;white-space:nowrap" onclick="costureiraAbrirEnvio('${c.id}','${c.nome.replace(/'/g,"\'")}')">📦 Enviar</button>`;
       return `<tr>
         <td style="color:#94a3b8;width:32px">${i+1}</td>
-        <td style="font-weight:700">${c.nome}</td>
+        <td style="font-weight:700">${escapeHtml(c.nome)}</td>
         <td>${statusCell}</td>
         <td style="color:#64748b">${c.tem_bolsa ? (c.qtd_bolsas || 0) : '—'}</td>
         <td style="color:#64748b">${dataEnvio}</td>
@@ -2039,7 +2049,7 @@ function renderCostureiras(lista) {
         ? `<button class="btn-status-verde" onclick="costureiraMarcarRetorno('${c.id}','${c.nome.replace(/'/g,"\'")}')">✅ Com Bolsas — clique para marcar retorno</button>`
         : `<button class="btn-status-vermelho" onclick="costureiraAbrirEnvio('${c.id}','${c.nome.replace(/'/g,"\'")}')">📦 Disponível — clique para registrar envio</button>`;
       return `<div class="costureira-card ${c.tem_bolsa ? 'com-bolsa' : 'sem-bolsa'}">
-        <div class="costureira-nome">✂️ ${c.nome}</div>
+        <div class="costureira-nome">✂️ ${escapeHtml(c.nome)}</div>
         ${infoRow}
         ${btn}
       </div>`;
@@ -2142,7 +2152,7 @@ async function admCostureirasRender() {
         : `<span style="color:#64748b">📦 Disponível</span>`;
       return `<tr>
         <td style="color:#94a3b8">${i+1}</td>
-        <td style="font-weight:600">${c.nome}</td>
+        <td style="font-weight:600">${escapeHtml(c.nome)}</td>
         <td>${status}</td>
         <td style="text-align:center"><button class="adm-btn-del" onclick="admCostureirasDelete('${c.id}','${c.nome.replace(/'/g,"\'")}')">🗑️</button></td>
       </tr>`;
@@ -2737,7 +2747,7 @@ async function msaveShowLista() {
       ? (data||[]).map(m => `
           <div class="msave-list-item" style="display:flex;justify-content:space-between;align-items:center">
             <div style="flex:1;cursor:pointer" onclick="moldeSalvarCarregar(${m.id})">
-              <div class="msave-nome">${m.nome}${moldeEditId===m.id?' <span style="color:#2154A8;font-size:.7rem">✏️ em edição</span>':''}</div>
+              <div class="msave-nome">${escapeHtml(m.nome)}${moldeEditId===m.id?' <span style="color:#2154A8;font-size:.7rem">✏️ em edição</span>':''}</div>
               <div class="msave-meta">${m.tabela||''} ${m.medidas?'· '+m.medidas:''} · ${new Date(m.created_at).toLocaleDateString('pt-BR')}</div>
             </div>
             <div style="display:flex;align-items:center;gap:8px;margin-left:10px">
@@ -3017,7 +3027,7 @@ function moldeResumoRender(nBolsas) {
     const qtTotal = i.qtd_unit * n;
     const custo   = i.preco * qtTotal;
     return `<tr>
-      <td style="font-weight:600">${i.material}</td>
+      <td style="font-weight:600">${escapeHtml(i.material)}</td>
       <td style="color:#94a3b8;text-align:center">${i.un}</td>
       <td style="text-align:right">${R(i.qtd_unit)}</td>
       <td style="text-align:right;font-weight:700;color:#1A3580">${R(qtTotal)}</td>

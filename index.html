@@ -1403,6 +1403,8 @@ function admMostrarCostura() {
   document.getElementById('adm-btn-costureiras').style.display = 'none';
   document.getElementById('adm-btn-historico').style.display = 'none';
   document.getElementById('adm-btn-produtos').style.display = '';
+  document.getElementById('adm-precohist-section').style.display = 'none';
+  document.getElementById('adm-btn-precohist').style.display = 'none';
   admCosturaGrupoAtual = 'GERAL';
   admCosturaBuscaAtual = '';
   document.getElementById('adm-costura-search').value = '';
@@ -1415,11 +1417,13 @@ function admVoltarProdutos() {
   document.getElementById('adm-costura-section').style.display = 'none';
   document.getElementById('adm-costureiras-section').style.display = 'none';
   document.getElementById('adm-historico-section').style.display = 'none';
+  document.getElementById('adm-precohist-section').style.display = 'none';
   document.getElementById('adm-produtos-section').style.display = '';
   document.getElementById('adm-btn-produtos').style.display = 'none';
   document.getElementById('adm-btn-costura').style.display = '';
   document.getElementById('adm-btn-costureiras').style.display = '';
   document.getElementById('adm-btn-historico').style.display = '';
+  document.getElementById('adm-btn-precohist').style.display = '';
 }
 
 function admCosturaGrupo(g) {
@@ -1532,6 +1536,8 @@ function admMostrarHistorico() {
   document.getElementById('adm-btn-costureiras').style.display = 'none';
   document.getElementById('adm-btn-historico').style.display = 'none';
   document.getElementById('adm-btn-produtos').style.display = '';
+  document.getElementById('adm-precohist-section').style.display = 'none';
+  document.getElementById('adm-btn-precohist').style.display = 'none';
   admHistoricoRender();
 }
 
@@ -1634,6 +1640,113 @@ function aplicarPermissoes() {
 }
 
 // ===== GESTÃO DE PERMISSÕES (admin master) =====
+
+// ===== HISTÓRICO DE PREÇO POR PRODUTO (gráfico) =====
+function admMostrarPrecoHist() {
+  document.getElementById('adm-produtos-section').style.display = 'none';
+  document.getElementById('adm-costura-section').style.display = 'none';
+  document.getElementById('adm-costureiras-section').style.display = 'none';
+  document.getElementById('adm-historico-section').style.display = 'none';
+  document.getElementById('adm-precohist-section').style.display = '';
+  document.getElementById('adm-btn-costura').style.display = 'none';
+  document.getElementById('adm-btn-costureiras').style.display = 'none';
+  document.getElementById('adm-btn-historico').style.display = 'none';
+  document.getElementById('adm-btn-precohist').style.display = 'none';
+  document.getElementById('adm-btn-produtos').style.display = '';
+  // popular lista de produtos para escolher
+  const dl = document.getElementById('precohist-prods');
+  const nomes = [...new Set((typeof admProdutos!=='undefined'?admProdutos:[]).map(p=>p.nome))].sort();
+  dl.innerHTML = nomes.map(n => '<option value="'+escapeHtml(n)+'"></option>').join('');
+}
+
+async function admPrecoHistRender() {
+  const nome  = document.getElementById('precohist-input').value.trim();
+  const info  = document.getElementById('precohist-info');
+  const chart = document.getElementById('precohist-chart');
+  const table = document.getElementById('precohist-table');
+  const tbody = document.getElementById('precohist-tbody');
+  chart.innerHTML = '';
+  table.style.display = 'none';
+  if (!nome) { info.textContent = 'Escolha um produto para ver a evolução do preço de custo.'; return; }
+  info.textContent = 'Carregando...';
+  let dados;
+  try {
+    const res = await _supa.from('log_alteracoes').select('*')
+      .eq('tipo','produto').eq('nome_item', nome)
+      .in('acao',['criou','editou'])
+      .order('created_at',{ascending:true});
+    if (res.error) throw res.error;
+    dados = res.data || [];
+  } catch(e) { info.textContent = 'Erro ao carregar histórico: ' + e.message; return; }
+
+  // extrair preço do campo detalhe ("R$ 17,06")
+  const pts = [];
+  for (const r of dados) {
+    const num = parseFloat((r.detalhe||'').replace('R$','').trim().replace(',','.'));
+    if (!isNaN(num)) pts.push({
+      data: new Date(r.created_at),
+      preco: num,
+      usuario: (r.usuario_email||'').replace('@isisbolsas.com.br','').replace('@gmail.com','')
+    });
+  }
+  if (pts.length === 0) {
+    info.innerHTML = 'Nenhuma alteração de preço registrada para <strong>'+escapeHtml(nome)+'</strong> ainda. '
+      + 'O histórico começa a contar a partir das próximas edições deste produto.';
+    return;
+  }
+
+  const ini = pts[0].preco, fim = pts[pts.length-1].preco;
+  const variacao = ini ? ((fim-ini)/ini*100) : 0;
+  const sinal = variacao>0?'+':'';
+  info.innerHTML = '<strong>'+escapeHtml(nome)+'</strong> — '+pts.length+' registro(s). '
+    + 'De R$ '+ini.toFixed(2).replace('.',',')+' para R$ '+fim.toFixed(2).replace('.',',')
+    + '  ('+sinal+variacao.toFixed(1).replace('.',',')+'%)';
+
+  chart.innerHTML = admPrecoHistChart(pts);
+
+  table.style.display = '';
+  let prev = null;
+  tbody.innerHTML = pts.map(p => {
+    const dt = p.data.toLocaleString('pt-BR');
+    let varCell = '<span style="color:#94a3b8">— inicial</span>';
+    if (prev !== null) {
+      const d = p.preco - prev;
+      const cor = d>0 ? '#16a34a' : (d<0 ? '#dc2626' : '#64748b');
+      const sg = d>0?'+':'';
+      varCell = '<span style="color:'+cor+';font-weight:600">'+sg+'R$ '+d.toFixed(2).replace('.',',')+'</span>';
+    }
+    prev = p.preco;
+    return '<tr><td style="font-size:.8rem;color:#64748b">'+dt+'</td>'
+      + '<td style="font-size:.82rem">'+escapeHtml(p.usuario)+'</td>'
+      + '<td style="font-weight:600">R$ '+p.preco.toFixed(2).replace('.',',')+'</td>'
+      + '<td>'+varCell+'</td></tr>';
+  }).join('');
+}
+
+function admPrecoHistChart(pts) {
+  const W=720, H=240, pad=44;
+  const precos = pts.map(p=>p.preco);
+  let min=Math.min(...precos), max=Math.max(...precos);
+  if (min===max){ const base=min||1; min=base*0.9; max=base*1.1; }
+  const n = pts.length;
+  const x = i => n===1 ? W/2 : pad + (W-2*pad)*i/(n-1);
+  const y = v => H-pad - (H-2*pad)*(v-min)/(max-min);
+  let path=''; pts.forEach((p,i)=>{ path += (i===0?'M':'L')+x(i).toFixed(1)+' '+y(p.preco).toFixed(1)+' '; });
+  let dots='';
+  pts.forEach((p,i)=>{
+    dots += '<circle cx="'+x(i).toFixed(1)+'" cy="'+y(p.preco).toFixed(1)+'" r="4" fill="#E5007D"/>';
+    dots += '<text x="'+x(i).toFixed(1)+'" y="'+(y(p.preco)-10).toFixed(1)+'" text-anchor="middle" font-size="11" fill="#2154A8" font-weight="700">'+p.preco.toFixed(2).replace('.',',')+'</text>';
+  });
+  const d0 = pts[0].data.toLocaleDateString('pt-BR');
+  const d1 = pts[n-1].data.toLocaleDateString('pt-BR');
+  return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;max-width:760px;height:auto;background:#fafbff;border:1px solid #e8edf7;border-radius:10px">'
+    + '<line x1="'+pad+'" y1="'+(H-pad)+'" x2="'+(W-pad)+'" y2="'+(H-pad)+'" stroke="#cbd5e1"/>'
+    + '<path d="'+path+'" fill="none" stroke="#2154A8" stroke-width="2.5"/>'
+    + dots
+    + '<text x="'+pad+'" y="'+(H-14)+'" font-size="11" fill="#64748b">'+d0+'</text>'
+    + '<text x="'+(W-pad)+'" y="'+(H-14)+'" text-anchor="end" font-size="11" fill="#64748b">'+d1+'</text>'
+    + '</svg>';
+}
 
 // admMostrarPermissoes movido para o Dashboard
 
@@ -2140,6 +2253,8 @@ function admMostrarCostureiras() {
   document.getElementById('adm-btn-costureiras').style.display = 'none';
   document.getElementById('adm-btn-historico').style.display = 'none';
   document.getElementById('adm-btn-produtos').style.display = '';
+  document.getElementById('adm-precohist-section').style.display = 'none';
+  document.getElementById('adm-btn-precohist').style.display = 'none';
   admCostureirasRender();
 }
 
@@ -3147,6 +3262,7 @@ function moldeResumoPrint() {
       <button class="adm-btn" id="adm-btn-costura" onclick="admMostrarCostura()">🧵 Costura</button>
       <button class="adm-btn" id="adm-btn-costureiras" onclick="admMostrarCostureiras()">✂️ Costureiras</button>
       <button class="adm-btn" id="adm-btn-historico" onclick="admMostrarHistorico()">📋 Histórico</button>
+      <button class="adm-btn" id="adm-btn-precohist" onclick="admMostrarPrecoHist()">📈 Histórico de Preço</button>
       <button class="adm-btn" id="adm-btn-produtos" onclick="admVoltarProdutos()" style="display:none">📦 Produtos</button>
       <button class="adm-btn adm-btn-close" onclick="admSair()">✕ Sair</button>
     </div>
@@ -3244,6 +3360,28 @@ function moldeResumoPrint() {
       </table>
     </div>
   </div>
+  <!-- HISTORICO DE PRECO SECTION -->
+  <div id="adm-precohist-section" style="display:none">
+    <div class="adm-toolbar">
+      <input class="adm-search" id="precohist-input" type="text" placeholder="🔍 Escolha um produto..." list="precohist-prods" onchange="admPrecoHistRender()">
+      <datalist id="precohist-prods"></datalist>
+      <button class="adm-btn" onclick="admPrecoHistRender()" style="margin-left:auto">🔄 Atualizar</button>
+    </div>
+    <div class="adm-table-wrap">
+      <div class="adm-info" id="precohist-info">Escolha um produto para ver a evolução do preço de custo.</div>
+      <div id="precohist-chart" style="margin:8px 0 18px"></div>
+      <table class="adm-table" id="precohist-table" style="display:none">
+        <thead><tr>
+          <th style="width:160px">Data/Hora</th>
+          <th style="width:140px">Usuário</th>
+          <th>Preço de Custo</th>
+          <th style="width:150px">Variação</th>
+        </tr></thead>
+        <tbody id="precohist-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- PERMISSÕES SECTION -->
 
 

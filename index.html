@@ -825,6 +825,18 @@ function badgeTabela(t) {
   return ['b-isis1',t];
 }
 
+function fmtDataPreco(iso) {
+  if (!iso) return '';
+  try {
+    const d = new Date(iso);
+    if (isNaN(d)) return '';
+    const dia = String(d.getDate()).padStart(2,'0');
+    const mes = String(d.getMonth()+1).padStart(2,'0');
+    const hh  = String(d.getHours()).padStart(2,'0');
+    const mm  = String(d.getMinutes()).padStart(2,'0');
+    return `<div style="font-size:.66rem;color:#94a3b8;font-weight:400;margin-top:2px">atualizado ${dia}/${mes} ${hh}:${mm}</div>`;
+  } catch(e) { return ''; }
+}
 function toggleFamiliaBusca(gid, headerRow) {
   const rows = document.querySelectorAll('tr.'+gid);
   let abrir = false;
@@ -880,12 +892,12 @@ const colspanTotal = mv ? 7 : 6;
       <td><span class="badge ${bc}">${bl}</span></td>
       <td><span class="b-mat">${escapeHtml(p.material)}</span></td>
       <td>${medExib}</td>
-      <td class="preco-custo">R$ ${p.preco}</td>
+      <td class="preco-custo">R$ ${p.preco}${fmtDataPreco(p.preco_atualizado_em)}</td>
       ${vCell}
       <td>
         <div class="clip-wrap">
-          <button class="btn-clip msg" title="Copiar mensagem completa" onclick="copiar(this,'${msgClip}')">\U0001F4CB Mensagem</button>
-          <button class="btn-clip val" title="Copiar s\u00f3 o valor" onclick="copiar(this,'${precoSafe}')">\U0001F4B2 Valor</button>
+          <button class="btn-clip msg" title="Copiar mensagem completa" onclick="copiar(this,'${msgClip}')">📋 Mensagem</button>
+          <button class="btn-clip val" title="Copiar só o valor" onclick="copiar(this,'${precoSafe}')">💲 Valor</button>
         </div>
       </td>
     </tr>`;
@@ -942,7 +954,7 @@ const colspanTotal = mv ? 7 : 6;
         <span class="b-mat">${escapeHtml(p.material)}</span>
         ${p.medidas ? `<span class="b-med">${escapeHtml(p.medidas)}</span>` : ''}
       </div>
-      <div class="prod-card-preco">${vBlock}</div>
+      <div class="prod-card-preco">${vBlock}</div>${fmtDataPreco(p.preco_atualizado_em)}
       <div class="clip-wrap">
         <button class="btn-clip msg" onclick="copiar(this,'${msgClip}')">📋 Mensagem</button>
         <button class="btn-clip val" onclick="copiar(this,'${precoSafe}')">💲 Valor</button>
@@ -3124,11 +3136,17 @@ async function moldeSalvarConfirmar() {
     // nome da família (para agrupar na busca); se sem família, usa o próprio nome
     const famObj = familia_id ? _familiasCache.find(f=>f.id===familia_id) : null;
     const familiaNome = famObj ? famObj.nome : null;
+    const agoraISO = new Date().toISOString();
     const { data: existente } = await _supa.from('produtos')
-      .select('id').eq('nome', nome).eq('tabela', tabela).limit(1);
+      .select('id,preco,preco_atualizado_em').eq('nome', nome).eq('tabela', tabela).limit(1);
     if (existente && existente.length > 0) {
-      await _supa.from('produtos').update({ preco: precoBRL, medidas, ativo: true, familia: familiaNome })
-        .eq('id', existente[0].id);
+      const reg = existente[0];
+      // Só atualiza a data se o PREÇO mudou
+      const precoAntigo = reg.preco != null ? parseFloat(reg.preco) : null;
+      const precoMudou = precoAntigo == null || Math.abs(precoAntigo - precoBRL) > 0.005;
+      const upd = { preco: precoBRL, medidas, ativo: true, familia: familiaNome };
+      if (precoMudou) upd.preco_atualizado_em = agoraISO;
+      await _supa.from('produtos').update(upd).eq('id', reg.id);
     } else {
       await _supa.from('produtos').insert([{
         nome, tabela, medidas,
@@ -3136,6 +3154,7 @@ async function moldeSalvarConfirmar() {
         material: 'Geral',
         familia: familiaNome,
         ativo: true,
+        preco_atualizado_em: agoraISO,
       }]);
     }
     // Recarrega produtos localmente para aparecer sem refresh

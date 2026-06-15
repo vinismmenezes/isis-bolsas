@@ -915,6 +915,28 @@ const colspanTotal = mv ? 7 : 6;
       </td>
     </tr>`;
   };
+  const linhaFamiliaUnica = (fam, p) => {
+    const [bc, bl] = badgeTabela(p.tabela);
+    const precoExib = mv ? (precoComMargem(p.preco, margemAtiva) || ('R$ ' + p.preco)) : ('R$ ' + p.preco);
+    const vCell = mv ? '<td class="preco-venda">' + (precoComMargem(p.preco, margemAtiva) || '-') + '</td>' : '';
+    const nomeSafe = fam.replace(/'/g, "\\'");
+    const precoSafe = precoExib.replace(/'/g, "\\'");
+    const medSafe = (p.medidas || '').replace(/'/g, "\\'");
+    const medExib = p.medidas ? '<span class="b-med">' + escapeHtml(p.medidas) + '</span>' : '<span style="color:#94a3b8">&mdash;</span>';
+    const msgClip = 'Segue valor da ' + nomeSafe + (medSafe ? ' (' + medSafe + ')' : '') + ' ' + precoSafe;
+    return '<tr>' +
+      '<td>' + highlight(fam, busca) + '</td>' +
+      '<td><span class="badge ' + bc + '">' + bl + '</span></td>' +
+      '<td><span class="b-mat">' + escapeHtml(p.material) + '</span></td>' +
+      '<td>' + medExib + '</td>' +
+      '<td class="preco-custo">R$ ' + p.preco + fmtDataPreco(p.preco_atualizado_em) + '</td>' +
+      vCell +
+      '<td><div class="clip-wrap">' +
+        "<button class=\"btn-clip msg\" title=\"Copiar mensagem completa\" onclick=\"copiar(this,'" + msgClip + "')\">📋 Mensagem</button>" +
+        "<button class=\"btn-clip val\" title=\"Copiar só o valor\" onclick=\"copiar(this,'" + precoSafe + "')\">💲 Valor</button>" +
+      '</div></td>' +
+    '</tr>';
+  };
 
   const familias = {}; const soltos = [];
   f.forEach(p => {
@@ -926,6 +948,7 @@ const colspanTotal = mv ? 7 : 6;
   let _grpId = 0;
   Object.keys(familias).forEach(fam => {
     const vars = familias[fam];
+    if (vars.length === 1) { html += linhaFamiliaUnica(fam, vars[0]); return; }
     _grpId++;
     const gid = 'grp-fam-'+_grpId;
     const min = minPreco(vars);
@@ -951,8 +974,33 @@ const colspanTotal = mv ? 7 : 6;
 
   // Cards para mobile
   let cards = '<div class="cards-wrap" id="cards-wrap">';
+  const cardFamiliaUnica = (fam, p) => {
+    const [bc, bl] = badgeTabela(p.tabela);
+    const precoExib = mv ? (precoComMargem(p.preco, margemAtiva) || ('R$ ' + p.preco)) : ('R$ ' + p.preco);
+    const nomeSafe = fam.replace(/'/g, "\\'");
+    const precoSafe = precoExib.replace(/'/g, "\\'");
+    const medSafe = (p.medidas || '').replace(/'/g, "\\'");
+    const msgClip = 'Segue valor da ' + nomeSafe + (medSafe ? ' (' + medSafe + ')' : '') + ' ' + precoSafe;
+    const vBlock = mv
+      ? '<span class="preco-label">custo</span><span class="preco-custo">R$ ' + p.preco + '</span><span class="preco-venda">' + (precoComMargem(p.preco, margemAtiva) || '-') + '</span><span class="preco-label">+' + margemAtiva + '%</span>'
+      : '<span class="preco-custo">R$ ' + p.preco + '</span>';
+    return '<div class="prod-card">' +
+      '<div class="prod-card-nome">' + highlight(fam, busca) + '</div>' +
+      '<div class="prod-card-badges">' +
+        '<span class="badge ' + bc + '">' + bl + '</span>' +
+        '<span class="b-mat">' + escapeHtml(p.material) + '</span>' +
+        (p.medidas ? '<span class="b-med">' + escapeHtml(p.medidas) + '</span>' : '') +
+      '</div>' +
+      '<div class="prod-card-preco">' + vBlock + '</div>' + fmtDataPreco(p.preco_atualizado_em) +
+      '<div class="clip-wrap">' +
+        "<button class=\"btn-clip msg\" onclick=\"copiar(this,'" + msgClip + "')\">📋 Mensagem</button>" +
+        "<button class=\"btn-clip val\" onclick=\"copiar(this,'" + precoSafe + "')\">💲 Valor</button>" +
+      '</div>' +
+    '</div>';
+  };
   Object.keys(familias).forEach((fam, idx) => {
     const vars = familias[fam];
+    if (vars.length === 1) { cards += cardFamiliaUnica(fam, vars[0]); return; }
     const min = minPreco(vars);
     const minStr = isFinite(min) ? 'R$ '+min.toFixed(2).replace('.',',') : '';
     const [bc,bl] = badgeTabela(vars[0].tabela);
@@ -966,7 +1014,8 @@ const colspanTotal = mv ? 7 : 6;
   f.forEach(p => {
     const famKeys = Object.keys(familias);
     const famIdx = p.familia ? famKeys.indexOf(p.familia) : -1;
-    const isVarCard = p.familia && familias[p.familia];
+    if (p.familia && familias[p.familia] && familias[p.familia].length === 1) return;
+    const isVarCard = p.familia && familias[p.familia] && familias[p.familia].length > 1;
     const cardGroup = isVarCard ? ' grp-card-'+famIdx : '';
     const cardStyle = isVarCard ? ' style="display:none;background:#f8fafc"' : '';
     const [bc,bl] = badgeTabela(p.tabela);

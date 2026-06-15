@@ -886,18 +886,20 @@ function filtrar() {
   let html=`<div class="table-wrap"><table><thead><tr><th>Produto</th><th>Tabela</th><th>Material</th><th>Medidas</th><th>Preço Custo</th>${thV}<th>Copiar</th></tr></thead><tbody>`;
 
 const colspanTotal = mv ? 7 : 6;
+  const nomeProdutoDisplay = p => p.familia ? (p.familia + ' - ' + p.nome) : p.nome;
   const linhaProduto = (p, comoVariacao) => {
     const [bc,bl] = badgeTabela(p.tabela);
     const precoExib = mv ? (precoComMargem(p.preco,margemAtiva)||`R$ ${p.preco}`) : `R$ ${p.preco}`;
     const vCell = mv ? `<td class="preco-venda">${precoComMargem(p.preco,margemAtiva)||'-'}</td>` : '';
-    const nomeSafe = p.nome.replace(/'/g,"\\'");
+    const nomeExib = nomeProdutoDisplay(p);
+    const nomeSafe = nomeExib.replace(/'/g,"\\'");
     const precoSafe = precoExib.replace(/'/g,"\\'");
     const medSafe = (p.medidas||'').replace(/'/g,"\\'");
     const medExib = p.medidas ? `<span class="b-med">${escapeHtml(p.medidas)}</span>` : '<span style="color:#94a3b8">\u2014</span>';
     const msgClip = `Segue valor da ${nomeSafe}${medSafe ? ' ('+medSafe+')' : ''} ${precoSafe}`;
     const nomeCell = comoVariacao
-      ? `<span style="padding-left:22px;color:#475569">${highlight(p.nome,busca)}</span>`
-      : highlight(p.nome,busca);
+      ? `<span style="padding-left:22px;color:#475569">${highlight(nomeExib,busca)}</span>`
+      : highlight(nomeExib,busca);
     return `<tr${comoVariacao?' style="background:#f8fafc"':''}>
       <td>${nomeCell}</td>
       <td><span class="badge ${bc}">${bl}</span></td>
@@ -969,13 +971,14 @@ const colspanTotal = mv ? 7 : 6;
     const cardStyle = isVarCard ? ' style="display:none;background:#f8fafc"' : '';
     const [bc,bl] = badgeTabela(p.tabela);
     const precoExib = mv ? (precoComMargem(p.preco,margemAtiva)||`R$ ${p.preco}`) : `R$ ${p.preco}`;
-    const nomeSafe = p.nome.replace(/'/g,"\\'");
+    const nomeExib = nomeProdutoDisplay(p);
+    const nomeSafe = nomeExib.replace(/'/g,"\\'");
     const precoSafe = precoExib.replace(/'/g,"\\'");
     const medSafe = (p.medidas||'').replace(/'/g,"\\'");
     const msgClip = `Segue valor da ${nomeSafe}${medSafe ? ' ('+medSafe+')' : ''} ${precoSafe}`;
     const vBlock = mv ? `<span class="preco-label">custo</span><span class="preco-custo">R$ ${p.preco}</span><span class="preco-venda">R$ ${(parseFloat(p.preco.replace(',','.')*(1+margemAtiva/100))).toFixed(2).replace('.',',')||p.preco}</span><span class="preco-label">+${margemAtiva}%</span>` : `<span class="preco-custo">R$ ${p.preco}</span>`;
     cards+=`<div class="prod-card${cardGroup}"${cardStyle}>
-      <div class="prod-card-nome">${highlight(p.nome,busca)}</div>
+      <div class="prod-card-nome">${highlight(nomeExib,busca)}</div>
       <div class="prod-card-badges">
         <span class="badge ${bc}">${bl}</span>
         <span class="b-mat">${escapeHtml(p.material)}</span>
@@ -3018,11 +3021,15 @@ async function msaveShowLista() {
         (grupos[m.familia_id] = grupos[m.familia_id] || []).push(m);
       } else semFam.push(m);
     });
-    const item = m => `
+    const item = m => {
+      const familiaDaVariacao = m.familia_id && famNome[m.familia_id] ? famNome[m.familia_id] : '';
+      const nomeExib = familiaDaVariacao || m.nome;
+      const variacaoMeta = familiaDaVariacao ? `Variação: ${escapeHtml(m.nome)} · ` : '';
+      return `
       <div class="msave-list-item" style="display:flex;justify-content:space-between;align-items:center">
         <div style="flex:1;cursor:pointer" onclick="moldeSalvarCarregar(${m.id})">
-          <div class="msave-nome">${escapeHtml(m.nome)}${moldeEditId===m.id?' <span style="color:#2154A8;font-size:.7rem">✏️ em edição</span>':''}</div>
-          <div class="msave-meta">${m.tabela||''} ${m.medidas?'· '+m.medidas:''} · ${new Date(m.created_at).toLocaleDateString('pt-BR')}</div>
+          <div class="msave-nome">${escapeHtml(nomeExib)}${moldeEditId===m.id?' <span style="color:#2154A8;font-size:.7rem">✏️ em edição</span>':''}</div>
+          <div class="msave-meta">${variacaoMeta}${m.tabela||''} ${m.medidas?'· '+m.medidas:''} · ${new Date(m.created_at).toLocaleDateString('pt-BR')}</div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;margin-left:10px">
           <div style="font-weight:700;color:#1A3580;font-size:.85rem;white-space:nowrap">${R(m.custo_total)}</div>
@@ -3032,6 +3039,7 @@ async function msaveShowLista() {
             style="background:#fee2e2;color:#dc2626;border:none;border-radius:6px;padding:4px 8px;font-size:.75rem;cursor:pointer;white-space:nowrap">🗑️</button>
         </div>
       </div>`;
+    };
     let html = '';
     // famílias primeiro (com cabeçalho recolhível)
     Object.keys(grupos).forEach(fid => {

@@ -848,6 +848,17 @@ function toggleFamiliaBusca(gid, headerRow) {
   const caret = headerRow ? headerRow.querySelector('.fam-caret') : null;
   if (caret) caret.textContent = abrir ? '\u25BE' : '\u25B8';
 }
+function toggleFamiliaCards(gid, headerCard) {
+  const cards = document.querySelectorAll('.'+gid);
+  let abrir = false;
+  cards.forEach(c => {
+    const vis = c.style.display !== 'none';
+    if (!vis) abrir = true;
+    c.style.display = vis ? 'none' : '';
+  });
+  const caret = headerCard ? headerCard.querySelector('.fam-card-caret') : null;
+  if (caret) caret.textContent = abrir ? '\u25BE' : '\u25B8';
+}
 function filtrar() {
   const busca = document.getElementById('busca').value.trim().toLowerCase();
   const resultado = document.getElementById('resultado');
@@ -862,7 +873,7 @@ function filtrar() {
   }
 
   const f = produtos.filter(p =>
-    (!busca || p.nome.toLowerCase().includes(busca)) &&
+    (!busca || ((p.nome||'')+' '+(p.familia||'')).toLowerCase().includes(busca)) &&
     (tabelasSel.size===0 || tabelasSel.has(p.tabela)) &&
     (materiaisSel.size===0 || materiaisSel.has(p.material))
   );
@@ -939,7 +950,25 @@ const colspanTotal = mv ? 7 : 6;
 
   // Cards para mobile
   let cards = '<div class="cards-wrap" id="cards-wrap">';
+  Object.keys(familias).forEach((fam, idx) => {
+    const vars = familias[fam];
+    if (vars.length <= 1) return;
+    const min = minPreco(vars);
+    const minStr = isFinite(min) ? 'R$ '+min.toFixed(2).replace('.',',') : '';
+    const [bc,bl] = badgeTabela(vars[0].tabela);
+    const gid = 'grp-card-'+idx;
+    cards += '<div class="prod-card" style="cursor:pointer;border-color:#bfdbfe" onclick="toggleFamiliaCards(\''+gid+'\',this)">' +
+      '<div class="prod-card-nome"><span class="fam-card-caret" style="display:inline-block;width:14px;color:#1565C0">▸</span> ' + highlight(fam,busca) + '</div>' +
+      '<div class="prod-card-badges"><span class="badge '+bc+'">'+bl+'</span><span class="b-mat">'+vars.length+' variações</span></div>' +
+      '<div class="prod-card-preco"><span class="preco-custo">a partir de '+minStr+'</span></div>' +
+    '</div>';
+  });
   f.forEach(p => {
+    const famKeys = Object.keys(familias);
+    const famIdx = p.familia ? famKeys.indexOf(p.familia) : -1;
+    const isVarCard = p.familia && familias[p.familia] && familias[p.familia].length > 1;
+    const cardGroup = isVarCard ? ' grp-card-'+famIdx : '';
+    const cardStyle = isVarCard ? ' style="display:none;background:#f8fafc"' : '';
     const [bc,bl] = badgeTabela(p.tabela);
     const precoExib = mv ? (precoComMargem(p.preco,margemAtiva)||`R$ ${p.preco}`) : `R$ ${p.preco}`;
     const nomeSafe = p.nome.replace(/'/g,"\\'");
@@ -947,7 +976,7 @@ const colspanTotal = mv ? 7 : 6;
     const medSafe = (p.medidas||'').replace(/'/g,"\\'");
     const msgClip = `Segue valor da ${nomeSafe}${medSafe ? ' ('+medSafe+')' : ''} ${precoSafe}`;
     const vBlock = mv ? `<span class="preco-label">custo</span><span class="preco-custo">R$ ${p.preco}</span><span class="preco-venda">R$ ${(parseFloat(p.preco.replace(',','.')*(1+margemAtiva/100))).toFixed(2).replace('.',',')||p.preco}</span><span class="preco-label">+${margemAtiva}%</span>` : `<span class="preco-custo">R$ ${p.preco}</span>`;
-    cards+=`<div class="prod-card">
+    cards+=`<div class="prod-card${cardGroup}"${cardStyle}>
       <div class="prod-card-nome">${highlight(p.nome,busca)}</div>
       <div class="prod-card-badges">
         <span class="badge ${bc}">${bl}</span>

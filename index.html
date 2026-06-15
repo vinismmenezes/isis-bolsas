@@ -873,7 +873,7 @@ function filtrar() {
   }
 
   const f = produtos.filter(p =>
-    (!busca || ((p.nome||'')+' '+(p.familia||'')).toLowerCase().includes(busca)) &&
+    (!busca || (p.familia ? p.familia.toLowerCase().includes(busca) : (p.nome||'').toLowerCase().includes(busca))) &&
     (tabelasSel.size===0 || tabelasSel.has(p.tabela)) &&
     (materiaisSel.size===0 || materiaisSel.has(p.material))
   );

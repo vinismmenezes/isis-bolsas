@@ -924,7 +924,6 @@ const colspanTotal = mv ? 7 : 6;
   let _grpId = 0;
   Object.keys(familias).forEach(fam => {
     const vars = familias[fam];
-    if (vars.length === 1) { html += linhaProduto(vars[0], false); return; }
     _grpId++;
     const gid = 'grp-fam-'+_grpId;
     const min = minPreco(vars);
@@ -952,7 +951,6 @@ const colspanTotal = mv ? 7 : 6;
   let cards = '<div class="cards-wrap" id="cards-wrap">';
   Object.keys(familias).forEach((fam, idx) => {
     const vars = familias[fam];
-    if (vars.length <= 1) return;
     const min = minPreco(vars);
     const minStr = isFinite(min) ? 'R$ '+min.toFixed(2).replace('.',',') : '';
     const [bc,bl] = badgeTabela(vars[0].tabela);
@@ -966,7 +964,7 @@ const colspanTotal = mv ? 7 : 6;
   f.forEach(p => {
     const famKeys = Object.keys(familias);
     const famIdx = p.familia ? famKeys.indexOf(p.familia) : -1;
-    const isVarCard = p.familia && familias[p.familia] && familias[p.familia].length > 1;
+    const isVarCard = p.familia && familias[p.familia];
     const cardGroup = isVarCard ? ' grp-card-'+famIdx : '';
     const cardStyle = isVarCard ? ' style="display:none;background:#f8fafc"' : '';
     const [bc,bl] = badgeTabela(p.tabela);

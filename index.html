@@ -2516,6 +2516,8 @@ let moldeComissao = 0;
 let moldeImposto  = 9;
 let moldeEditId  = null;  // ID da bolsa carregada do banco (null = nova bolsa)
 let moldeFamiliaId = null; // família da bolsa carregada (para pré-preencher ao editar)
+let moldeTabela = '';
+let moldeMedidas = '';
 
 // ---- Abrir / Fechar ----
 async function moldeAbrir() {
@@ -2898,7 +2900,7 @@ function moldeLimpar() {
     el.textContent = 'R$ 0,00';
   });
   Object.keys(moldeAcbVals).forEach(k => moldeAcbVals[k]=0);
-  moldeNome=''; moldeComissao=0; moldeImposto=9; moldeEditId=null; moldeFamiliaId=null;
+  moldeNome=''; moldeComissao=0; moldeImposto=9; moldeEditId=null; moldeFamiliaId=null; moldeTabela=''; moldeMedidas='';
   const nm = document.getElementById('molde-nome-bolsa'); if (nm) nm.value='';
   moldeAtualizarEditBadge();
   moldeAtualizarTotais();
@@ -2915,6 +2917,8 @@ async function moldeSalvarAbrir() {
   const nm  = document.getElementById('molde-nome-bolsa');
   const inp = document.getElementById('msave-nome');
   if (inp) inp.value = moldeNome || (nm ? nm.value : '') || '';
+  const medInp = document.getElementById('msave-medidas');
+  if (medInp) medInp.value = moldeMedidas || '';
   // Título do modal reflete se é edição ou novo
   const h3 = document.querySelector('#molde-save-modal h3');
   if (h3) h3.textContent = moldeEditId ? '✏️ Atualizar Bolsa' : '💾 Salvar Bolsa';
@@ -2926,8 +2930,10 @@ async function moldeSalvarAbrir() {
     const tabelas = [...new Set((data||[]).map(p=>p.tabela).filter(Boolean))].sort();
     const sel = document.getElementById('msave-tabela');
     if (sel) {
-      sel.innerHTML = tabelas.map(t=>`<option value="${t.replace(/"/g,'&quot;')}">${t}</option>`).join('')
+      const opcoes = moldeTabela && !tabelas.includes(moldeTabela) ? [moldeTabela, ...tabelas] : tabelas;
+      sel.innerHTML = opcoes.map(t=>`<option value="${t.replace(/"/g,'&quot;')}">${t}</option>`).join('')
         + '<option value="__nova__">➕ Criar nova tabela...</option>';
+      if (moldeTabela) sel.value = moldeTabela;
     }
   } catch(e) { console.warn('load tabelas:', e.message); }
   await msaveCarregarFamilias();
@@ -3149,6 +3155,14 @@ async function moldeSalvarConfirmar() {
   } catch(e) { alert('Erro ao resolver família: ' + e.message); return; }
 
   try {
+    let produtoAntigo = null;
+    if (moldeEditId) {
+      const { data: antigo, error: errAntigo } = await _supa.from('moldes_salvos')
+        .select('nome,tabela,familia_id').eq('id', moldeEditId).single();
+      if (errAntigo) throw errAntigo;
+      produtoAntigo = antigo || null;
+    }
+
     const payload = { nome, tabela, medidas, dados, familia_id,
       custo_materiais: t.mat, custo_total: t.final,
       comissao_pct: moldeComissao, imposto_pct: moldeImposto };
@@ -3172,14 +3186,28 @@ async function moldeSalvarConfirmar() {
     const famObj = familia_id ? _familiasCache.find(f=>f.id===familia_id) : null;
     const familiaNome = famObj ? famObj.nome : null;
     const agoraISO = new Date().toISOString();
-    const { data: existente } = await _supa.from('produtos')
-      .select('id,preco,preco_atualizado_em').eq('nome', nome).eq('tabela', tabela).limit(1);
-    if (existente && existente.length > 0) {
-      const reg = existente[0];
+    let reg = null;
+    if (produtoAntigo) {
+      const oldFamiliaObj = produtoAntigo.familia_id ? _familiasCache.find(f=>f.id===produtoAntigo.familia_id) : null;
+      const oldFamiliaNome = oldFamiliaObj ? oldFamiliaObj.nome : null;
+      let qAntigo = _supa.from('produtos').select('id,preco,preco_atualizado_em')
+        .eq('nome', produtoAntigo.nome).eq('tabela', produtoAntigo.tabela || tabela);
+      qAntigo = oldFamiliaNome ? qAntigo.eq('familia', oldFamiliaNome) : qAntigo.is('familia', null);
+      const { data: achouAntigo } = await qAntigo.limit(1);
+      reg = achouAntigo && achouAntigo.length ? achouAntigo[0] : null;
+    }
+    if (!reg) {
+      let qAtual = _supa.from('produtos').select('id,preco,preco_atualizado_em')
+        .eq('nome', nome).eq('tabela', tabela);
+      qAtual = familiaNome ? qAtual.eq('familia', familiaNome) : qAtual.is('familia', null);
+      const { data: existente } = await qAtual.limit(1);
+      reg = existente && existente.length ? existente[0] : null;
+    }
+    if (reg) {
       // Só atualiza a data se o PREÇO mudou
       const precoAntigo = reg.preco != null ? parseFloat(reg.preco) : null;
       const precoMudou = precoAntigo == null || Math.abs(precoAntigo - precoBRL) > 0.005;
-      const upd = { preco: precoBRL, medidas, ativo: true, familia: familiaNome };
+      const upd = { nome, tabela, preco: precoBRL, medidas, ativo: true, familia: familiaNome, material: 'Geral' };
       if (precoMudou) upd.preco_atualizado_em = agoraISO;
       await _supa.from('produtos').update(upd).eq('id', reg.id);
     } else {
@@ -3195,7 +3223,7 @@ async function moldeSalvarConfirmar() {
     // Recarrega produtos localmente para aparecer sem refresh
     await carregarDados();
     // Atualiza nome
-    moldeNome = nome;
+    moldeNome = nome; moldeTabela = tabela; moldeMedidas = medidas; moldeFamiliaId = familia_id;
     const nm = document.getElementById('molde-nome-bolsa'); if (nm) nm.value = nome;
     alert(foiEdicao ? '✅ Bolsa atualizada!' : '✅ Bolsa salva! Já aparece no Modo Rápido e Avançado.');
     moldeSalvarFechar();
@@ -3211,6 +3239,8 @@ async function moldeSalvarCarregar(id) {
     moldeEditId   = data.id;
     moldeNome     = data.nome     || '';
     moldeFamiliaId = data.familia_id || null;
+    moldeTabela = data.tabela || '';
+    moldeMedidas = data.medidas || '';
     moldeComissao = data.comissao_pct || 0;
     moldeImposto  = data.imposto_pct  || 9;
 

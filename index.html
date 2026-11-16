@@ -582,6 +582,142 @@
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style id="agenda-fabrica-css">
+/* ===== Agenda da Fabrica (bloco novo; segue as cores e cantos do painel) ===== */
+.ag { --ag-azul:#2154A8; --ag-marinho:#1A3580; --ag-tinta:#1a2e4a; --ag-rosa:#E5007D; --ag-rosa-claro:#fff0f7;
+      --ag-cinza:#64748b; --ag-linha:#e2e8f0; --ag-fundo:#f8fafc; --ag-alerta:#856404; --ag-alerta-fundo:#FFF3CD; }
+.ag .card { padding:18px 20px; }
+.ag-cab { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.ag-mes { font-size:1.35rem; font-weight:800; color:var(--ag-tinta); letter-spacing:-.01em; }
+.ag-sub { font-size:.85rem; color:var(--ag-cinza); margin-top:2px; }
+.ag-nav { display:flex; gap:6px; flex-wrap:wrap; }
+.ag-btn { border:1px solid var(--ag-linha); background:#fff; color:var(--ag-tinta); font:inherit; font-size:.85rem;
+          font-weight:700; border-radius:10px; padding:8px 12px; cursor:pointer; min-height:40px; min-width:40px; }
+.ag-btn:hover { background:var(--ag-fundo); color:var(--ag-azul); }
+.ag-btn:focus-visible, .ag-dia:focus-visible, .ag-ped-btn:focus-visible, .ag-fechar:focus-visible,
+.ag-ferr button:focus-visible, .ag-ferr a:focus-visible, .ag-tira button:focus-visible, .ag-palco:focus-visible,
+.ag-pend-btn:focus-visible { outline:3px solid var(--ag-rosa); outline-offset:2px; }
+.ag-btn[disabled] { opacity:.5; cursor:default; }
+.ag-fonte { margin-top:12px; font-size:.8rem; color:var(--ag-cinza); line-height:1.5; display:flex; flex-wrap:wrap; gap:4px 16px; }
+.ag-fonte b { color:var(--ag-tinta); font-weight:700; }
+.ag-aviso { margin-top:12px; background:var(--ag-alerta-fundo); border:1px solid #E0A800; color:var(--ag-alerta);
+            border-radius:10px; padding:10px 14px; font-size:.86rem; line-height:1.45; }
+.ag-aviso.ag-erro { background:#fee2e2; border-color:#fca5a5; color:#991b1b; }
+.ag-aviso.ag-info { background:#eef4ff; border-color:#c7d7f5; color:var(--ag-marinho); }
+.ag-semana, .ag-grade { display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); gap:6px; }
+.ag-semana span { font-size:.72rem; font-weight:800; color:var(--ag-cinza); text-transform:uppercase; text-align:center;
+                  letter-spacing:.06em; padding-bottom:6px; }
+.ag-dia { position:relative; min-height:96px; border:1px solid var(--ag-linha); border-radius:10px; background:#fff;
+          padding:6px 7px; text-align:left; font:inherit; color:var(--ag-tinta); cursor:pointer; display:flex;
+          flex-direction:column; gap:4px; overflow:hidden; }
+.ag-dia:hover { border-color:#b9c9e6; background:var(--ag-fundo); }
+.ag-dia.ag-vazio-mes { background:transparent; border:1px dashed #eef2f7; cursor:default; }
+.ag-dia.ag-passado { background:#fbfcfe; }
+.ag-dia.ag-passado .ag-num { color:#94a3b8; }
+.ag-dia.ag-hoje { border:2px solid var(--ag-rosa); background:var(--ag-rosa-claro); }
+.ag-num { font-size:.82rem; font-weight:800; }
+.ag-hoje-tag { position:absolute; top:6px; right:6px; font-size:.62rem; font-weight:800; color:#fff; background:var(--ag-rosa);
+               border-radius:6px; padding:1px 6px; text-transform:uppercase; letter-spacing:.04em; }
+.ag-qtd { align-self:flex-start; font-size:.72rem; font-weight:800; color:#fff; background:var(--ag-azul); border-radius:999px; padding:2px 8px; }
+.ag-dia.ag-passado .ag-qtd { background:#7c8aa5; }
+.ag-ids { font-size:.72rem; color:var(--ag-cinza); line-height:1.35; word-break:break-word; }
+.ag-mais { font-size:.7rem; font-weight:800; color:var(--ag-azul); }
+.ag-resumo { margin-top:12px; font-size:.82rem; color:var(--ag-cinza); }
+.ag-carregando { padding:28px 8px; text-align:center; color:var(--ag-cinza); font-size:.9rem; }
+.ag-pend h3 { font-size:.95rem; color:var(--ag-tinta); margin-bottom:6px; }
+.ag-pend p { font-size:.82rem; color:var(--ag-cinza); margin-bottom:8px; }
+.ag-pend-lista { display:flex; flex-wrap:wrap; gap:6px; }
+.ag-pend-btn { border:1px solid #E0A800; background:var(--ag-alerta-fundo); color:var(--ag-alerta); border-radius:8px;
+               font:inherit; font-size:.8rem; font-weight:700; padding:6px 10px; cursor:pointer; }
+/* janelas */
+.ag-ov { position:fixed; inset:0; z-index:3300; background:rgba(15,23,42,.45); display:flex; align-items:center;
+         justify-content:center; padding:16px; }
+.ag-ov[hidden] { display:none; }
+.ag-ov-escuro { z-index:3400; background:rgba(15,23,42,.82); padding:0; }
+.ag-painel { background:#fff; border-radius:16px; width:min(720px,100%); max-height:min(88vh,900px); display:flex;
+             flex-direction:column; box-shadow:0 18px 50px rgba(15,23,42,.3); overflow:hidden; }
+.ag-painel-cab { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; padding:16px 18px 12px;
+                 border-bottom:1px solid var(--ag-linha); }
+.ag-painel-cab h3 { font-size:1.05rem; font-weight:800; color:var(--ag-tinta); }
+.ag-painel-cab h3::first-letter { text-transform:uppercase; }
+.ag-painel-cab p { font-size:.82rem; color:var(--ag-cinza); margin-top:2px; }
+.ag-painel-corpo { overflow:auto; padding:12px 18px 6px; }
+.ag-painel-rod { padding:10px 18px 14px; font-size:.74rem; color:var(--ag-cinza); border-top:1px solid var(--ag-linha); }
+.ag-fechar { border:none; background:var(--ag-fundo); color:var(--ag-tinta); width:40px; height:40px; border-radius:10px;
+             font-size:1.4rem; line-height:1; cursor:pointer; flex:0 0 auto; }
+.ag-fechar:hover { background:#e2e8f0; }
+.ag-ped { border:1px solid var(--ag-linha); border-radius:12px; padding:12px 14px; margin-bottom:10px; }
+.ag-ped-topo { display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; }
+.ag-ped-num { font-size:1rem; font-weight:800; color:var(--ag-tinta); }
+.ag-chip { font-size:.68rem; font-weight:800; border-radius:6px; padding:2px 7px; background:#eef2f7; color:var(--ag-cinza); }
+.ag-chip.ag-chip-passado { background:#fde68a; color:#78350f; }
+.ag-chip.ag-chip-aviso { background:var(--ag-alerta-fundo); color:var(--ag-alerta); }
+.ag-cliente { font-size:.88rem; color:var(--ag-tinta); margin-top:2px; }
+.ag-cliente.ag-ni { color:var(--ag-cinza); font-style:italic; }
+.ag-itens { list-style:none; margin:8px 0 0; padding:0; font-size:.84rem; color:#334155; }
+.ag-itens li { padding:3px 0; border-top:1px dashed #edf1f6; }
+.ag-itens li:first-child { border-top:none; }
+.ag-itens .ag-q { font-weight:800; color:var(--ag-tinta); }
+.ag-total { font-size:.8rem; color:var(--ag-cinza); margin-top:6px; }
+.ag-ped-acoes { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+.ag-ped-btn { border:none; border-radius:10px; padding:9px 14px; font:inherit; font-size:.84rem; font-weight:800; cursor:pointer;
+              min-height:40px; background:var(--ag-azul); color:#fff; }
+.ag-ped-btn.ag-sec { background:#fff; color:var(--ag-azul); border:1px solid #c7d7f5; }
+.ag-ped-btn[disabled] { background:#eef2f7; color:#94a3b8; border-color:transparent; cursor:default; }
+.ag-avisos-lista { margin-top:8px; font-size:.76rem; color:var(--ag-alerta); }
+.ag-avisos-lista summary { cursor:pointer; font-weight:700; }
+.ag-avisos-lista ul { margin:4px 0 0 18px; }
+/* visor (via e layouts) */
+.ag-visor { width:100%; height:100%; display:flex; flex-direction:column; color:#fff; }
+.ag-visor-cab { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 14px;
+                background:rgba(15,23,42,.92); flex-wrap:wrap; }
+.ag-visor-cab h3 { font-size:.98rem; font-weight:800; }
+.ag-visor-cab p { font-size:.76rem; color:#cbd5e1; margin-top:2px; }
+.ag-ferr { display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+.ag-ferr button, .ag-ferr a { border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.08); color:#fff;
+                              font:inherit; font-size:.82rem; font-weight:700; border-radius:9px; padding:8px 11px;
+                              min-height:40px; min-width:40px; cursor:pointer; text-decoration:none; display:inline-flex;
+                              align-items:center; }
+.ag-ferr button:hover, .ag-ferr a:hover { background:rgba(255,255,255,.18); }
+.ag-ferr .ag-fechar { background:#fff; color:var(--ag-tinta); border:none; }
+.ag-zoom-val { font-size:.78rem; color:#cbd5e1; min-width:46px; text-align:center; }
+.ag-faixa { background:#fde68a; color:#78350f; font-size:.84rem; padding:8px 14px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.ag-faixa button { border:1px solid #b45309; background:#fff; color:#78350f; border-radius:8px; padding:5px 10px; font:inherit;
+                   font-weight:800; cursor:pointer; }
+.ag-tira { display:flex; gap:8px; padding:8px 14px; overflow-x:auto; background:rgba(15,23,42,.85); }
+.ag-tira[hidden] { display:none; }
+.ag-tira button { flex:0 0 auto; border:2px solid transparent; border-radius:8px; background:#1e293b; color:#e2e8f0;
+                  font:inherit; font-size:.74rem; font-weight:700; padding:6px 10px; cursor:pointer; max-width:240px;
+                  text-align:left; line-height:1.3; }
+.ag-tira button[aria-current="true"] { border-color:var(--ag-rosa); background:#334155; }
+.ag-palco { position:relative; flex:1; overflow:hidden; background:#0f172a; touch-action:none; cursor:grab; outline:none; }
+.ag-palco.ag-arrastando { cursor:grabbing; }
+.ag-palco img { position:absolute; left:0; top:0; transform-origin:0 0; user-select:none; -webkit-user-drag:none;
+                max-width:none; image-rendering:auto; background:#fff; box-shadow:0 6px 30px rgba(0,0,0,.45); }
+.ag-palco-msg { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; text-align:center;
+                padding:24px; color:#e2e8f0; font-size:1rem; line-height:1.5; }
+.ag-palco-msg[hidden] { display:none; }
+.ag-visor-rod { background:rgba(15,23,42,.92); color:#cbd5e1; font-size:.76rem; padding:8px 14px; line-height:1.45; }
+.ag-teste-faixa { background:#7c2d12; color:#fff; text-align:center; font-size:.8rem; font-weight:800; padding:6px 10px;
+                  border-radius:10px; margin-bottom:12px; letter-spacing:.02em; }
+@media (max-width:650px) {
+  .ag .card { padding:14px 12px; }
+  .ag-mes { font-size:1.15rem; }
+  .ag-nav { width:100%; }
+  .ag-nav .ag-btn { flex:1; }
+  .ag-semana, .ag-grade { gap:3px; }
+  .ag-dia { min-height:58px; padding:4px; border-radius:8px; }
+  .ag-ids, .ag-mais { display:none; }
+  .ag-qtd { font-size:.66rem; padding:1px 6px; }
+  .ag-hoje-tag { display:none; }
+  .ag-painel { max-height:92vh; border-radius:14px; }
+  .ag-ov { padding:8px; }
+  .ag-ov-escuro { padding:0; }
+  .ag-visor-cab { padding:8px 10px; }
+  .ag-ferr { width:100%; }
+}
+@media (prefers-reduced-motion:reduce) { .ag * { transition:none !important; } }
+</style>
 </head>
 <body>
 <svg class="icon-sprite" aria-hidden="true" focusable="false">
@@ -661,6 +797,9 @@
     </button>
     <button class="btn-modo" id="btnCostureiras" onclick="setModo('costureiras')" style="display:none">
       ✂️ Costureiras
+    </button>
+    <button class="btn-modo" id="btnAgenda" onclick="setModo('agenda')" style="display:none">
+      📅 <span>Agenda da Fábrica</span>
     </button>
   </div>
 
@@ -775,6 +914,72 @@
       </div>
     </div>
   </div>
+
+    <!-- ===== AGENDA DA FABRICA (bloco novo) ===== -->
+  <section id="secao-agenda" class="ag" style="display:none" aria-labelledby="ag-titulo">
+    <div class="card">
+      <div class="ag-cab">
+        <div>
+          <h2 class="ag-mes" id="ag-titulo">Agenda da Fábrica</h2>
+          <p class="ag-sub">Pedidos diretos da fábrica, pela data de entrega. Só consulta.</p>
+        </div>
+        <div class="ag-nav" role="group" aria-label="Navegar entre os meses">
+          <button type="button" class="ag-btn" id="ag-ant" aria-label="Mês anterior">‹</button>
+          <button type="button" class="ag-btn" id="ag-hoje-btn">Mês atual</button>
+          <button type="button" class="ag-btn" id="ag-prox" aria-label="Próximo mês">›</button>
+          <button type="button" class="ag-btn" id="ag-atualizar" title="Lê de novo o espelho da agenda. Não dispara uma coleta nova no PC da recepção.">↻ Atualizar</button>
+        </div>
+      </div>
+      <div class="ag-fonte" id="ag-fonte" aria-live="polite"></div>
+      <div class="ag-aviso" id="ag-aviso" role="status" hidden></div>
+    </div>
+    <div class="card">
+      <div class="ag-semana" aria-hidden="true"><span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span></div>
+      <div class="ag-grade" id="ag-grade"></div>
+      <p class="ag-resumo" id="ag-resumo"></p>
+    </div>
+    <div class="card ag-pend" id="ag-pend" hidden>
+      <h3>Pedidos sem data de entrega válida</h3>
+      <p>Estes pedidos entraram na coleta, mas a data de entrega não pôde ser lida com segurança. Eles não aparecem no calendário.</p>
+      <div class="ag-pend-lista" id="ag-pend-lista"></div>
+    </div>
+  </section>
+
+  <div class="ag ag-ov" id="ag-dia" role="dialog" aria-modal="true" aria-labelledby="ag-dia-titulo" hidden>
+    <div class="ag-painel">
+      <div class="ag-painel-cab">
+        <div><h3 id="ag-dia-titulo"></h3><p id="ag-dia-sub"></p></div>
+        <button type="button" class="ag-fechar" id="ag-dia-fechar" aria-label="Fechar a lista do dia">×</button>
+      </div>
+      <div class="ag-painel-corpo" id="ag-dia-lista"></div>
+      <div class="ag-painel-rod">A contagem é de pedidos, não de bolsas. Produção, entrega e cancelamento não são verificados na origem: “prazo passado” quer dizer só que a data de entrega já passou.</div>
+    </div>
+  </div>
+
+  <div class="ag ag-ov ag-ov-escuro" id="ag-visor" role="dialog" aria-modal="true" aria-labelledby="ag-visor-titulo" hidden>
+    <div class="ag-visor">
+      <div class="ag-visor-cab">
+        <div><h3 id="ag-visor-titulo"></h3><p id="ag-visor-sub"></p></div>
+        <div class="ag-ferr" role="toolbar" aria-label="Zoom">
+          <button type="button" id="ag-z-menos" aria-label="Diminuir o zoom">−</button>
+          <span class="ag-zoom-val" id="ag-z-val" aria-live="polite"></span>
+          <button type="button" id="ag-z-mais" aria-label="Aumentar o zoom">+</button>
+          <button type="button" id="ag-z-ajustar">Ajustar à tela</button>
+          <button type="button" id="ag-z-100">Tamanho original</button>
+          <a id="ag-pdf" href="#" target="_blank" rel="noopener noreferrer" hidden>Abrir PDF</a>
+          <button type="button" class="ag-fechar" id="ag-visor-fechar" aria-label="Fechar e voltar">×</button>
+        </div>
+      </div>
+      <div class="ag-faixa" id="ag-visor-faixa" hidden></div>
+      <div class="ag-tira" id="ag-tira" role="tablist" aria-label="Páginas ou layouts" hidden></div>
+      <div class="ag-palco" id="ag-palco" tabindex="0" aria-label="Imagem ampliada. Arraste para mover. Use + e − para o zoom, 0 para ajustar e 1 para o tamanho original.">
+        <img id="ag-img" alt="" draggable="false">
+        <div class="ag-palco-msg" id="ag-palco-msg" hidden></div>
+      </div>
+      <div class="ag-visor-rod" id="ag-visor-rod"></div>
+    </div>
+  </div>
+  <!-- ===== fim da AGENDA DA FABRICA ===== -->
 
   <div id="resultado">
     <div class="empty-state">
@@ -2267,12 +2472,13 @@ async function dashAtualizar() {
               <th style="text-align:center;width:50px">🧵</th>
               <th style="text-align:center;width:50px">✂️</th>
               <th style="text-align:center;width:50px">⚙️</th>
+              <th style="text-align:center;width:50px" title="Agenda da Fábrica">📅</th>
               <th style="text-align:center;width:44px">🗑️</th>
             </tr></thead>
             <tbody>
               ${Object.entries(usuarios).map(([email, secs]) => {
                 const isMaster = email === ADMIN_MASTER;
-                const secoes = ['produtos','costura','costureiras','admin'];
+                const secoes = ['produtos','costura','costureiras','admin','agenda'];
                 const cols = secoes.map(s => {
                   if (isMaster) return '<td style="text-align:center">✅</td>';
                   const checked = secs.includes(s) ? 'checked' : '';
@@ -4066,5 +4272,709 @@ function moldeResumoPrint() {
   </div>
 </div>
 
+<script id="agenda-fabrica-js">
+/* ===== Agenda da Fabrica (bloco novo) - versao 1.0, 16/11/2026 =====
+   So leitura. Le agenda_coleta e agenda_pedidos (o banco so entrega a quem tem a secao 'agenda' ou 'admin')
+   e abre vias e layouts por links assinados de 10 minutos do bucket privado 'agenda'. Nao grava nada.
+   Para nao mexer no codigo que ja existe, este bloco "embrulha" cinco funcoes do painel:
+   setModo, carregarPermissoes, carregarDados, aplicarPermissoes e fazerLogout. Para desligar a agenda,
+   basta retirar os blocos marcados "AGENDA DA FABRICA". */
+(function () {
+  'use strict';
+  var INTERVALO_MS = 5 * 60 * 1000;
+  var VALIDADE_LINK_S = 600;
+  var PAGINA = 500;
+  var IDS_NA_CELULA = 3;
+  var HORAS_SEM_CONFERIR = 3;
+  var TZ = 'America/Bahia';
+  var MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro',
+               'outubro', 'novembro', 'dezembro'];
+  var COLUNAS = 'source_order_id,source_revision,generation_id,delivery_date,delivery_date_raw,order_date,' +
+                'customer_display_name,quantity_total,items,arts,art_link,via,via_fidelity,parse_warnings,' +
+                'source_received_at,cancellation_state';
+  var OUTRAS_SECOES = ['produtos', 'costura', 'costureiras', 'admin'];
+
+  var st = { mes: null, dados: null, ultimoBom: null, erro: null, semPermissao: false, carregando: false,
+             timer: null, ultimaCarga: 0, diaAberto: null, listaAberta: null, visor: null, links: new Map(),
+             pilhaFoco: [], novidadeNaLista: false };
+
+  function AgErro(tipo, msg) { this.tipo = tipo; this.message = msg; }
+
+  // --- utilidades -------------------------------------------------------------------------------------
+  function $(id) { return document.getElementById(id); }
+  function el(tag, props) {
+    var e = document.createElement(tag);
+    if (props) Object.keys(props).forEach(function (k) {
+      var v = props[k];
+      if (v === null || v === undefined || v === false) return;
+      if (k === 'class') e.className = v;
+      else if (k === 'text') e.textContent = v;
+      else if (k.indexOf('on') === 0) e.addEventListener(k.slice(2), v);
+      else e.setAttribute(k, v === true ? '' : String(v));
+    });
+    for (var i = 2; i < arguments.length; i++) {
+      var f = arguments[i];
+      if (f === null || f === undefined || f === false) continue;
+      e.append(f instanceof Node ? f : document.createTextNode(String(f)));
+    }
+    return e;
+  }
+  function limpar(no) { while (no.firstChild) no.removeChild(no.firstChild); }
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+  function esperar(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function hojeBahia() {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' })
+      .format(new Date());
+  }
+  function mesAtual() { var h = hojeBahia(); return { ano: +h.slice(0, 4), mes: +h.slice(5, 7) }; }
+  function iso(ano, mes, dia) { return ano + '-' + String(mes).padStart(2, '0') + '-' + String(dia).padStart(2, '0'); }
+  function dataLonga(isoData) {      // data civil: monta em UTC e formata em UTC (nao anda um dia)
+    var p = isoData.split('-');
+    return new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC', weekday: 'long', day: 'numeric', month: 'long',
+      year: 'numeric' }).format(new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])));
+  }
+  function quando(ts) {               // instante (timestamptz) mostrado no horario da Bahia
+    if (!ts) return null;
+    var d = new Date(ts);
+    if (isNaN(d)) return null;
+    return new Intl.DateTimeFormat('pt-BR', { timeZone: TZ, day: '2-digit', month: '2-digit', hour: '2-digit',
+      minute: '2-digit' }).format(d).replace(',', ' às');
+  }
+  function plural(n, um, varios) { return n + ' ' + (n === 1 ? um : varios); }
+  function soAgenda() {
+    return temPermissao('agenda') && !OUTRAS_SECOES.some(function (s) { return temPermissao(s); });
+  }
+
+  // --- leitura -------------------------------------------------------------------------------------------
+  async function lerTudo() {
+    var c = await _supa.from('agenda_coleta').select('*').eq('id', 1).maybeSingle();
+    if (c.error) throw new AgErro('leitura', 'Erro ao ler a coleta (' + c.error.message + ').');
+    if (!c.data) return { coleta: null, pedidos: [], coerente: true, carregadoEm: new Date() };
+    var pedidos = [], total = null;
+    for (var i = 0; ; i += PAGINA) {
+      var r = await _supa.from('agenda_pedidos').select(COLUNAS, { count: 'exact' })
+        .order('source_order_id', { ascending: true }).range(i, i + PAGINA - 1);
+      if (r.error) throw new AgErro('leitura', 'Erro ao ler os pedidos (' + r.error.message + ').');
+      if (total === null) total = r.count;
+      pedidos = pedidos.concat(r.data || []);
+      if (!r.data || r.data.length < PAGINA) break;
+      if (i > 20000) throw new AgErro('leitura', 'A agenda ficou grande demais para esta tela.');
+    }
+    var ids = new Set(pedidos.map(function (p) { return p.source_order_id; }));
+    var coerente = pedidos.every(function (p) { return p.generation_id === c.data.generation_id; }) &&
+      ids.size === pedidos.length && (total === null || total === pedidos.length) &&
+      c.data.order_count === pedidos.length;
+    pedidos.sort(function (a, b) { return Number(a.source_order_id) - Number(b.source_order_id); });
+    var porDia = new Map(), semData = [];
+    pedidos.forEach(function (p) {
+      if (!p.delivery_date) { semData.push(p); return; }
+      if (!porDia.has(p.delivery_date)) porDia.set(p.delivery_date, []);
+      porDia.get(p.delivery_date).push(p);
+    });
+    return { coleta: c.data, pedidos: pedidos, porDia: porDia, semData: semData, coerente: coerente,
+             total: total, carregadoEm: new Date() };
+  }
+
+  async function carregar() {
+    if (st.carregando) return;
+    st.carregando = true;
+    if (!st.dados) render();
+    try {
+      if (navigator.onLine === false) throw new AgErro('offline', 'Sem conexão com a internet.');
+      var ac = await _supa.rpc('agenda_tem_acesso');
+      if (ac.error && /fetch|network|Load failed/i.test(ac.error.message || '')) throw new AgErro('offline', 'Sem conexão com o servidor do painel.');
+      if (ac.error) throw new AgErro('leitura', 'Não foi possível conferir o seu acesso (' + ac.error.message + ').');
+      if (ac.data !== true) {
+        st.semPermissao = true; st.dados = null; st.ultimoBom = null; st.erro = null; st.links.clear();
+        return;
+      }
+      st.semPermissao = false;
+      var dados = null;
+      for (var t = 1; t <= 3; t++) {
+        dados = await lerTudo();
+        if (dados.coerente) break;
+        await esperar(1500);
+      }
+      if (!dados.coerente) throw new AgErro('atualizando', 'A agenda está sendo atualizada neste momento.');
+      var tinhaDados = !!st.dados;
+      st.dados = dados; st.ultimoBom = dados; st.erro = null; st.ultimaCarga = Date.now();
+      if (tinhaDados) avisarMudancas();
+    } catch (e) {
+      st.erro = e instanceof AgErro ? e
+        : new AgErro(e && e.name === 'TypeError' ? 'offline' : 'leitura', 'Não foi possível ler a agenda agora.');
+      st.dados = st.ultimoBom;   // guarda a ultima versao boa; nunca troca erro por calendario vazio
+    } finally {
+      st.carregando = false;
+      render();
+    }
+  }
+
+  // --- tela principal --------------------------------------------------------------------------------------
+  function render() {
+    var sec = $('secao-agenda');
+    if (!sec || sec.style.display === 'none') return;
+    if (!st.mes) st.mes = mesAtual();
+    var nomeMes = MESES[st.mes.mes - 1];
+    $('ag-titulo').textContent = nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1) + ' de ' + st.mes.ano;
+    renderFonte(); renderAviso(); renderGrade(); renderPendencias();
+    $('ag-atualizar').disabled = st.carregando;
+    $('ag-atualizar').textContent = st.carregando ? 'Atualizando…' : '↻ Atualizar';
+  }
+
+  function renderFonte() {
+    var f = $('ag-fonte'); limpar(f);
+    var d = st.dados;
+    if (!d || !d.coleta) return;
+    var c = d.coleta;
+    function linha(rotulo, valor) { f.append(el('span', null, rotulo + ': ', el('b', { text: valor }))); }
+    linha('Último pedido recebido da coleta', quando(c.last_upload_received_at) || 'desconhecido');
+    linha('Espelho montado', quando(c.snapshot_built_at) || 'desconhecido');
+    linha('Conferido pela última vez', quando(c.verified_at) || 'desconhecido');
+    linha('Varredura completa do sistema antigo', c.last_successful_scan_at ? quando(c.last_successful_scan_at) : 'não verificada');
+    linha('Lido nesta tela', quando(d.carregadoEm.toISOString()));
+  }
+
+  function renderAviso() {
+    var a = $('ag-aviso'); limpar(a); a.hidden = true; a.className = 'ag-aviso';
+    function mostra(classe, texto) { a.hidden = false; if (classe) a.classList.add(classe); a.append(texto); }
+    if (st.semPermissao) {
+      return mostra('ag-erro', 'Seu usuário não tem acesso à Agenda da Fábrica. Peça ao administrador do painel a permissão “agenda”.');
+    }
+    if (st.erro) {
+      var base = st.erro.tipo === 'offline' ? 'Sem conexão: não foi possível atualizar a agenda.'
+        : st.erro.tipo === 'atualizando' ? 'A agenda está sendo atualizada agora. Tente de novo em instantes.'
+        : st.erro.message;
+      if (st.dados) base += ' Mostrando a última versão lida às ' + quando(st.dados.carregadoEm.toISOString()) + '.';
+      else base += ' Nada foi mostrado para não parecer que não há pedidos.';
+      return mostra('ag-erro', base);
+    }
+    if (st.carregando && !st.dados) return mostra('ag-info', 'Carregando a agenda…');
+    if (st.dados && !st.dados.coleta) return mostra('ag-info', 'A agenda ainda não recebeu nenhuma coleta.');
+    if (st.dados && st.dados.coleta) {
+      var conf = new Date(st.dados.coleta.verified_at);
+      var horas = (Date.now() - conf.getTime()) / 36e5;
+      if (horas > HORAS_SEM_CONFERIR) {
+        mostra(null, 'O espelho não é conferido há ' + Math.floor(horas) + ' horas. A coleta pode estar parada ' +
+          '(ela roda de segunda a sábado, das 7h às 19h). Os pedidos abaixo são da última conferência.');
+      }
+    }
+  }
+
+  function renderGrade() {
+    var g = $('ag-grade'); limpar(g);
+    var res = $('ag-resumo');
+    if (st.semPermissao || (!st.dados && (st.carregando || st.erro))) {
+      g.append(el('div', { class: 'ag-carregando', style: 'grid-column:1 / -1' },
+        st.semPermissao ? 'Sem acesso.' : st.carregando ? 'Carregando…' : 'Agenda indisponível no momento.'));
+      res.textContent = '';
+      return;
+    }
+    var ano = st.mes.ano, mes = st.mes.mes;
+    var primeiro = new Date(Date.UTC(ano, mes - 1, 1)).getUTCDay();
+    var dias = new Date(Date.UTC(ano, mes, 0)).getUTCDate();
+    var hoje = hojeBahia();
+    var noMes = 0;
+    for (var b = 0; b < primeiro; b++) g.append(el('div', { class: 'ag-dia ag-vazio-mes', 'aria-hidden': 'true' }));
+    for (var d = 1; d <= dias; d++) {
+      var chave = iso(ano, mes, d);
+      var lista = (st.dados && st.dados.porDia.get(chave)) || [];
+      noMes += lista.length;
+      var classes = 'ag-dia' + (chave === hoje ? ' ag-hoje' : '') + (chave < hoje ? ' ag-passado' : '');
+      var rotulo = d + ' de ' + MESES[mes - 1] + ': ' + (lista.length ? plural(lista.length, 'pedido', 'pedidos') : 'nenhum pedido nesta coleta') + (chave === hoje ? ' (hoje)' : '');
+      var botao = el('button', { type: 'button', class: classes, 'aria-label': rotulo, 'data-dia': chave,
+        onclick: (function (k) { return function (ev) { abrirDia(k, ev.currentTarget); }; })(chave) },
+        el('span', { class: 'ag-num', text: String(d) }),
+        chave === hoje ? el('span', { class: 'ag-hoje-tag', text: 'hoje' }) : null);
+      if (lista.length) {
+        botao.append(el('span', { class: 'ag-qtd', text: plural(lista.length, 'pedido', 'pedidos') }));
+        var mostrados = lista.slice(0, IDS_NA_CELULA).map(function (p) { return p.source_order_id; }).join(' · ');
+        botao.append(el('span', { class: 'ag-ids', text: mostrados }));
+        if (lista.length > IDS_NA_CELULA) botao.append(el('span', { class: 'ag-mais', text: '+' + (lista.length - IDS_NA_CELULA) + ' · ver todos' }));
+      }
+      g.append(botao);
+    }
+    var resto = (7 - ((primeiro + dias) % 7)) % 7;
+    for (var t = 0; t < resto; t++) g.append(el('div', { class: 'ag-dia ag-vazio-mes', 'aria-hidden': 'true' }));
+    res.textContent = noMes
+      ? plural(noMes, 'pedido', 'pedidos') + ' com entrega em ' + MESES[mes - 1] + ' de ' + ano + ' nesta coleta (contagem de pedidos, não de bolsas).'
+      : 'Nenhum pedido nesta coleta para ' + MESES[mes - 1] + ' de ' + ano + '.';
+  }
+
+  function renderPendencias() {
+    var box = $('ag-pend'), lista = $('ag-pend-lista'); limpar(lista);
+    var sem = (st.dados && st.dados.semData) || [];
+    box.hidden = !sem.length || st.semPermissao;
+    sem.forEach(function (p) {
+      lista.append(el('button', { type: 'button', class: 'ag-pend-btn',
+        onclick: function (ev) { abrirLista('Pedidos sem data de entrega válida', [p.source_order_id], ev.currentTarget); } },
+        'Pedido ' + p.source_order_id));
+    });
+  }
+
+  // --- janela do dia ---------------------------------------------------------------------------------------
+  function pedidoPorId(id) {
+    if (!st.dados) return null;
+    for (var i = 0; i < st.dados.pedidos.length; i++) if (st.dados.pedidos[i].source_order_id === id) return st.dados.pedidos[i];
+    return null;
+  }
+
+  function abrirDia(chave, gatilho) {
+    var lista = ((st.dados && st.dados.porDia.get(chave)) || []).map(function (p) { return p.source_order_id; });
+    st.diaAberto = chave;
+    abrirLista(dataLonga(chave), lista, gatilho, chave);
+  }
+
+  function abrirLista(titulo, ids, gatilho, chaveDia) {
+    st.listaAberta = { titulo: titulo, ids: ids, chaveDia: chaveDia || null };
+    st.novidadeNaLista = false;
+    preencherLista();
+    abrirJanela($('ag-dia'), gatilho);
+  }
+
+  function preencherLista() {
+    var L = st.listaAberta;
+    $('ag-dia-titulo').textContent = L.titulo;
+    $('ag-dia-sub').textContent = L.ids.length ? plural(L.ids.length, 'pedido', 'pedidos') + ' nesta coleta' : '';
+    var corpo = $('ag-dia-lista'); limpar(corpo);
+    if (st.novidadeNaLista) {
+      corpo.append(el('div', { class: 'ag-aviso ag-info', style: 'margin:0 0 10px' },
+        'A agenda foi atualizada enquanto esta lista estava aberta. ',
+        el('button', { type: 'button', class: 'ag-btn', onclick: function () { recarregarLista(); } }, 'Ver lista atualizada')));
+    }
+    if (!L.ids.length) {
+      corpo.append(el('p', { class: 'ag-carregando', text: 'Nenhum pedido nesta coleta para esta data.' }));
+      return;
+    }
+    var hoje = hojeBahia();
+    L.ids.forEach(function (id) {
+      var p = pedidoPorId(id);
+      if (!p) {
+        corpo.append(el('div', { class: 'ag-ped' }, el('span', { class: 'ag-ped-num', text: 'Pedido ' + id }),
+          el('p', { class: 'ag-cliente ag-ni', text: 'Este pedido não está mais na agenda desta coleta.' })));
+        return;
+      }
+      corpo.append(cartaoPedido(p, hoje));
+    });
+  }
+
+  function recarregarLista() {
+    var L = st.listaAberta;
+    if (L.chaveDia) L.ids = ((st.dados && st.dados.porDia.get(L.chaveDia)) || []).map(function (p) { return p.source_order_id; });
+    st.novidadeNaLista = false;
+    preencherLista();
+  }
+
+  function cartaoPedido(p, hoje) {
+    var topo = el('div', { class: 'ag-ped-topo' }, el('span', { class: 'ag-ped-num', text: 'Pedido ' + p.source_order_id }),
+      el('span', { class: 'ag-chip', text: 'revisão ' + p.source_revision }));
+    if (p.delivery_date && p.delivery_date < hoje) topo.append(el('span', { class: 'ag-chip ag-chip-passado', text: 'prazo passado' }));
+    if (!p.delivery_date) topo.append(el('span', { class: 'ag-chip ag-chip-aviso', text: 'sem data de entrega válida' }));
+    var cliente = p.customer_display_name
+      ? el('p', { class: 'ag-cliente', text: p.customer_display_name })
+      : el('p', { class: 'ag-cliente ag-ni', text: 'Cliente não informado na observação' });
+    var itens = el('ul', { class: 'ag-itens' });
+    (p.items || []).forEach(function (it) {
+      var q = (it.quantidade === null || it.quantidade === undefined) ? 'qtd. não informada' : String(it.quantidade);
+      itens.append(el('li', null, el('span', { class: 'ag-q', text: q }), ' · ',
+        (it.produto || 'produto não informado') + (it.material ? ' — ' + it.material : '') +
+        (it.referencia ? ' (' + it.referencia + ')' : '')));
+    });
+    var total = el('p', { class: 'ag-total', text: (p.quantity_total === null || p.quantity_total === undefined)
+      ? 'Quantidade total não informada' : 'Quantidade total: ' + p.quantity_total + ' (soma dos itens)' });
+    var artesOk = (p.arts || []).filter(function (a) { return a.disponivel; }).length;
+    var nArtes = (p.arts || []).length;
+    var acoes = el('div', { class: 'ag-ped-acoes' },
+      el('button', { type: 'button', class: 'ag-ped-btn', disabled: !p.via,
+        onclick: function (ev) { abrirVia(p.source_order_id, ev.currentTarget); } }, p.via ? 'Ver pedido' : 'Via indisponível nesta coleta'),
+      el('button', { type: 'button', class: 'ag-ped-btn ag-sec', disabled: nArtes === 0,
+        onclick: function (ev) { abrirArtes(p.source_order_id, 0, ev.currentTarget); } },
+        nArtes === 0 ? 'Layout não disponível nesta coleta'
+          : (nArtes === 1 ? 'Ver layout' : 'Ver layouts (' + nArtes + ')') + (artesOk < nArtes ? ' · ' + (nArtes - artesOk) + ' faltando' : '')));
+    var bloco = el('div', { class: 'ag-ped' }, topo, cliente, itens, total, acoes);
+    var avisos = (p.parse_warnings || []);
+    if (avisos.length) {
+      var ul = el('ul');
+      avisos.forEach(function (a) { ul.append(el('li', { text: String(a) })); });
+      bloco.append(el('details', { class: 'ag-avisos-lista' }, el('summary', { text: plural(avisos.length, 'aviso de leitura', 'avisos de leitura') }), ul));
+    }
+    return bloco;
+  }
+
+  // --- janelas (foco, Esc, Tab) ------------------------------------------------------------------------------
+  function focaveis(raiz) {
+    return Array.prototype.filter.call(raiz.querySelectorAll('button, [href], [tabindex]:not([tabindex="-1"])'),
+      function (e) { return !e.disabled && !e.hidden && e.offsetParent !== null; });
+  }
+  function abrirJanela(ov, gatilho) {
+    st.pilhaFoco.push({ ov: ov, volta: gatilho || document.activeElement });
+    ov.hidden = false;
+    var f = focaveis(ov);
+    (f[0] || ov).focus();
+  }
+  function fecharJanela(ov) {
+    if (ov.hidden) return;
+    ov.hidden = true;
+    for (var i = st.pilhaFoco.length - 1; i >= 0; i--) {
+      if (st.pilhaFoco[i].ov === ov) {
+        var volta = st.pilhaFoco[i].volta;
+        st.pilhaFoco.splice(i, 1);
+        if (volta && document.body.contains(volta)) volta.focus();
+        break;
+      }
+    }
+    if (ov.id === 'ag-visor') { st.visor = null; $('ag-img').removeAttribute('src'); }
+    if (ov.id === 'ag-dia') { st.listaAberta = null; st.diaAberto = null; }
+  }
+  function teclado(ev, ov) {
+    if (ev.key === 'Escape') { ev.preventDefault(); fecharJanela(ov); return; }
+    if (ev.key === 'Tab') {
+      var f = focaveis(ov);
+      if (!f.length) return;
+      var i = f.indexOf(document.activeElement);
+      if (ev.shiftKey && (i <= 0)) { ev.preventDefault(); f[f.length - 1].focus(); }
+      else if (!ev.shiftKey && i === f.length - 1) { ev.preventDefault(); f[0].focus(); }
+    }
+  }
+
+  // --- links assinados -----------------------------------------------------------------------------------
+  async function links(paths) {
+    var agora = Date.now(), faltam = [];
+    paths.forEach(function (p) { var l = st.links.get(p); if (!l || l.expira - agora < 60000) faltam.push(p); });
+    if (faltam.length) {
+      var r = await _supa.storage.from('agenda').createSignedUrls(faltam, VALIDADE_LINK_S);
+      if (r.error) throw new AgErro('arquivo', 'Não foi possível abrir o arquivo (' + r.error.message + ').');
+      (r.data || []).forEach(function (x) {
+        if (x.signedUrl && !x.error) st.links.set(x.path, { url: x.signedUrl, expira: agora + VALIDADE_LINK_S * 1000 });
+      });
+    }
+    return paths.map(function (p) { var l = st.links.get(p); return l ? l.url : null; });
+  }
+
+  // --- visor: via e layouts --------------------------------------------------------------------------------
+  function abrirVia(id, gatilho) {
+    var p = pedidoPorId(id);
+    if (!p) return;
+    var pags = (p.via && p.via.paginas) || [];
+    var itens = pags.map(function (pg) { return { rotulo: 'Página ' + pg.pagina + ' de ' + pags.length, path: pg.path, w: pg.largura, h: pg.altura }; });
+    var fid = p.via_fidelity || {};
+    abrirVisor({
+      tipo: 'via', id: id, revisao: p.source_revision,
+      titulo: 'Pedido ' + id + ' · via do sistema antigo',
+      sub: 'Revisão ' + p.source_revision + (p.source_received_at ? ' · recebida em ' + quando(p.source_received_at) : ''),
+      itens: itens, indice: 0, pdf: p.via && p.via.pdf ? p.via.pdf.path : null,
+      vazio: 'Via indisponível nesta coleta.',
+      rodape: 'Cópia da página do sistema antigo, sem os avisos técnicos do topo. ' +
+        (fid.conferido ? 'Texto conferido: nenhuma das ' + fid.palavras_originais + ' palavras da página original ficou de fora.'
+                       : 'Atenção: a conferência automática do texto desta via não passou; confira no sistema antigo.') +
+        ' Não é ficha de custo nem orçamento.'
+    }, gatilho);
+  }
+
+  function descreveArte(a, n, p) {
+    var base = 'Layout ' + a.posicao + ' de ' + n;
+    if (!a.disponivel) return base + ' · não disponível nesta coleta';
+    if (p.art_link === 'unico_item') return base + ' · item ' + a.item;
+    if (p.art_link === 'ordem_da_via') return base + ' · na via, na posição do item ' + a.item + ' (vínculo não comprovado)';
+    return base + ' · arte do pedido sem vínculo ao item';
+  }
+
+  function abrirArtes(id, indice, gatilho) {
+    var p = pedidoPorId(id);
+    if (!p) return;
+    var n = (p.arts || []).length;
+    var itens = (p.arts || []).map(function (a) {
+      return { rotulo: descreveArte(a, n, p), path: a.disponivel ? a.path : null, w: null, h: null,
+               falta: 'Layout não disponível nesta coleta.' };
+    });
+    var notas = {
+      unico_item: 'O pedido tem um item só; o layout é desse item.',
+      ordem_da_via: 'O sistema antigo não diz na via qual arte é de qual item. Aqui elas seguem a ordem em que aparecem na via (mesma quantidade de artes e itens), sem garantia de vínculo.',
+      sem_vinculo: 'A quantidade de artes é diferente da de itens: as artes são do pedido, sem vínculo comprovado a um item.',
+      sem_arte: ''
+    };
+    abrirVisor({
+      tipo: 'artes', id: id, revisao: p.source_revision,
+      titulo: 'Pedido ' + id + ' · ' + (n === 1 ? 'layout' : 'layouts'),
+      sub: 'Revisão ' + p.source_revision, itens: itens, indice: indice || 0, pdf: null,
+      vazio: 'Layout não disponível nesta coleta.',
+      rodape: (notas[p.art_link] || '') + ' Imagem no tamanho do arquivo recebido; o zoom não cria detalhes que não existem nele.'
+    }, gatilho);
+  }
+
+  var zoom = { s: 1, x: 0, y: 0, w: 0, h: 0, fit: 1, ajustado: true };
+  var ponteiros = new Map(), pinca = null;
+
+  function abrirVisor(cfg, gatilho) {
+    st.visor = cfg;
+    $('ag-visor-titulo').textContent = cfg.titulo;
+    $('ag-visor-sub').textContent = cfg.sub;
+    $('ag-visor-rod').textContent = cfg.rodape;
+    $('ag-visor-faixa').hidden = true;
+    var pdf = $('ag-pdf');
+    pdf.hidden = true; pdf.removeAttribute('href');
+    if (cfg.pdf) {
+      links([cfg.pdf]).then(function (u) { if (st.visor === cfg && u[0]) { pdf.href = u[0]; pdf.hidden = false; } })
+        .catch(function () { /* o botao fica escondido */ });
+    }
+    var tira = $('ag-tira'); limpar(tira);
+    tira.hidden = cfg.itens.length < 2;
+    cfg.itens.forEach(function (it, i) {
+      tira.append(el('button', { type: 'button', role: 'tab', 'aria-current': String(i === cfg.indice),
+        onclick: function () { mostrarItem(i); } }, it.rotulo));
+    });
+    abrirJanela($('ag-visor'), gatilho);
+    mostrarItem(cfg.itens.length ? cfg.indice : -1);
+    $('ag-palco').focus();
+  }
+
+  function mensagemPalco(texto) {
+    var m = $('ag-palco-msg'), img = $('ag-img');
+    if (texto) { m.textContent = texto; m.hidden = false; img.style.visibility = 'hidden'; }
+    else { m.hidden = true; img.style.visibility = 'visible'; }
+  }
+
+  async function mostrarItem(i) {
+    var cfg = st.visor;
+    if (!cfg) return;
+    Array.prototype.forEach.call($('ag-tira').children, function (b, k) { b.setAttribute('aria-current', String(k === i)); });
+    var img = $('ag-img');
+    if (i < 0) { mensagemPalco(cfg.vazio); return; }
+    cfg.indice = i;
+    var it = cfg.itens[i];
+    if (!it.path) { img.removeAttribute('src'); mensagemPalco(it.falta || cfg.vazio); return; }
+    mensagemPalco('Abrindo…');
+    try {
+      var u = await links([it.path]);
+      if (st.visor !== cfg || cfg.indice !== i) return;
+      if (!u[0]) throw new AgErro('arquivo', 'Sem permissão para este arquivo ou arquivo não encontrado.');
+      img.onload = function () {
+        if (st.visor !== cfg) return;
+        zoom.w = img.naturalWidth; zoom.h = img.naturalHeight;
+        mensagemPalco(null); ajustar();
+      };
+      img.onerror = function () { if (st.visor === cfg) mensagemPalco('Não foi possível abrir este arquivo agora.'); };
+      img.alt = it.rotulo;
+      img.src = u[0];
+    } catch (e) {
+      mensagemPalco(e && e.message ? e.message : 'Não foi possível abrir este arquivo agora.');
+    }
+  }
+
+  function aplicar() {
+    $('ag-img').style.transform = 'translate(' + zoom.x + 'px,' + zoom.y + 'px) scale(' + zoom.s + ')';
+    $('ag-z-val').textContent = Math.round(zoom.s * 100) + '%';
+  }
+  function caixaPalco() { return $('ag-palco').getBoundingClientRect(); }
+  function limitar() {
+    var r = caixaPalco(), W = zoom.w * zoom.s, H = zoom.h * zoom.s;
+    zoom.x = W <= r.width ? (r.width - W) / 2 : clamp(zoom.x, r.width - W, 0);
+    zoom.y = H <= r.height ? (r.height - H) / 2 : clamp(zoom.y, r.height - H, 0);
+  }
+  function ajustar() {
+    if (!zoom.w) return;
+    var r = caixaPalco();
+    zoom.fit = Math.min(r.width / zoom.w, r.height / zoom.h, 1);
+    zoom.s = zoom.fit; zoom.ajustado = true;
+    limitar(); aplicar();
+  }
+  function zoomEm(nova, cx, cy) {
+    if (!zoom.w) return;
+    var r = caixaPalco();
+    nova = clamp(nova, Math.min(zoom.fit, 1), 4);
+    var px = cx === undefined ? r.width / 2 : cx, py = cy === undefined ? r.height / 2 : cy;
+    zoom.x = px - (px - zoom.x) * (nova / zoom.s);
+    zoom.y = py - (py - zoom.y) * (nova / zoom.s);
+    zoom.s = nova; zoom.ajustado = false;
+    limitar(); aplicar();
+  }
+
+  function ligarPalco() {
+    var palco = $('ag-palco');
+    palco.addEventListener('wheel', function (ev) {
+      if (!zoom.w) return;
+      ev.preventDefault();
+      var r = caixaPalco();
+      zoomEm(zoom.s * (ev.deltaY < 0 ? 1.15 : 1 / 1.15), ev.clientX - r.left, ev.clientY - r.top);
+    }, { passive: false });
+    palco.addEventListener('pointerdown', function (ev) {
+      if (!zoom.w) return;
+      palco.setPointerCapture(ev.pointerId);
+      ponteiros.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+      palco.classList.add('ag-arrastando');
+      if (ponteiros.size === 2) {
+        var p = Array.from(ponteiros.values());
+        pinca = { d: Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y), s: zoom.s };
+      }
+    });
+    palco.addEventListener('pointermove', function (ev) {
+      if (!ponteiros.has(ev.pointerId)) return;
+      var antes = ponteiros.get(ev.pointerId);
+      ponteiros.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+      if (ponteiros.size === 2 && pinca) {
+        var p = Array.from(ponteiros.values()), r = caixaPalco();
+        var d = Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y);
+        zoomEm(pinca.s * d / pinca.d, (p[0].x + p[1].x) / 2 - r.left, (p[0].y + p[1].y) / 2 - r.top);
+      } else if (ponteiros.size === 1) {
+        zoom.x += ev.clientX - antes.x; zoom.y += ev.clientY - antes.y; zoom.ajustado = false;
+        limitar(); aplicar();
+      }
+    });
+    function solta(ev) {
+      ponteiros.delete(ev.pointerId);
+      if (ponteiros.size < 2) pinca = null;
+      if (!ponteiros.size) palco.classList.remove('ag-arrastando');
+    }
+    palco.addEventListener('pointerup', solta);
+    palco.addEventListener('pointercancel', solta);
+    palco.addEventListener('dblclick', function (ev) {
+      var r = caixaPalco();
+      if (zoom.s < 0.999) zoomEm(1, ev.clientX - r.left, ev.clientY - r.top); else ajustar();
+    });
+    $('ag-z-mais').addEventListener('click', function () { zoomEm(zoom.s * 1.25); });
+    $('ag-z-menos').addEventListener('click', function () { zoomEm(zoom.s / 1.25); });
+    $('ag-z-ajustar').addEventListener('click', ajustar);
+    $('ag-z-100').addEventListener('click', function () { zoomEm(1); });
+    $('ag-visor').addEventListener('keydown', function (ev) {
+      if (ev.target && ev.target.tagName === 'A') { teclado(ev, $('ag-visor')); return; }
+      var k = ev.key;
+      if (k === '+' || k === '=') { ev.preventDefault(); zoomEm(zoom.s * 1.25); }
+      else if (k === '-' || k === '_') { ev.preventDefault(); zoomEm(zoom.s / 1.25); }
+      else if (k === '0') { ev.preventDefault(); ajustar(); }
+      else if (k === '1') { ev.preventDefault(); zoomEm(1); }
+      else if (k.indexOf('Arrow') === 0 && document.activeElement === palco) {
+        ev.preventDefault();
+        var passo = 60;
+        if (k === 'ArrowLeft') zoom.x += passo; if (k === 'ArrowRight') zoom.x -= passo;
+        if (k === 'ArrowUp') zoom.y += passo; if (k === 'ArrowDown') zoom.y -= passo;
+        limitar(); aplicar();
+      } else teclado(ev, $('ag-visor'));
+    });
+    window.addEventListener('resize', function () {
+      if (!st.visor || !zoom.w) return;
+      if (zoom.ajustado) ajustar(); else { limitar(); aplicar(); }
+    });
+  }
+
+  // revisao fixa: se a coleta mudou enquanto o visor estava aberto, avisa (nao troca a imagem sozinha)
+  function avisarMudancas() {
+    if (st.listaAberta) { st.novidadeNaLista = true; preencherLista(); }
+    var v = st.visor;
+    if (!v) return;
+    var p = pedidoPorId(v.id), faixa = $('ag-visor-faixa');
+    limpar(faixa);
+    if (!p) {
+      faixa.append('Este pedido não está mais na agenda desta coleta. Você continua vendo a revisão ' + v.revisao + '.');
+      faixa.hidden = false;
+    } else if (p.source_revision !== v.revisao) {
+      faixa.append('Este pedido mudou na coleta: agora é a revisão ' + p.source_revision + '. Você continua vendo a revisão ' + v.revisao + '.',
+        el('button', { type: 'button', onclick: function () {
+          var gat = st.pilhaFoco.length ? st.pilhaFoco[st.pilhaFoco.length - 1].volta : null;
+          fecharJanela($('ag-visor'));
+          if (v.tipo === 'via') abrirVia(v.id, gat); else abrirArtes(v.id, 0, gat);
+        } }, 'Abrir a revisão ' + p.source_revision));
+      faixa.hidden = false;
+    }
+  }
+
+  // --- ciclo de vida -------------------------------------------------------------------------------------
+  function abrir() {
+    if (!st.mes) st.mes = mesAtual();
+    render();
+    carregar();
+    if (!st.timer) st.timer = setInterval(function () {
+      if (modoAtual === 'agenda' && document.visibilityState === 'visible') carregar();
+    }, INTERVALO_MS);
+  }
+  function pausar() { if (st.timer) { clearInterval(st.timer); st.timer = null; } }
+  function zerar() {
+    pausar();
+    fecharJanela($('ag-visor')); fecharJanela($('ag-dia'));
+    st.dados = null; st.ultimoBom = null; st.erro = null; st.semPermissao = false; st.links.clear(); st.mes = null;
+    var sec = $('secao-agenda'); if (sec) sec.style.display = 'none';
+    var btn = $('btnAgenda'); if (btn) { btn.classList.remove('ativo'); btn.style.display = 'none'; }
+  }
+  function mudarMes(delta) {
+    var m = st.mes.mes + delta, a = st.mes.ano;
+    if (m < 1) { m = 12; a--; } else if (m > 12) { m = 1; a++; }
+    st.mes = { ano: a, mes: m };
+    render();
+  }
+
+  function ligar() {
+    $('ag-ant').addEventListener('click', function () { mudarMes(-1); });
+    $('ag-prox').addEventListener('click', function () { mudarMes(1); });
+    $('ag-hoje-btn').addEventListener('click', function () { st.mes = mesAtual(); render(); });
+    $('ag-atualizar').addEventListener('click', function () { carregar(); });
+    $('ag-dia-fechar').addEventListener('click', function () { fecharJanela($('ag-dia')); });
+    $('ag-visor-fechar').addEventListener('click', function () { fecharJanela($('ag-visor')); });
+    $('ag-dia').addEventListener('keydown', function (ev) { teclado(ev, $('ag-dia')); });
+    $('ag-dia').addEventListener('click', function (ev) { if (ev.target === $('ag-dia')) fecharJanela($('ag-dia')); });
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible' && modoAtual === 'agenda' && Date.now() - st.ultimaCarga > 60000) carregar();
+    });
+    window.addEventListener('online', function () { if (modoAtual === 'agenda') carregar(); });
+    ligarPalco();
+  }
+
+  // --- encaixe no painel (embrulha 5 funcoes que ja existem) ------------------------------------------------
+  var _setModo = window.setModo, _carregarPermissoes = window.carregarPermissoes, _carregarDados = window.carregarDados,
+      _aplicarPermissoes = window.aplicarPermissoes, _fazerLogout = window.fazerLogout;
+
+  window.setModo = function (modo) {
+    var sec = $('secao-agenda'), btn = $('btnAgenda');
+    if (modo === 'agenda') {
+      modoAtual = 'agenda';
+      ['btnRapido', 'btnAvancado', 'btnCostura', 'btnCostureiras'].forEach(function (id) { var b = $(id); if (b) b.classList.remove('ativo'); });
+      if (btn) btn.classList.add('ativo');
+      document.querySelectorAll('.card.avancado').forEach(function (c) { c.classList.remove('visivel'); });
+      ['secao-costura', 'secao-costureiras', 'card-busca'].forEach(function (id) { var x = $(id); if (x) x.style.display = 'none'; });
+      var r = $('resultado'); if (r) r.innerHTML = '';
+      if (sec) sec.style.display = 'block';
+      abrir();
+      return;
+    }
+    if (sec) sec.style.display = 'none';
+    if (btn) btn.classList.remove('ativo');
+    pausar();
+    return _setModo.apply(this, arguments);
+  };
+
+  window.carregarPermissoes = async function (email) {
+    var r = await _carregarPermissoes.apply(this, arguments);
+    if (email === ADMIN_MASTER && userPermissoes.indexOf('agenda') < 0) userPermissoes.push('agenda');
+    return r;
+  };
+
+  window.carregarDados = async function () {
+    if (soAgenda()) {   // quem so tem a agenda nao baixa tabela de precos nem de costura
+      produtos = []; costuraPadrao = [];
+      var aviso = $('avisoConexao'); if (aviso) aviso.style.display = 'none';
+      return;
+    }
+    return _carregarDados.apply(this, arguments);
+  };
+
+  window.aplicarPermissoes = function () {
+    var r = _aplicarPermissoes.apply(this, arguments);
+    var tem = temPermissao('agenda'), btn = $('btnAgenda');
+    if (btn) btn.style.display = tem ? '' : 'none';
+    if (soAgenda()) {
+      ['btnRapido', 'btnAvancado', 'btnCostura', 'btnCostureiras'].forEach(function (id) { var b = $(id); if (b) b.style.display = 'none'; });
+      window.setModo('agenda');
+    } else if (modoAtual === 'agenda' && !tem) {
+      window.setModo(temPermissao('produtos') ? 'rapido' : (temPermissao('costura') ? 'costura' : 'rapido'));
+    }
+    return r;
+  };
+
+  window.fazerLogout = async function () {
+    zerar();
+    if (modoAtual === 'agenda') { try { _setModo('rapido'); } catch (e) { /* tela de login cobre tudo */ } }
+    return _fazerLogout.apply(this, arguments);
+  };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ligar); else ligar();
+})();
+</script>
 </body>
 </html>

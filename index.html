@@ -598,6 +598,15 @@
 .ag-ferr button:focus-visible, .ag-ferr a:focus-visible, .ag-tira button:focus-visible, .ag-palco:focus-visible,
 .ag-pend-btn:focus-visible { outline:3px solid var(--ag-rosa); outline-offset:2px; }
 .ag-btn[disabled] { opacity:.5; cursor:default; }
+.ag-filtro { margin-top:12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.ag-filtro label { font-size:.85rem; font-weight:700; color:var(--ag-tinta); }
+.ag-sel { border:1px solid var(--ag-linha); background:#fff; color:var(--ag-tinta); font:inherit; font-size:.88rem;
+          font-weight:500; border-radius:8px; padding:8px 12px; min-height:40px; max-width:100%; cursor:pointer; }
+.ag-sel:hover { border-color:#b9c9e6; }
+.ag-sel:focus-visible { outline:3px solid var(--ag-rosa); outline-offset:2px; }
+.ag-sel[disabled] { opacity:.55; cursor:default; }
+.ag-filtrada .ag-sel { border:2px solid var(--ag-rosa); background:var(--ag-rosa-claro); font-weight:700; }
+.ag-chip.ag-chip-vend { background:#e8eefb; color:var(--ag-marinho); }
 .ag-fonte { margin-top:12px; font-size:.8rem; color:var(--ag-cinza); line-height:1.5; display:flex; flex-wrap:wrap; gap:4px 16px; }
 .ag-fonte b { color:var(--ag-tinta); font-weight:700; }
 .ag-aviso { margin-top:12px; background:var(--ag-alerta-fundo); border:1px solid #E0A800; color:var(--ag-alerta);
@@ -705,6 +714,7 @@
   .ag-mes { font-size:1.15rem; }
   .ag-nav { width:100%; }
   .ag-nav .ag-btn { flex:1; }
+  .ag-sel { flex:1; min-width:0; }
   .ag-semana, .ag-grade { gap:3px; }
   .ag-dia { min-height:58px; padding:4px; border-radius:8px; }
   .ag-ids, .ag-mais { display:none; }
@@ -1461,7 +1471,7 @@ input, select, textarea { transition: border-color .16s ease, box-shadow .16s ea
       <div class="ag-cab">
         <div>
           <h2 class="ag-mes" id="ag-titulo">Agenda da Fábrica</h2>
-          <p class="ag-sub">Pedidos diretos da fábrica, pela data de entrega. Só consulta.</p>
+          <p class="ag-sub">Pedidos de venda de todos os vendedores, pela data de entrega. Só consulta.</p>
         </div>
         <div class="ag-nav" role="group" aria-label="Navegar entre os meses">
           <button type="button" class="ag-btn" id="ag-ant" aria-label="Mês anterior">‹</button>
@@ -1469,6 +1479,10 @@ input, select, textarea { transition: border-color .16s ease, box-shadow .16s ea
           <button type="button" class="ag-btn" id="ag-prox" aria-label="Próximo mês">›</button>
           <button type="button" class="ag-btn" id="ag-atualizar" title="Lê de novo o espelho da agenda. Não dispara uma coleta nova no PC da recepção.">↻ Atualizar</button>
         </div>
+      </div>
+      <div class="ag-filtro">
+        <label for="ag-vendedor">Vendedor</label>
+        <select id="ag-vendedor" class="ag-sel" disabled><option value="">Todos os vendedores</option></select>
       </div>
       <div class="ag-fonte" id="ag-fonte" aria-live="polite"></div>
       <div class="ag-aviso" id="ag-aviso" role="status" hidden></div>
@@ -4813,9 +4827,11 @@ function moldeResumoPrint() {
 </div>
 
 <script id="agenda-fabrica-js">
-/* ===== Agenda da Fabrica (bloco novo) - versao 1.0, 16/11/2026 =====
+/* ===== Agenda da Fabrica (bloco novo) - versao 1.1, 17/11/2026 (1.0 em 16/11/2026) =====
    So leitura. Le agenda_coleta e agenda_pedidos (o banco so entrega a quem tem a secao 'agenda' ou 'admin')
-   e abre vias e layouts por links assinados de 10 minutos do bucket privado 'agenda'. Nao grava nada.
+   e abre vias e layouts por links assinados de 10 minutos do bucket privado 'agenda'. Nao grava nada no banco.
+   1.1: filtro por vendedor (FABRICA, FABRICA 2025 e ISISBOLSAS = "Fabrica"); a escolha fica guardada so neste
+   aparelho. O filtro so organiza a tela: quem tem acesso a Agenda continua lendo os pedidos de todos.
    Para nao mexer no codigo que ja existe, este bloco "embrulha" cinco funcoes do painel:
    setModo, carregarPermissoes, carregarDados, aplicarPermissoes e fazerLogout. Para desligar a agenda,
    basta retirar os blocos marcados "AGENDA DA FABRICA". */
@@ -4831,12 +4847,14 @@ function moldeResumoPrint() {
                'outubro', 'novembro', 'dezembro'];
   var COLUNAS = 'source_order_id,source_revision,generation_id,delivery_date,delivery_date_raw,order_date,' +
                 'customer_display_name,quantity_total,items,arts,art_link,via,via_fidelity,parse_warnings,' +
-                'source_received_at,cancellation_state';
+                'source_received_at,cancellation_state,seller_original';
   var OUTRAS_SECOES = ['produtos', 'costura', 'costureiras', 'admin'];
+  var PREF_VENDEDOR = 'agenda-fabrica.vendedor';
+  var FABRICA = 'FABRICA';
 
   var st = { mes: null, dados: null, ultimoBom: null, erro: null, semPermissao: false, carregando: false,
              timer: null, ultimaCarga: 0, diaAberto: null, listaAberta: null, visor: null, links: new Map(),
-             pilhaFoco: [], novidadeNaLista: false };
+             pilhaFoco: [], novidadeNaLista: false, vendedor: lerPref(), assinaturaFiltro: null };
 
   function AgErro(tipo, msg) { this.tipo = tipo; this.message = msg; }
 
@@ -4885,6 +4903,61 @@ function moldeResumoPrint() {
     return temPermissao('agenda') && !OUTRAS_SECOES.some(function (s) { return temPermissao(s); });
   }
 
+  // --- vendedor (1.1) ------------------------------------------------------------------------------------
+  function lerPref() {
+    try { return window.localStorage.getItem(PREF_VENDEDOR) || ''; } catch (e) { return ''; }
+  }
+  function salvarPref(v) {
+    try { if (v) window.localStorage.setItem(PREF_VENDEDOR, v); else window.localStorage.removeItem(PREF_VENDEDOR); }
+    catch (e) { /* sem armazenamento: o filtro vale so ate fechar a pagina */ }
+  }
+  function normVend(t) {         // so para COMPARAR, igual ao publicador: sem acento, maiusculas, espacos simples
+    return String(t || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toUpperCase().split(/\s+/)
+      .filter(Boolean).join(' ');
+  }
+  var MINUSCULAS = { DE: 1, DA: 1, DO: 1, DAS: 1, DOS: 1, E: 1 };
+  function nomeBonito(original) {  // "MARCONEY OLIVEIRA RIOS" -> "Marconey Oliveira Rios"; sigla sem vogal fica (GF)
+    return String(original || '').trim().split(/\s+/).map(function (w, i) {
+      if (i > 0 && MINUSCULAS[normVend(w)]) return w.toLowerCase();
+      if (!/[aeiouáéíóúâêôãõà]/i.test(w)) return w.toUpperCase();
+      return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+    }).join(' ');
+  }
+  function grupoVendedor(original) {
+    var n = normVend(original);
+    if (!n) return { chave: '-', rotulo: 'Sem vendedor' };
+    if (/^FABRICA\b/.test(n) || n === 'ISISBOLSAS' || n === 'ISIS BOLSAS') return { chave: FABRICA, rotulo: 'Fábrica' };
+    return { chave: n, rotulo: nomeBonito(original) };
+  }
+  function rotuloFiltro() {
+    var g = st.vendedor && st.dados && st.dados.grupos ? st.dados.grupos.get(st.vendedor) : null;
+    return g ? g.rotulo : null;
+  }
+  function deQuem() {             // " da Fábrica" / " de Marconey Oliveira Rios" / "" (todos)
+    var r = rotuloFiltro();
+    return r ? (st.vendedor === FABRICA ? ' da ' : ' de ') + r : '';
+  }
+  // monta o calendario e as pendencias so com o vendedor escolhido (a lista completa continua em d.pedidos)
+  function aplicarFiltro(d) {
+    if (!d || !d.pedidos) return;
+    if (st.vendedor && !(d.grupos && d.grupos.has(st.vendedor))) { st.vendedor = ''; salvarPref(''); }
+    var porDia = new Map(), semData = [];
+    d.pedidos.forEach(function (p) {
+      if (st.vendedor && p._vend !== st.vendedor) return;
+      if (!p.delivery_date) { semData.push(p); return; }
+      if (!porDia.has(p.delivery_date)) porDia.set(p.delivery_date, []);
+      porDia.get(p.delivery_date).push(p);
+    });
+    d.porDia = porDia; d.semData = semData;
+  }
+  function mudarVendedor(v) {
+    st.vendedor = v || '';
+    salvarPref(st.vendedor);
+    aplicarFiltro(st.dados);
+    if (st.ultimoBom && st.ultimoBom !== st.dados) aplicarFiltro(st.ultimoBom);
+    render();
+  }
+
   // --- leitura -------------------------------------------------------------------------------------------
   async function lerTudo() {
     var c = await _supa.from('agenda_coleta').select('*').eq('id', 1).maybeSingle();
@@ -4905,14 +4978,17 @@ function moldeResumoPrint() {
       ids.size === pedidos.length && (total === null || total === pedidos.length) &&
       c.data.order_count === pedidos.length;
     pedidos.sort(function (a, b) { return Number(a.source_order_id) - Number(b.source_order_id); });
-    var porDia = new Map(), semData = [];
+    var grupos = new Map();
     pedidos.forEach(function (p) {
-      if (!p.delivery_date) { semData.push(p); return; }
-      if (!porDia.has(p.delivery_date)) porDia.set(p.delivery_date, []);
-      porDia.get(p.delivery_date).push(p);
+      var g = grupoVendedor(p.seller_original);
+      p._vend = g.chave;
+      var x = grupos.get(g.chave);
+      if (x) x.n++; else grupos.set(g.chave, { rotulo: g.rotulo, n: 1 });
     });
-    return { coleta: c.data, pedidos: pedidos, porDia: porDia, semData: semData, coerente: coerente,
-             total: total, carregadoEm: new Date() };
+    var d = { coleta: c.data, pedidos: pedidos, grupos: grupos, porDia: new Map(), semData: [], coerente: coerente,
+              total: total, carregadoEm: new Date() };
+    aplicarFiltro(d);
+    return d;
   }
 
   async function carregar() {
@@ -4956,9 +5032,32 @@ function moldeResumoPrint() {
     if (!st.mes) st.mes = mesAtual();
     var nomeMes = MESES[st.mes.mes - 1];
     $('ag-titulo').textContent = nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1) + ' de ' + st.mes.ano;
-    renderFonte(); renderAviso(); renderGrade(); renderPendencias();
+    renderFiltro(); renderFonte(); renderAviso(); renderGrade(); renderPendencias();
     $('ag-atualizar').disabled = st.carregando;
     $('ag-atualizar').textContent = st.carregando ? 'Atualizando…' : '↻ Atualizar';
+  }
+
+  function renderFiltro() {
+    var s = $('ag-vendedor');
+    if (!s) return;
+    var d = st.semPermissao ? null : st.dados;
+    var lista = d && d.grupos ? Array.from(d.grupos.entries()).sort(function (a, b) {
+      if (a[0] === FABRICA) return -1;
+      if (b[0] === FABRICA) return 1;
+      return b[1].n - a[1].n || a[1].rotulo.localeCompare(b[1].rotulo, 'pt-BR');
+    }) : [];
+    var opcoes = [['', 'Todos os vendedores' + (d ? ' (' + d.pedidos.length + ')' : '')]].concat(
+      lista.map(function (e) { return [e[0], e[1].rotulo + ' (' + e[1].n + ')']; }));
+    var assinatura = JSON.stringify(opcoes);
+    if (assinatura !== st.assinaturaFiltro) {   // so refaz a lista quando ela muda (nao fecha a lista aberta a toa)
+      limpar(s);
+      opcoes.forEach(function (o) { s.append(el('option', { value: o[0], text: o[1] })); });
+      st.assinaturaFiltro = assinatura;
+    }
+    s.value = st.vendedor || '';
+    s.disabled = !d || !d.pedidos.length;
+    var sec = $('secao-agenda');
+    if (sec) sec.classList.toggle('ag-filtrada', !!st.vendedor);
   }
 
   function renderFonte() {
@@ -5036,9 +5135,10 @@ function moldeResumoPrint() {
     }
     var resto = (7 - ((primeiro + dias) % 7)) % 7;
     for (var t = 0; t < resto; t++) g.append(el('div', { class: 'ag-dia ag-vazio-mes', 'aria-hidden': 'true' }));
+    var quem = deQuem();
     res.textContent = noMes
-      ? plural(noMes, 'pedido', 'pedidos') + ' com entrega em ' + MESES[mes - 1] + ' de ' + ano + ' nesta coleta (contagem de pedidos, não de bolsas).'
-      : 'Nenhum pedido nesta coleta para ' + MESES[mes - 1] + ' de ' + ano + '.';
+      ? plural(noMes, 'pedido', 'pedidos') + quem + ' com entrega em ' + MESES[mes - 1] + ' de ' + ano + ' nesta coleta (contagem de pedidos, não de bolsas).'
+      : 'Nenhum pedido' + quem + ' nesta coleta para ' + MESES[mes - 1] + ' de ' + ano + '.';
   }
 
   function renderPendencias() {
@@ -5075,7 +5175,7 @@ function moldeResumoPrint() {
   function preencherLista() {
     var L = st.listaAberta;
     $('ag-dia-titulo').textContent = L.titulo;
-    $('ag-dia-sub').textContent = L.ids.length ? plural(L.ids.length, 'pedido', 'pedidos') + ' nesta coleta' : '';
+    $('ag-dia-sub').textContent = L.ids.length ? plural(L.ids.length, 'pedido', 'pedidos') + deQuem() + ' nesta coleta' : '';
     var corpo = $('ag-dia-lista'); limpar(corpo);
     if (st.novidadeNaLista) {
       corpo.append(el('div', { class: 'ag-aviso ag-info', style: 'margin:0 0 10px' },
@@ -5106,7 +5206,10 @@ function moldeResumoPrint() {
   }
 
   function cartaoPedido(p, hoje) {
+    var vend = grupoVendedor(p.seller_original);
     var topo = el('div', { class: 'ag-ped-topo' }, el('span', { class: 'ag-ped-num', text: 'Pedido ' + p.source_order_id }),
+      el('span', { class: 'ag-chip ag-chip-vend', title: 'Vendedor no sistema antigo: ' + (p.seller_original || 'não informado'),
+        text: vend.rotulo }),
       el('span', { class: 'ag-chip', text: 'revisão ' + p.source_revision }));
     if (p.delivery_date && p.delivery_date < hoje) topo.append(el('span', { class: 'ag-chip ag-chip-passado', text: 'prazo passado' }));
     if (!p.delivery_date) topo.append(el('span', { class: 'ag-chip ag-chip-aviso', text: 'sem data de entrega válida' }));
@@ -5446,6 +5549,7 @@ function moldeResumoPrint() {
     $('ag-prox').addEventListener('click', function () { mudarMes(1); });
     $('ag-hoje-btn').addEventListener('click', function () { st.mes = mesAtual(); render(); });
     $('ag-atualizar').addEventListener('click', function () { carregar(); });
+    $('ag-vendedor').addEventListener('change', function (ev) { mudarVendedor(ev.target.value); });
     $('ag-dia-fechar').addEventListener('click', function () { fecharJanela($('ag-dia')); });
     $('ag-visor-fechar').addEventListener('click', function () { fecharJanela($('ag-visor')); });
     $('ag-dia').addEventListener('keydown', function (ev) { teclado(ev, $('ag-dia')); });

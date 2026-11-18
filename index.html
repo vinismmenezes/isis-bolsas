@@ -4827,11 +4827,13 @@ function moldeResumoPrint() {
 </div>
 
 <script id="agenda-fabrica-js">
-/* ===== Agenda da Fabrica (bloco novo) - versao 1.1, 17/11/2026 (1.0 em 16/11/2026) =====
+/* ===== Agenda da Fabrica (bloco novo) - versao 1.2, 18/11/2026 (1.1 em 17/11; 1.0 em 16/11/2026) =====
    So leitura. Le agenda_coleta e agenda_pedidos (o banco so entrega a quem tem a secao 'agenda' ou 'admin')
    e abre vias e layouts por links assinados de 10 minutos do bucket privado 'agenda'. Nao grava nada no banco.
    1.1: filtro por vendedor (FABRICA, FABRICA 2025 e ISISBOLSAS = "Fabrica"); a escolha fica guardada so neste
    aparelho. O filtro so organiza a tela: quem tem acesso a Agenda continua lendo os pedidos de todos.
+   1.2: link direto. "#agenda" abre a aba; "#agenda/AAAA-MM-DD" abre a aba no mes e a lista do dia (com todos os
+   vendedores, sem mudar a escolha guardada). E o link do lembrete "Entregas da Fabrica" da Isa.
    Para nao mexer no codigo que ja existe, este bloco "embrulha" cinco funcoes do painel:
    setModo, carregarPermissoes, carregarDados, aplicarPermissoes e fazerLogout. Para desligar a agenda,
    basta retirar os blocos marcados "AGENDA DA FABRICA". */
@@ -4854,7 +4856,8 @@ function moldeResumoPrint() {
 
   var st = { mes: null, dados: null, ultimoBom: null, erro: null, semPermissao: false, carregando: false,
              timer: null, ultimaCarga: 0, diaAberto: null, listaAberta: null, visor: null, links: new Map(),
-             pilhaFoco: [], novidadeNaLista: false, vendedor: lerPref(), assinaturaFiltro: null };
+             pilhaFoco: [], novidadeNaLista: false, vendedor: lerPref(), assinaturaFiltro: null, pedidoLink: null };
+  var RE_LINK = /^#agenda(?:\/(\d{4})-(\d{2})-(\d{2}))?$/;
 
   function AgErro(tipo, msg) { this.tipo = tipo; this.message = msg; }
 
@@ -4958,6 +4961,39 @@ function moldeResumoPrint() {
     render();
   }
 
+  // --- link direto (#agenda ou #agenda/AAAA-MM-DD) -----------------------------------------------------------
+  function lerLink() {            // null = o endereco nao pede a agenda; '' = so a aba; 'AAAA-MM-DD' = a aba no dia
+    var m = RE_LINK.exec(location.hash || '');
+    if (!m) return null;
+    if (!m[1]) return '';
+    var ano = +m[1], mes = +m[2], dia = +m[3];
+    var d = new Date(Date.UTC(ano, mes - 1, dia));
+    if (d.getUTCFullYear() !== ano || d.getUTCMonth() !== mes - 1 || d.getUTCDate() !== dia) return '';
+    return iso(ano, mes, dia);
+  }
+  function seguirLink() {
+    var alvo = lerLink();
+    if (alvo === null || typeof temPermissao !== 'function' || !temPermissao('agenda')) return;
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* tanto faz */ }
+    if (alvo) {
+      st.pedidoLink = alvo;
+      st.mes = { ano: +alvo.slice(0, 4), mes: +alvo.slice(5, 7) };
+      if (st.vendedor) {        // o link mostra todos os vendedores, sem mudar a escolha guardada neste aparelho
+        st.vendedor = '';
+        aplicarFiltro(st.dados);
+        if (st.ultimoBom && st.ultimoBom !== st.dados) aplicarFiltro(st.ultimoBom);
+      }
+    }
+    if (modoAtual !== 'agenda') window.setModo('agenda');
+    else { render(); abrirDoLink(); }
+  }
+  function abrirDoLink() {        // depois que a agenda carrega: abre a lista do dia pedido no link (uma vez so)
+    var alvo = st.pedidoLink;
+    if (!alvo || !st.dados || st.carregando || st.semPermissao) return;
+    st.pedidoLink = null;
+    abrirDia(alvo, null);
+  }
+
   // --- leitura -------------------------------------------------------------------------------------------
   async function lerTudo() {
     var c = await _supa.from('agenda_coleta').select('*').eq('id', 1).maybeSingle();
@@ -5022,6 +5058,7 @@ function moldeResumoPrint() {
     } finally {
       st.carregando = false;
       render();
+      abrirDoLink();
     }
   }
 
@@ -5534,6 +5571,7 @@ function moldeResumoPrint() {
     pausar();
     fecharJanela($('ag-visor')); fecharJanela($('ag-dia'));
     st.dados = null; st.ultimoBom = null; st.erro = null; st.semPermissao = false; st.links.clear(); st.mes = null;
+    st.pedidoLink = null;
     var sec = $('secao-agenda'); if (sec) sec.style.display = 'none';
     var btn = $('btnAgenda'); if (btn) { btn.classList.remove('ativo'); btn.style.display = 'none'; }
   }
@@ -5558,6 +5596,7 @@ function moldeResumoPrint() {
       if (document.visibilityState === 'visible' && modoAtual === 'agenda' && Date.now() - st.ultimaCarga > 60000) carregar();
     });
     window.addEventListener('online', function () { if (modoAtual === 'agenda') carregar(); });
+    window.addEventListener('hashchange', seguirLink);
     ligarPalco();
   }
 
@@ -5609,6 +5648,7 @@ function moldeResumoPrint() {
     } else if (modoAtual === 'agenda' && !tem) {
       window.setModo(temPermissao('produtos') ? 'rapido' : (temPermissao('costura') ? 'costura' : 'rapido'));
     }
+    seguirLink();
     return r;
   };
 

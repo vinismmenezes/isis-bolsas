@@ -786,6 +786,32 @@
 .cs-apagar:hover { background:#fee2e2; border-color:#fca5a5; }
 .cs-add { background:var(--cs-azul); border-color:var(--cs-azul); color:#fff; font-weight:700; }
 .cs-add:hover { background:var(--cs-marinho); }
+.cs-registro { border:1px solid #c7d7f5; background:#f8fbff; border-radius:12px; padding:12px 14px; margin:0 0 12px; }
+.cs-reg-cab { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+.cs-reg-cab h3 { margin:0; font-size:.95rem; font-weight:800; color:var(--cs-marinho); }
+.cs-reg-cab p { margin:2px 0 0; font-size:.78rem; color:var(--cs-cinza); }
+.cs-reg-lista { list-style:none; margin:0; padding:0; max-height:360px; overflow:auto; }
+.cs-reg-item { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; padding:8px 2px;
+               border-top:1px solid var(--cs-linha); font-size:.86rem; color:var(--cs-tinta); line-height:1.4; }
+.cs-reg-item:first-child { border-top:0; }
+.cs-reg-quando { font-weight:700; color:var(--cs-azul); white-space:nowrap; margin-right:6px; }
+.cs-reg-nome { font-weight:800; }
+.cs-reg-mud { display:block; }
+.cs-reg-mud b { font-weight:800; }
+.cs-reg-antes { color:#b45309; font-weight:700; }
+.cs-reg-por { font-size:.74rem; color:#94a3b8; }
+.cs-reg-tag { display:inline-block; font-size:.68rem; font-weight:800; border-radius:6px; padding:1px 6px; margin-right:6px;
+              text-transform:uppercase; letter-spacing:.04em; background:#e8eefb; color:var(--cs-marinho); }
+.cs-reg-tag.criou { background:#dcfce7; color:#166534; }
+.cs-reg-tag.apagou { background:#fee2e2; color:#991b1b; }
+.cs-voltar { flex:0 0 auto; border:1px solid #fcd34d; background:#fffbeb; color:#92400e; border-radius:7px; padding:5px 9px;
+             font:inherit; font-size:.8rem; font-weight:700; cursor:pointer; white-space:nowrap; }
+.cs-voltar:hover { background:#fef3c7; }
+.cs-voltar:focus-visible { outline:3px solid var(--cs-rosa); outline-offset:2px; }
+.cs-voltar[disabled] { opacity:.55; cursor:default; }
+.cs-reg-vazio { font-size:.85rem; color:var(--cs-cinza); padding:6px 2px; }
+.cs-dash-th { text-align:center; width:62px; line-height:1.1; vertical-align:bottom; }
+.cs-dash-th small { display:block; font-size:.62rem; font-weight:700; color:#64748b; margin-top:3px; white-space:normal; }
 .cs .sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 .cs-vazio { text-align:center; color:var(--cs-cinza); padding:22px 10px !important; }
 .cs-adm-nota { background:#eef4ff; border:1px solid #c7d7f5; color:#1A3580; border-radius:10px; padding:14px 16px;
@@ -806,6 +832,8 @@
   .cs-copiar .cs-ic { display:none; }
   .cs-l { display:none; }
   .cs-c { display:inline; }
+  .cs-reg-item { flex-direction:column; }
+  .cs-voltar { align-self:flex-start; }
 }
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" id="tema-isis-fonte">
@@ -1507,11 +1535,13 @@ input, select, textarea { transition: border-color .16s ease, box-shadow .16s ea
             <select id="cs-tabela" class="cs-sel"><option value="atual">2026 (atual)</option></select>
           </label>
           <button type="button" class="cs-btn" id="cs-baixar" title="Baixar esta tabela para abrir no Excel">⬇️ Excel</button>
+          <button type="button" class="cs-btn" id="cs-alteracoes" aria-expanded="false" aria-controls="cs-registro" style="display:none" title="Ver as últimas mudanças, com o valor de antes">🕘 Alterações</button>
           <button type="button" class="cs-btn cs-btn-pri" id="cs-editar" aria-pressed="false" style="display:none">✏️ Editar</button>
         </div>
       </div>
       <input type="search" id="costura-busca" class="costura-search" placeholder="🔍 Buscar bolsa..." autocomplete="off">
       <div class="cs-aviso" id="cs-aviso" role="status" aria-live="polite" hidden></div>
+      <section class="cs-registro" id="cs-registro" aria-label="Últimas alterações da costura" hidden></section>
       <div class="costura-info" id="costura-info"></div>
       <div class="costura-table-wrap">
         <table class="costura-table cs-tabela">
@@ -3101,17 +3131,18 @@ async function dashAtualizar() {
           <table class="dash-table" id="dash-perm-table">
             <thead><tr>
               <th>Email</th>
-              <th style="text-align:center;width:50px">📦</th>
-              <th style="text-align:center;width:50px">🧵</th>
-              <th style="text-align:center;width:50px">✂️</th>
-              <th style="text-align:center;width:50px">⚙️</th>
-              <th style="text-align:center;width:50px" title="Agenda da Fábrica">📅</th>
+              <th class="cs-dash-th" title="Produtos: a tabela de preços">📦<small>Preços</small></th>
+              <th class="cs-dash-th" title="Ver a tabela de costura">🧵<small>Ver costura</small></th>
+              <th class="cs-dash-th" title="Editar a costura: mudar valores, criar e apagar bolsas">✏️<small>Editar costura</small></th>
+              <th class="cs-dash-th" title="A aba das costureiras (envios)">✂️<small>Costureiras</small></th>
+              <th class="cs-dash-th" title="Painel do administrador">⚙️<small>Admin</small></th>
+              <th class="cs-dash-th" title="Agenda da Fábrica">📅<small>Agenda</small></th>
               <th style="text-align:center;width:44px">🗑️</th>
             </tr></thead>
             <tbody>
               ${Object.entries(usuarios).map(([email, secs]) => {
                 const isMaster = email === ADMIN_MASTER;
-                const secoes = ['produtos','costura','costureiras','admin','agenda'];
+                const secoes = ['produtos','costura','costura_editar','costureiras','admin','agenda'];
                 const cols = secoes.map(s => {
                   if (isMaster) return '<td style="text-align:center">✅</td>';
                   const checked = secs.includes(s) ? 'checked' : '';
@@ -5724,7 +5755,10 @@ function moldeResumoPrint() {
 })();
 </script>
 <script id="costura-isis-js">
-/* ===== Costura 1.0 (bloco novo, 18/11/2026) =====
+/* ===== Costura 1.1 (bloco novo, 18/11/2026) =====
+   1.1: botao "Alteracoes" com as ultimas mudancas (valor de antes e de depois, quem e quando), lidas da tabela
+   costura_alteracoes que o proprio banco preenche (gatilho costura_registra), com "Voltar" para o valor de antes;
+   depois de salvar, a linha mostra o valor de antes.
    A aba Costura passa a ser o lugar de editar a tabela de costura (pedido do Vini, 18/11/2026: "No site").
    - Tabela atual (2026): valor normal e valor com acabamento; quem tem a secao 'costura' edita (Editar -> valor ->
      Enter). O banco grava quando e quem mudou (gatilho costura_carimbo); cada mudanca vai para log_alteracoes.
@@ -5736,7 +5770,7 @@ function moldeResumoPrint() {
   var ATUAL = 'atual';
   var LIMITE_CONFERIR = 50;   // acima disso pede um segundo Enter (evita 250 no lugar de 2,50)
   var st = { tabela: ATUAL, busca: '', editando: false, tabelas: null, buscandoTabelas: false, hist: {}, erroHist: {},
-             carregando: '', ligado: false, conferir: {} };
+             carregando: '', ligado: false, conferir: {}, registro: null, regAberto: false, regErro: '' };
 
   function $(id) { return document.getElementById(id); }
   function esc(s) {
@@ -5762,10 +5796,13 @@ function moldeResumoPrint() {
     if (/^planilha/i.test(p)) return 'planilha';
     return p.split('@')[0];
   }
-  function podeEditar() { return typeof temPermissao === 'function' && temPermissao('costura'); }
-  function eAdmin() {
-    try { if (typeof userEmail !== 'undefined' && typeof ADMIN_MASTER !== 'undefined' && userEmail === ADMIN_MASTER) return true; } catch (e) {}
-    return typeof temPermissao === 'function' && temPermissao('admin');
+  // 1.1: VER = acesso 'costura'; EDITAR = acesso 'costura_editar' (so a Ana) ou o admin master (o Vini), como no banco
+  function podeVer() { return typeof temPermissao === 'function' && temPermissao('costura'); }
+  function podeEditar() {
+    try {
+      if (typeof userEmail !== 'undefined' && typeof ADMIN_MASTER !== 'undefined' && userEmail === ADMIN_MASTER) return true;
+      return Array.isArray(userPermissoes) && userPermissoes.indexOf('costura_editar') >= 0;
+    } catch (e) { return false; }
   }
   function lista() {
     try { return Array.isArray(costuraPadrao) ? costuraPadrao : []; } catch (e) { return []; }
@@ -5872,8 +5909,8 @@ function moldeResumoPrint() {
       '<td class="cs-num">' + entrada('acab', dec(x.acab), 'Valor com acabamento de ' + x.nome, true) + '</td>' +
       '<td>' + entrada('obs', x.obs, 'Observação de ' + x.nome) + '</td>' +
       '<td class="cs-acoes-col"><span class="cs-estado" aria-live="polite"></span>' +
-      (eAdmin() ? ' <button type="button" class="cs-apagar" title="Apagar ' + esc(x.nome) + '" aria-label="Apagar ' +
-        esc(x.nome) + '">🗑</button>' : '') + '</td></tr>';
+      ' <button type="button" class="cs-apagar" title="Apagar ' + esc(x.nome) + '" aria-label="Apagar ' +
+        esc(x.nome) + '">🗑</button></td></tr>';
   }
   function linhaNova(gs) {
     var nomes = gs.map(function (g) { return g[0]; });
@@ -5948,7 +5985,7 @@ function moldeResumoPrint() {
     }
     var sub = $('cs-sub');
     if (sub) sub.textContent = 'Tabela de 2026: valor normal e valor com acabamento.' +
-      (podeEditar() ? ' Para mudar, clique em Editar.' : '');
+      (podeEditar() ? ' Para mudar, clique em Editar.' : ' Só consulta: quem muda os valores é a Ana.');
   }
 
   function renderHist() {
@@ -6002,7 +6039,157 @@ function moldeResumoPrint() {
       b.textContent = st.editando ? '✔ Concluir' : '✏️ Editar';
       b.setAttribute('aria-pressed', st.editando ? 'true' : 'false');
     }
+    var ba = $('cs-alteracoes');
+    if (ba) ba.style.display = (podeVer() && st.tabela === ATUAL) ? '' : 'none';
     if (st.tabela === ATUAL) renderAtual(); else renderHist();
+    desenharRegistro();
+  }
+
+  // ---------------------------------------------------------------- registro das alteracoes (1.1)
+  async function carregarRegistro() {
+    if (typeof _supa === 'undefined') return;
+    st.regErro = '';
+    try {
+      var r = await _supa.from('costura_alteracoes').select('*').order('quando', { ascending: false }).limit(200);
+      if (r.error) throw r.error;
+      st.registro = r.data || [];
+    } catch (e) {
+      st.regErro = (e && e.message) || String(e);
+    }
+    desenharRegistro();
+  }
+  function quandoTexto(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return '';
+    var hoje = new Date(), ontem = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() - 1);
+    var hm = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    if (d.toDateString() === hoje.toDateString()) return 'Hoje ' + hm;
+    if (d.toDateString() === ontem.toDateString()) return 'Ontem ' + hm;
+    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' ' + hm;
+  }
+  function rs(v) { var n = num(v); return brl(n) || '—'; }
+  function mudouCampo(a, antes, depois) { return !igual(num(a[antes]), num(a[depois])); }
+  function partesMudanca(a) {
+    var p = [];
+    if (a.acao === 'mudou') {
+      if (a.nome_antes) p.push('Nome <span class="cs-reg-antes">' + esc(a.nome_antes) + '</span> → <b>' + esc(a.nome) + '</b>');
+      if (mudouCampo(a, 'valor_antes', 'valor_depois')) {
+        p.push('Valor <span class="cs-reg-antes">' + esc(rs(a.valor_antes)) + '</span> → <b>' + esc(rs(a.valor_depois)) + '</b>');
+      }
+      if (mudouCampo(a, 'acab_antes', 'acab_depois')) {
+        p.push('Com acabamento <span class="cs-reg-antes">' + esc(rs(a.acab_antes)) + '</span> → <b>' + esc(rs(a.acab_depois)) + '</b>');
+      }
+      if ((a.obs_antes || '') !== (a.obs_depois || '')) {
+        p.push('Observação <span class="cs-reg-antes">"' + esc(a.obs_antes || '') + '"</span> → <b>"' + esc(a.obs_depois || '') + '"</b>');
+      }
+      if (!p.length) p.push('Mudou de tabela');
+    } else if (a.acao === 'criou') {
+      p.push('Entrou com valor <b>' + esc(rs(a.valor_depois)) + '</b> e com acabamento <b>' + esc(rs(a.acab_depois)) + '</b>');
+    } else {
+      p.push('Foi apagada. Era valor <span class="cs-reg-antes">' + esc(rs(a.valor_antes)) +
+        '</span> e com acabamento <span class="cs-reg-antes">' + esc(rs(a.acab_antes)) + '</span>');
+    }
+    return p;
+  }
+  function podeVoltar(a, x) {
+    if (a.acao === 'apagou') {
+      return !itens().some(function (i) { return i.grupo === (a.grupo || 'GERAL') && semAcento(i.nome) === semAcento(a.nome); });
+    }
+    if (a.acao !== 'mudou' || !x) return false;
+    return igual(x.valor, num(a.valor_depois)) && igual(x.acab, num(a.acab_depois)) && (!a.nome_antes || x.nome === a.nome) &&
+      ((a.obs_antes || '') === (a.obs_depois || '') || (x.obs || '') === (a.obs_depois || ''));
+  }
+  function rotuloVoltar(a) {
+    if (a.acao === 'apagou') return 'Recriar';
+    if (mudouCampo(a, 'valor_antes', 'valor_depois')) return 'Voltar para ' + rs(a.valor_antes);
+    if (mudouCampo(a, 'acab_antes', 'acab_depois')) return 'Voltar para ' + rs(a.acab_antes) + ' (acab.)';
+    return 'Voltar como estava';
+  }
+  function desenharRegistro() {
+    var box = $('cs-registro'), b = $('cs-alteracoes');
+    if (!box) return;
+    var aberto = st.regAberto && st.tabela === ATUAL && podeVer();
+    box.hidden = !aberto;
+    if (b) {
+      b.setAttribute('aria-expanded', aberto ? 'true' : 'false');
+      b.classList.toggle('cs-btn-pri', aberto);
+    }
+    if (!aberto) return;
+    var editor = podeEditar();
+    var cab = '<div class="cs-reg-cab"><div><h3>🕘 Últimas alterações</h3><p>O valor de antes aparece em laranja.' +
+      (editor ? ' Para desfazer uma mudança, use ↩.' : '') + '</p></div>' +
+      '<button type="button" class="cs-btn" data-reg="fechar">Fechar</button></div>';
+    if (st.regErro) {
+      box.innerHTML = cab + '<div class="cs-reg-vazio">Não consegui abrir as alterações: ' + esc(st.regErro) + '</div>';
+      return;
+    }
+    if (!st.registro) { box.innerHTML = cab + '<div class="cs-reg-vazio">Abrindo…</div>'; return; }
+    var q = semAcento(st.busca);
+    var atual = {};
+    itens().forEach(function (x) { atual[String(x.ref.id)] = x; });
+    var vistos = {};
+    var lis = st.registro.filter(function (a) {
+      return !q || semAcento((a.nome || '') + ' ' + (a.nome_antes || '')).indexOf(q) >= 0;
+    }).slice(0, 100).map(function (a) {
+      var chave = String(a.costura_id || ('x' + a.id));
+      var primeiro = !vistos[chave];
+      vistos[chave] = true;
+      var botao = (editor && primeiro && podeVoltar(a, atual[chave])) ? '<button type="button" class="cs-voltar" data-voltar="' +
+        esc(a.id) + '">↩ ' + esc(rotuloVoltar(a)) + '</button>' : '';
+      return '<li class="cs-reg-item"><div><span class="cs-reg-quando">' + esc(quandoTexto(a.quando)) + '</span>' +
+        '<span class="cs-reg-tag ' + esc(a.acao) + '">' + ({ criou: 'nova', mudou: 'mudou', apagou: 'apagada' }[a.acao] || a.acao) +
+        '</span><span class="cs-reg-nome">' + esc(a.nome || '') + '</span>' +
+        (a.grupo && a.grupo !== 'GERAL' ? ' <span class="cs-reg-por">(' + esc(rotuloGrupo(a.grupo)) + ')</span>' : '') +
+        partesMudanca(a).map(function (p) { return '<span class="cs-reg-mud">' + p + '</span>'; }).join('') +
+        '<span class="cs-reg-por">por ' + esc(porTexto(a.quem) || '?') + '</span></div>' + botao + '</li>';
+    });
+    box.innerHTML = cab + (lis.length ? '<ul class="cs-reg-lista">' + lis.join('') + '</ul>' :
+      '<div class="cs-reg-vazio">' + (q ? 'Nenhuma alteração com esse nome.' :
+        'Ainda não há alterações registradas. Elas aparecem aqui a partir da primeira mudança.') + '</div>');
+  }
+  function guarda(q, col, v) { return v == null ? q.is(col, null) : q.eq(col, v); }
+  async function voltar(id, btn) {
+    var a = (st.registro || []).filter(function (r) { return String(r.id) === String(id); })[0];
+    if (!a) return;
+    btn.disabled = true;
+    try {
+      if (a.acao === 'apagou') {
+        if (!window.confirm('Recriar "' + a.nome + '" com valor ' + rs(a.valor_antes) + ' e com acabamento ' + rs(a.acab_antes) + '?')) {
+          btn.disabled = false;
+          return;
+        }
+        var ri = await _supa.from('costura').insert([{ nome: a.nome, grupo: a.grupo || 'GERAL', valor: num(a.valor_antes),
+          valor_acabamento: num(a.acab_antes), obs: a.obs_antes || null }]).select().single();
+        if (ri.error) throw ri.error;
+        var ref = Object.assign({}, ri.data);
+        noModelo(ref, ri.data);
+        lista().push(ref);
+        log('criou', ri.data.nome, 'Recriada pelas alterações: ' + rs(a.valor_antes) + ' / com acabamento ' + rs(a.acab_antes));
+      } else {
+        var dados = {}, txt = [];
+        if (a.nome_antes) { dados.nome = a.nome_antes; txt.push('o nome "' + a.nome_antes + '"'); }
+        if (mudouCampo(a, 'valor_antes', 'valor_depois')) { dados.valor = num(a.valor_antes); txt.push('valor ' + rs(a.valor_antes)); }
+        if (mudouCampo(a, 'acab_antes', 'acab_depois')) { dados.valor_acabamento = num(a.acab_antes); txt.push('com acabamento ' + rs(a.acab_antes)); }
+        if ((a.obs_antes || '') !== (a.obs_depois || '')) { dados.obs = a.obs_antes || null; txt.push('a observação de antes'); }
+        if (!txt.length) { btn.disabled = false; return; }
+        if (!window.confirm('Voltar "' + a.nome + '" para ' + txt.join(' e ') + '?')) { btn.disabled = false; return; }
+        var q = _supa.from('costura').update(dados).eq('id', a.costura_id);
+        q = guarda(q, 'valor', num(a.valor_depois));
+        q = guarda(q, 'valor_acabamento', num(a.acab_depois));
+        var r = await q.select().single();
+        if (r.error) throw r.error;
+        var x = itens().filter(function (i) { return String(i.ref.id) === String(a.costura_id); })[0];
+        if (x) noModelo(x.ref, r.data);
+        log('editou', r.data.nome, 'Voltou pelas alterações: ' + txt.join('; '));
+      }
+      aviso('');
+      render();
+      carregarRegistro();
+    } catch (e) {
+      btn.disabled = false;
+      aviso(e && e.code === 'PGRST116' ? 'Não voltei: essa bolsa já mudou de novo depois dessa alteração. Ajuste pelo Editar.' :
+        'Não voltei: ' + ((e && e.message) || e), true);
+    }
   }
 
   // ---------------------------------------------------------------- editar, incluir, apagar
@@ -6086,8 +6273,12 @@ function moldeResumoPrint() {
       if (r.error) throw r.error;
       noModelo(x.ref, r.data);
       tr.classList.remove('cs-mudou');
-      estado(tr, '✓ salvo', 'ok');
+      var antes = [];
+      if (!igual(x.valor, n.valor)) antes.push('antes ' + (brl(x.valor) || '—'));
+      if (!igual(x.acab, n.acab)) antes.push('acab. antes ' + (brl(x.acab) || '—'));
+      estado(tr, '✓ salvo' + (antes.length ? ' · ' + antes.join(' · ') : ''), 'ok');
       log('editou', n.nome, mud.join('; '));
+      if (st.regAberto) carregarRegistro();
       return true;
     } catch (e) {
       estado(tr, erroTexto(e), 'erro');
@@ -6116,6 +6307,7 @@ function moldeResumoPrint() {
       render();
       var nova = document.querySelector('#costura-tbody tr.cs-nova');
       if (nova) { estado(nova, '✓ ' + n.nome + ' entrou', 'ok'); var ni = nova.querySelector('[data-campo="nome"]'); if (ni) ni.focus(); }
+      if (st.regAberto) carregarRegistro();
       return true;
     } catch (e) {
       estado(tr, erroTexto(e), 'erro');
@@ -6125,7 +6317,7 @@ function moldeResumoPrint() {
   async function apagar(tr) {
     var x = acharItem(tr.getAttribute('data-id'));
     if (!x) return;
-    if (!window.confirm('Apagar "' + x.nome + '" da tabela de costura?\nIsso não tem como desfazer pelo site.')) return;
+    if (!window.confirm('Apagar "' + x.nome + '" da tabela de costura?\nSe precisar, dá para recriar pelo botão Alterações.')) return;
     estado(tr, 'Apagando…', '');
     try {
       var r = await _supa.from('costura').delete().eq('id', x.ref.id).select();
@@ -6136,6 +6328,7 @@ function moldeResumoPrint() {
       if (i >= 0) l.splice(i, 1);
       log('deletou', x.nome, 'Valor ' + (brl(x.valor) || '—') + '; com acabamento ' + (brl(x.acab) || '—'));
       render();
+      if (st.regAberto) carregarRegistro();
     } catch (e) {
       estado(tr, erroTexto(e), 'erro');
     }
@@ -6241,6 +6434,18 @@ function moldeResumoPrint() {
       if (primeiro) primeiro.focus();
     });
     if (bx) bx.addEventListener('click', baixar);
+    var ba = $('cs-alteracoes'), reg = $('cs-registro');
+    if (ba) ba.addEventListener('click', function () {
+      st.regAberto = !st.regAberto;
+      if (st.regAberto) { st.registro = st.registro || null; carregarRegistro(); }
+      desenharRegistro();
+    });
+    if (reg) reg.addEventListener('click', function (ev) {
+      var b = ev.target.closest('button');
+      if (!b) return;
+      if (b.getAttribute('data-reg') === 'fechar') { st.regAberto = false; desenharRegistro(); if (ba) ba.focus(); }
+      else if (b.hasAttribute('data-voltar')) voltar(b.getAttribute('data-voltar'), b);
+    });
     tb.addEventListener('click', function (ev) {
       var b = ev.target.closest('button');
       if (!b) return;
@@ -6298,7 +6503,36 @@ function moldeResumoPrint() {
     var bp = $('adm-btn-produtos');
     if (bp) bp.style.display = '';
   };
-  window.__costura = { versao: '1.0', estado: st, num: num };
+  // Dashboard (1.1): "Editar costura" sem "Ver costura" nao abre a aba; entao marcar Editar marca Ver junto, e tirar
+  // Ver tira Editar junto.
+  var dashToggleOriginal = window.dashPermToggle;
+  if (typeof dashToggleOriginal === 'function') {
+    window.dashPermToggle = async function (email, secao, ativar) {
+      await dashToggleOriginal(email, secao, ativar);
+      var junto = secao === 'costura_editar' && ativar ? 'costura' : (secao === 'costura' && !ativar ? 'costura_editar' : '');
+      if (!junto) return;
+      try {
+        if (ativar) {
+          var ja = await _supa.from('permissoes').select('id').eq('user_email', email).eq('secao', junto).limit(1);
+          if (ja.error) throw ja.error;
+          if (!ja.data || !ja.data.length) {
+            var ins = await _supa.from('permissoes').insert([{ user_email: email, secao: junto }]);
+            if (ins.error && ins.error.code !== '23505') throw ins.error;
+          }
+        } else {
+          var del = await _supa.from('permissoes').delete().eq('user_email', email).eq('secao', junto);
+          if (del.error) throw del.error;
+        }
+        if (typeof registrarLog === 'function') {
+          await registrarLog('editou', 'permissao', email, junto + ': ' + (ativar ? 'ativou junto com Editar costura' : 'removeu junto com Costura'));
+        }
+      } catch (e) {
+        window.alert('Erro ao ajustar a permissão junto: ' + ((e && e.message) || e));
+      }
+      if (typeof dashAtualizar === 'function') dashAtualizar();
+    };
+  }
+  window.__costura = { versao: '1.1', estado: st, num: num };
 })();
 </script>
 </body>

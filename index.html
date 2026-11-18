@@ -729,6 +729,85 @@
 }
 @media (prefers-reduced-motion:reduce) { .ag * { transition:none !important; } }
 </style>
+<style id="costura-isis-css">
+/* ===== Costura (bloco novo, 18/11/2026; segue as cores e cantos do painel) ===== */
+.cs { --cs-azul:#2154A8; --cs-marinho:#1A3580; --cs-tinta:#1a2e4a; --cs-rosa:#E5007D; --cs-cinza:#64748b;
+      --cs-linha:#e2e8f0; --cs-fundo:#f8fafc; }
+.cs .card { padding:18px 20px; }
+.cs-cab { display:flex; align-items:flex-end; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+.cs-titulo { font-size:1.2rem; font-weight:800; color:var(--cs-tinta); margin:0; letter-spacing:-.01em; }
+.cs-sub { font-size:.84rem; color:var(--cs-cinza); margin:2px 0 0; }
+.cs-acoes { display:flex; align-items:flex-end; gap:8px; flex-wrap:wrap; }
+.cs-filtro { display:flex; flex-direction:column; gap:3px; font-size:.75rem; font-weight:700; color:var(--cs-cinza); }
+.cs-sel { border:1px solid var(--cs-linha); background:#fff; color:var(--cs-tinta); font:inherit; font-size:.88rem;
+          font-weight:600; border-radius:8px; padding:8px 12px; min-height:40px; max-width:100%; cursor:pointer; }
+.cs-sel:hover { border-color:#b9c9e6; }
+.cs-btn { border:1px solid var(--cs-linha); background:#fff; color:var(--cs-tinta); font:inherit; font-size:.86rem;
+          font-weight:700; border-radius:8px; padding:8px 14px; min-height:40px; cursor:pointer; white-space:nowrap; }
+.cs-btn:hover { background:var(--cs-fundo); color:var(--cs-azul); }
+.cs-btn-pri { background:var(--cs-azul); border-color:var(--cs-azul); color:#fff; }
+.cs-btn-pri:hover { background:var(--cs-marinho); border-color:var(--cs-marinho); color:#fff; }
+.cs-btn-pri[aria-pressed="true"] { background:#16a34a; border-color:#16a34a; }
+.cs-btn:focus-visible, .cs-sel:focus-visible, .cs-copiar:focus-visible, .cs-in:focus-visible, .cs-apagar:focus-visible,
+.cs-add:focus-visible { outline:3px solid var(--cs-rosa); outline-offset:2px; }
+.cs-aviso { margin:0 0 10px; background:#eef4ff; border:1px solid #c7d7f5; color:var(--cs-marinho); border-radius:10px;
+            padding:10px 14px; font-size:.86rem; line-height:1.45; }
+.cs-aviso.cs-erro { background:#fee2e2; border-color:#fca5a5; color:#991b1b; }
+.cs-tabela th.cs-num, .cs-tabela td.cs-num { text-align:right; white-space:nowrap; }
+.cs-tabela td { vertical-align:middle; }
+.cs-secao td { background:var(--cs-fundo); color:var(--cs-marinho); font-weight:800; font-size:.78rem; text-transform:uppercase;
+               letter-spacing:.05em; padding-top:12px; }
+.cs-secao td span { color:var(--cs-cinza); font-weight:600; margin-left:6px; }
+.cs-obs { font-size:.76rem; color:var(--cs-cinza); font-weight:500; margin-top:2px; }
+.cs-cod { display:inline-block; font-size:.7rem; font-weight:700; color:var(--cs-cinza); background:var(--cs-fundo);
+          border:1px solid var(--cs-linha); border-radius:6px; padding:1px 6px; margin-right:6px; }
+.cs-por { font-size:.72rem; color:#94a3b8; }
+.cs-sem { color:#94a3b8; }
+.cs-copiar { border:1px solid transparent; background:transparent; color:var(--cs-tinta); font:inherit; font-weight:700;
+             font-size:.92rem; border-radius:7px; padding:4px 8px; cursor:pointer; white-space:nowrap; }
+.cs-copiar:hover { background:#eef3fc; border-color:#d1dff0; color:var(--cs-azul); }
+.cs-copiar.copiado { background:#dcfce7; border-color:#bbf7d0; color:#16a34a; }
+.cs-copiar .cs-ic { font-size:.75rem; opacity:.55; margin-left:2px; }
+.cs-in { width:100%; box-sizing:border-box; border:1px solid #cbd5e1; border-radius:7px; padding:7px 9px; font:inherit;
+         font-size:.88rem; color:var(--cs-tinta); background:#fff; min-height:36px; }
+.cs-in-num { width:92px; text-align:right; font-weight:700; }
+.cs-in.cs-invalido { border-color:#dc2626; background:#fef2f2; }
+.cs-ed td, .cs-nova td { padding-top:6px; padding-bottom:6px; }
+.cs-mudou td { background:#fffbeb; }
+.cs-nova td { background:#eef4ff; }
+.cs-nova .cs-grupo { margin-top:4px; }
+.cs-acoes-col { width:1%; white-space:nowrap; }
+.cs-estado { display:inline-block; min-width:72px; font-size:.75rem; font-weight:700; color:var(--cs-cinza); }
+.cs-estado.ok { color:#16a34a; }
+.cs-estado.erro { color:#b91c1c; white-space:normal; min-width:140px; }
+.cs-estado.aviso { color:#a16207; white-space:normal; min-width:140px; }
+.cs-apagar, .cs-add { border:1px solid var(--cs-linha); background:#fff; border-radius:7px; padding:6px 9px; cursor:pointer;
+                      font:inherit; font-size:.85rem; }
+.cs-apagar:hover { background:#fee2e2; border-color:#fca5a5; }
+.cs-add { background:var(--cs-azul); border-color:var(--cs-azul); color:#fff; font-weight:700; }
+.cs-add:hover { background:var(--cs-marinho); }
+.cs .sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+.cs-vazio { text-align:center; color:var(--cs-cinza); padding:22px 10px !important; }
+.cs-adm-nota { background:#eef4ff; border:1px solid #c7d7f5; color:#1A3580; border-radius:10px; padding:14px 16px;
+               font-size:.9rem; line-height:1.5; margin:8px 0; }
+.cs-c { display:none; }
+@media (max-width:640px) {
+  .cs .card { padding:14px 12px; }
+  .cs-acoes { width:100%; }
+  .cs-filtro { flex:1 1 100%; }
+  .cs-sel { width:100%; }
+  .cs-btn { flex:1 1 auto; }
+  .cs-tabela { min-width:0; }
+  .cs-tabela.cs-editando { min-width:640px; }
+  .cs-tabela th.col-data, .cs-tabela td.col-data { display:none; }
+  .cs-tabela th, .cs-tabela td { padding-left:7px; padding-right:7px; overflow-wrap:break-word; }
+  .cs-copiar { font-size:.86rem; padding:4px 2px; }
+  .cs-rs { display:none; }
+  .cs-copiar .cs-ic { display:none; }
+  .cs-l { display:none; }
+  .cs-c { display:inline; }
+}
+</style>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" id="tema-isis-fonte">
 <style id="tema-isis">
 /* ===== Tema Isis (estilo shadcn com as cores da marca) — camada por cima do visual antigo; tirar = volta o antigo ===== */
@@ -1415,34 +1494,34 @@ input, select, textarea { transition: border-color .16s ease, box-shadow .16s ea
   </div>
 
   <!-- ===== SEÇÃO COSTURA ===== -->
-  <div id="secao-costura" style="display:none">
+  <!-- ===== COSTURA (bloco novo, 18/11/2026) ===== -->
+  <div id="secao-costura" class="cs" style="display:none">
     <div class="card">
-      <div class="costura-header">
-        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-          <div class="section-label" style="margin:0">🧵 Valores de Costura</div>
-          <div class="costura-filtros">
-            <button class="btn-grupo ativo" id="grp-GERAL" onclick="costuraGrupo('GERAL')">📋 Tabela Geral</button>
-            <button class="btn-grupo" id="grp-JORNADA" onclick="costuraGrupo('JORNADA')">🏭 Jornada 2026</button>
-          </div>
+      <div class="cs-cab">
+        <div>
+          <h2 class="cs-titulo">🧵 Valores de Costura</h2>
+          <p class="cs-sub" id="cs-sub">Tabela de 2026: valor normal e valor com acabamento.</p>
         </div>
-        <div style="display:flex;gap:8px;align-items:center">
+        <div class="cs-acoes">
+          <label class="cs-filtro" for="cs-tabela">Tabela
+            <select id="cs-tabela" class="cs-sel"><option value="atual">2026 (atual)</option></select>
+          </label>
+          <button type="button" class="cs-btn" id="cs-baixar" title="Baixar esta tabela para abrir no Excel">⬇️ Excel</button>
+          <button type="button" class="cs-btn cs-btn-pri" id="cs-editar" aria-pressed="false" style="display:none">✏️ Editar</button>
         </div>
       </div>
-      <input type="text" id="costura-busca" class="costura-search" placeholder="🔍 Buscar produto de costura..." oninput="costuraBuscar()">
+      <input type="search" id="costura-busca" class="costura-search" placeholder="🔍 Buscar bolsa..." autocomplete="off">
+      <div class="cs-aviso" id="cs-aviso" role="status" aria-live="polite" hidden></div>
       <div class="costura-info" id="costura-info"></div>
       <div class="costura-table-wrap">
-        <table class="costura-table">
-          <thead><tr>
-            <th>Nome da Bolsa</th>
-            <th class="col-data">Última Atualização</th>
-            <th class="col-val">Valor</th>
-            <th class="col-copy">Copiar</th>
-          </tr></thead>
+        <table class="costura-table cs-tabela">
+          <thead id="cs-thead"></thead>
           <tbody id="costura-tbody"></tbody>
         </table>
       </div>
     </div>
   </div>
+  <!-- ===== fim da COSTURA ===== -->
 
   <div id="secao-costureiras" style="display:none">
     <div class="card">
@@ -4479,27 +4558,10 @@ function moldeResumoPrint() {
   </div>
   <!-- COSTURA SECTION -->
   <div id="adm-costura-section" style="display:none">
-    <div class="adm-toolbar">
-      <input class="adm-search" id="adm-costura-search" type="text" placeholder="🔍 Buscar costura..." oninput="admCosturaFiltrar()">
-      <div style="display:flex;gap:6px;flex-shrink:0">
-        <button class="btn-grupo ativo" id="adm-grp-GERAL" onclick="admCosturaGrupo('GERAL')">📋 Tabela Geral</button>
-        <button class="btn-grupo" id="adm-grp-JORNADA" onclick="admCosturaGrupo('JORNADA')">🏭 Jornada 2026</button>
-      </div>
-      <button class="adm-btn-add" onclick="admCosturaAbrirAdd()">➕ Adicionar</button>
-    </div>
-    <div class="adm-table-wrap">
-      <div class="adm-info" id="adm-costura-info"></div>
-      <table class="adm-table">
-        <thead><tr>
-          <th style="width:36px">#</th>
-          <th>Nome da Bolsa</th>
-          <th style="width:110px">Grupo</th>
-          <th style="width:140px">Última Atualização</th>
-          <th style="width:120px">Valor (R$)</th>
-          <th style="width:80px">Ações</th>
-        </tr></thead>
-        <tbody id="adm-costura-tbody"></tbody>
-      </table>
+    <div class="cs-adm-nota">
+      <b>🧵 A tabela de costura agora é editada na aba Costura do site.</b>
+      Lá, quem tem acesso à Costura clica em <b>✏️ Editar</b>, muda o valor e aperta Enter. Cada mudança fica no
+      histórico de alterações, com quem mudou e quando. As tabelas antigas da planilha ficam no filtro "Tabela".
     </div>
   </div>
   <!-- COSTUREIRAS SECTION -->
@@ -5659,6 +5721,584 @@ function moldeResumoPrint() {
   };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ligar); else ligar();
+})();
+</script>
+<script id="costura-isis-js">
+/* ===== Costura 1.0 (bloco novo, 18/11/2026) =====
+   A aba Costura passa a ser o lugar de editar a tabela de costura (pedido do Vini, 18/11/2026: "No site").
+   - Tabela atual (2026): valor normal e valor com acabamento; quem tem a secao 'costura' edita (Editar -> valor ->
+     Enter). O banco grava quando e quem mudou (gatilho costura_carimbo); cada mudanca vai para log_alteracoes.
+   - Tabelas antigas da planilha da Ana (costura_historico): so consulta, pelo filtro "Tabela".
+   - Botao "Excel": baixa a tabela que esta na tela (CSV que o Excel abre).
+   Substitui costuraRender e o painel de costura do admin; o resto do site nao muda. */
+(function () {
+  'use strict';
+  var ATUAL = 'atual';
+  var LIMITE_CONFERIR = 50;   // acima disso pede um segundo Enter (evita 250 no lugar de 2,50)
+  var st = { tabela: ATUAL, busca: '', editando: false, tabelas: null, buscandoTabelas: false, hist: {}, erroHist: {},
+             carregando: '', ligado: false, conferir: {} };
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function semAcento(t) { return String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+  function num(v) {
+    if (v == null) return null;
+    if (typeof v === 'number') return isFinite(v) ? Math.round(v * 100) / 100 : NaN;
+    var t = String(v).replace(/R\$/i, '').replace(/\s+/g, '');
+    if (!t || t === '-' || t === '—') return null;
+    if (t.indexOf(',') >= 0) t = t.replace(/\./g, '').replace(',', '.');
+    if (!/^\d+(\.\d{1,2})?$/.test(t)) return NaN;
+    return Math.round(parseFloat(t) * 100) / 100;
+  }
+  function dec(n) { return n == null || isNaN(n) ? '' : n.toFixed(2).replace('.', ','); }
+  function brl(n) { return n == null || isNaN(n) ? '' : 'R$ ' + dec(n); }
+  function dataBR(iso) { if (!iso) return ''; var d = new Date(iso); return isNaN(d) ? '' : d.toLocaleDateString('pt-BR'); }
+  function porTexto(p) {
+    p = String(p || '');
+    if (!p) return '';
+    if (/^planilha/i.test(p)) return 'planilha';
+    return p.split('@')[0];
+  }
+  function podeEditar() { return typeof temPermissao === 'function' && temPermissao('costura'); }
+  function eAdmin() {
+    try { if (typeof userEmail !== 'undefined' && typeof ADMIN_MASTER !== 'undefined' && userEmail === ADMIN_MASTER) return true; } catch (e) {}
+    return typeof temPermissao === 'function' && temPermissao('admin');
+  }
+  function lista() {
+    try { return Array.isArray(costuraPadrao) ? costuraPadrao : []; } catch (e) { return []; }
+  }
+  function itens() {
+    return lista().map(function (p) {
+      return { ref: p, id: String(p.id), nome: p.nome || '', grupo: p.grupo || 'GERAL', valor: num(p.valor),
+               acab: num(p.valor_acabamento), obs: p.obs || '', em: p.updated_at || null, por: p.atualizado_por || '' };
+    });
+  }
+  function rotuloGrupo(g) {
+    if (!g || g === 'GERAL') return 'Tabela 2026';
+    return String(g).toLowerCase().replace(/(^|\s)(\S)/g, function (m, a, b) { return a + b.toUpperCase(); })
+      .replace(/\b(Dos|Das|De|Da|Do|E)\b/g, function (m) { return m.toLowerCase(); });
+  }
+  function ordenar(xs) {
+    return xs.slice().sort(function (a, b) {
+      if (a.grupo !== b.grupo) return a.grupo === 'GERAL' ? -1 : b.grupo === 'GERAL' ? 1 : a.grupo.localeCompare(b.grupo);
+      return a.nome.localeCompare(b.nome, 'pt-BR');
+    });
+  }
+  function grupos(xs) {
+    var ordem = [], por = {};
+    ordenar(xs).forEach(function (x) { if (!por[x.grupo]) { por[x.grupo] = []; ordem.push(x.grupo); } por[x.grupo].push(x); });
+    return ordem.map(function (g) { return [g, por[g]]; });
+  }
+  function aviso(texto, erro) {
+    var a = $('cs-aviso');
+    if (!a) return;
+    a.hidden = !texto;
+    a.textContent = texto || '';
+    a.classList.toggle('cs-erro', !!erro);
+  }
+
+  // ---------------------------------------------------------------- filtro de tabelas
+  function montarFiltro() {
+    var sel = $('cs-tabela');
+    if (!sel) return;
+    var html = '<option value="' + ATUAL + '">2026 (atual)</option>';
+    if (st.tabelas && st.tabelas.length) {
+      html += '<optgroup label="Tabelas antigas da planilha (só consulta)">' + st.tabelas.map(function (t) {
+        return '<option value="' + esc(t.tabela) + '">' + esc(t.tabela) + '</option>';
+      }).join('') + '</optgroup>';
+    }
+    if (sel.getAttribute('data-ops') !== html) { sel.innerHTML = html; sel.setAttribute('data-ops', html); }
+    sel.value = st.tabela;
+    if (st.tabelas === null && !st.buscandoTabelas) buscarTabelas();
+  }
+  async function buscarTabelas() {
+    if (typeof _supa === 'undefined') return;
+    st.buscandoTabelas = true;
+    try {
+      var r = await _supa.from('costura_tabelas').select('tabela,ordem_tabela,linhas').order('ordem_tabela');
+      st.tabelas = r.error ? [] : (r.data || []);
+    } catch (e) { st.tabelas = []; }
+    st.buscandoTabelas = false;
+    montarFiltro();
+  }
+  async function carregarHist(tabela) {
+    if (st.hist[tabela] || st.carregando === tabela) return;
+    st.carregando = tabela;
+    delete st.erroHist[tabela];
+    render();
+    try {
+      var r = await _supa.from('costura_historico').select('secao,linha,codigo,nome,valor,obs')
+        .eq('tabela', tabela).order('linha').range(0, 1999);
+      if (r.error) throw r.error;
+      st.hist[tabela] = r.data || [];
+    } catch (e) {
+      st.erroHist[tabela] = (e && e.message) || String(e);
+    }
+    st.carregando = '';
+    render();
+  }
+
+  // ---------------------------------------------------------------- desenho
+  function cabecalho(cols) {
+    var th = $('cs-thead');
+    if (th) th.innerHTML = '<tr>' + cols.map(function (c) {
+      return '<th' + (c[1] ? ' class="' + c[1] + '"' : '') + ' scope="col">' + c[0] + '</th>';
+    }).join('') + '</tr>';
+  }
+  function celValor(n, rotulo) {
+    if (n == null) return '<span class="cs-sem" aria-label="sem valor">—</span>';
+    return '<button type="button" class="cs-copiar" data-copiar="' + esc(brl(n)) + '" title="Copiar ' + esc(rotulo) +
+      '"><span class="cs-rs">R$ </span>' + esc(dec(n)) + '<span class="cs-ic" aria-hidden="true"> 💲</span></button>';
+  }
+  function linhaLeitura(x) {
+    return '<tr data-id="' + esc(x.id) + '"><td class="costura-nome">' + esc(x.nome) +
+      (x.obs ? '<div class="cs-obs">' + esc(x.obs) + '</div>' : '') + '</td>' +
+      '<td class="cs-num">' + celValor(x.valor, 'o valor de ' + x.nome) + '</td>' +
+      '<td class="cs-num">' + celValor(x.acab, 'o valor com acabamento de ' + x.nome) + '</td>' +
+      '<td class="col-data"><span class="costura-data">' + esc(dataBR(x.em) || '—') + '</span>' +
+      (x.por ? '<div class="cs-por">por ' + esc(porTexto(x.por)) + '</div>' : '') + '</td></tr>';
+  }
+  function entrada(campo, valor, rotulo, num) {
+    return '<input class="cs-in' + (num ? ' cs-in-num' : '') + '" data-campo="' + campo + '" value="' + esc(valor) + '"' +
+      (num ? ' inputmode="decimal" placeholder="—"' : '') + ' aria-label="' + esc(rotulo) + '" autocomplete="off">';
+  }
+  function linhaEdicao(x) {
+    return '<tr class="cs-ed" data-id="' + esc(x.id) + '">' +
+      '<td>' + entrada('nome', x.nome, 'Nome da bolsa') + '</td>' +
+      '<td class="cs-num">' + entrada('valor', dec(x.valor), 'Valor de ' + x.nome, true) + '</td>' +
+      '<td class="cs-num">' + entrada('acab', dec(x.acab), 'Valor com acabamento de ' + x.nome, true) + '</td>' +
+      '<td>' + entrada('obs', x.obs, 'Observação de ' + x.nome) + '</td>' +
+      '<td class="cs-acoes-col"><span class="cs-estado" aria-live="polite"></span>' +
+      (eAdmin() ? ' <button type="button" class="cs-apagar" title="Apagar ' + esc(x.nome) + '" aria-label="Apagar ' +
+        esc(x.nome) + '">🗑</button>' : '') + '</td></tr>';
+  }
+  function linhaNova(gs) {
+    var nomes = gs.map(function (g) { return g[0]; });
+    if (nomes.indexOf('GERAL') < 0) nomes.unshift('GERAL');
+    var sel = nomes.length > 1 ? '<select class="cs-in cs-grupo" data-campo="grupo" aria-label="Em qual tabela">' +
+      nomes.map(function (g) { return '<option value="' + esc(g) + '">' + esc(rotuloGrupo(g)) + '</option>'; }).join('') +
+      '</select>' : '';
+    return '<tr class="cs-nova" data-id="nova">' +
+      '<td>' + entrada('nome', '', 'Nome da bolsa nova').replace('autocomplete="off">', 'autocomplete="off" placeholder="＋ Bolsa nova: nome">') + sel + '</td>' +
+      '<td class="cs-num">' + entrada('valor', '', 'Valor da bolsa nova', true) + '</td>' +
+      '<td class="cs-num">' + entrada('acab', '', 'Valor com acabamento da bolsa nova', true) + '</td>' +
+      '<td>' + entrada('obs', '', 'Observação da bolsa nova') + '</td>' +
+      '<td class="cs-acoes-col"><span class="cs-estado" aria-live="polite"></span> ' +
+      '<button type="button" class="cs-add">Adicionar</button></td></tr>';
+  }
+  function sujas() {
+    var guarda = {};
+    document.querySelectorAll('#costura-tbody tr.cs-mudou, #costura-tbody tr.cs-nova').forEach(function (tr) {
+      var v = {};
+      tr.querySelectorAll('[data-campo]').forEach(function (i) { v[i.getAttribute('data-campo')] = i.value; });
+      guarda[tr.getAttribute('data-id')] = { valores: v, mudou: tr.classList.contains('cs-mudou') };
+    });
+    return guarda;
+  }
+  function devolver(guarda) {
+    Object.keys(guarda).forEach(function (id) {
+      var tr = document.querySelector('#costura-tbody tr[data-id="' + id.replace(/"/g, '') + '"]');
+      if (!tr) return;
+      tr.querySelectorAll('[data-campo]').forEach(function (i) {
+        var k = i.getAttribute('data-campo');
+        if (k in guarda[id].valores) i.value = guarda[id].valores[k];
+      });
+      if (guarda[id].mudou) tr.classList.add('cs-mudou');
+    });
+  }
+
+  function renderAtual() {
+    var todos = itens();
+    var q = semAcento(st.busca);
+    var vis = todos.filter(function (x) { return !q || semAcento(x.nome + ' ' + x.obs).indexOf(q) >= 0; });
+    var gs = grupos(vis);
+    var ncol = st.editando ? 5 : 4;
+    var acabTh = '<span class="cs-l">Com acabamento</span><span class="cs-c" aria-hidden="true">C/ acab.</span>';
+    cabecalho(st.editando
+      ? [['Bolsa'], ['Valor', 'cs-num'], [acabTh, 'cs-num'], ['Observação'], ['<span class="sr-only">Situação</span>', 'cs-acoes-col']]
+      : [['Bolsa'], ['Valor', 'cs-num'], [acabTh, 'cs-num'], ['Atualizado', 'col-data']]);
+    var tabela = document.querySelector('#secao-costura .cs-tabela');
+    if (tabela) tabela.classList.toggle('cs-editando', st.editando);
+    var guarda = st.editando ? sujas() : {};
+    var h = [];
+    if (st.editando) h.push(linhaNova(grupos(todos)));
+    gs.forEach(function (g) {
+      if (gs.length > 1 || g[0] !== 'GERAL') {
+        h.push('<tr class="cs-secao"><td colspan="' + ncol + '">' + esc(rotuloGrupo(g[0])) + '<span>' + g[1].length +
+          (g[1].length === 1 ? ' bolsa' : ' bolsas') + '</span></td></tr>');
+      }
+      g[1].forEach(function (x) { h.push(st.editando ? linhaEdicao(x) : linhaLeitura(x)); });
+    });
+    if (!vis.length) {
+      h.push('<tr><td colspan="' + ncol + '" class="cs-vazio">' + (todos.length ? 'Nenhuma bolsa com esse nome.' :
+        'A tabela de costura ainda não carregou ou está vazia.') + '</td></tr>');
+    }
+    $('costura-tbody').innerHTML = h.join('');
+    if (st.editando) devolver(guarda);
+    var ult = todos.reduce(function (m, x) { return x.em && (!m || x.em > m.em) ? x : m; }, null);
+    var acab = todos.filter(function (x) { return x.acab != null; }).length;
+    var info = $('costura-info');
+    if (info) {
+      info.textContent = (q ? vis.length + ' de ' : '') + todos.length + ' bolsas · ' + acab + ' com valor de acabamento' +
+        (ult ? ' · última mudança em ' + dataBR(ult.em) + (ult.por ? ' por ' + porTexto(ult.por) : '') : '') +
+        (st.editando ? ' · editando: mude o valor e aperte Enter (Esc desfaz a linha)' : '');
+    }
+    var sub = $('cs-sub');
+    if (sub) sub.textContent = 'Tabela de 2026: valor normal e valor com acabamento.' +
+      (podeEditar() ? ' Para mudar, clique em Editar.' : '');
+  }
+
+  function renderHist() {
+    var t = st.tabela;
+    cabecalho([['Bolsa'], ['Valor', 'cs-num'], ['Observação']]);
+    var tabela = document.querySelector('#secao-costura .cs-tabela');
+    if (tabela) tabela.classList.remove('cs-editando');
+    var tb = $('costura-tbody');
+    var info = $('costura-info');
+    var sub = $('cs-sub');
+    if (sub) sub.textContent = 'Tabela antiga da planilha da Ana, só para consulta.';
+    if (st.erroHist[t]) {
+      tb.innerHTML = '<tr><td colspan="3" class="cs-vazio">Não consegui abrir esta tabela: ' + esc(st.erroHist[t]) + '</td></tr>';
+      if (info) info.textContent = '';
+      return;
+    }
+    var dados = st.hist[t];
+    if (!dados) {
+      tb.innerHTML = '<tr><td colspan="3" class="cs-vazio">Abrindo a tabela…</td></tr>';
+      if (info) info.textContent = '';
+      carregarHist(t);
+      return;
+    }
+    var q = semAcento(st.busca);
+    var vis = dados.filter(function (x) { return !q || semAcento(x.nome + ' ' + (x.obs || '') + ' ' + (x.codigo || '')).indexOf(q) >= 0; });
+    var h = [], secao = null;
+    vis.forEach(function (x) {
+      if ((x.secao || null) !== secao) {
+        secao = x.secao || null;
+        if (secao) h.push('<tr class="cs-secao"><td colspan="3">' + esc(secao) + '</td></tr>');
+      }
+      var v = num(x.valor);
+      h.push('<tr><td class="costura-nome">' + (x.codigo ? '<span class="cs-cod">' + esc(x.codigo) + '</span>' : '') +
+        esc(x.nome) + '</td><td class="cs-num">' + celValor(v, 'o valor de ' + x.nome) + '</td><td>' +
+        (x.obs ? '<span class="cs-obs">' + esc(x.obs) + '</span>' : '') + '</td></tr>');
+    });
+    if (!vis.length) h.push('<tr><td colspan="3" class="cs-vazio">Nenhuma bolsa com esse nome nesta tabela.</td></tr>');
+    tb.innerHTML = h.join('');
+    if (info) info.textContent = (q ? vis.length + ' de ' : '') + dados.length + ' linhas · tabela antiga, só consulta';
+  }
+
+  function render() {
+    if (!$('costura-tbody') || !$('cs-thead')) return;
+    ligar();
+    montarFiltro();
+    var podeEd = podeEditar() && st.tabela === ATUAL;
+    if (!podeEd) st.editando = false;
+    var b = $('cs-editar');
+    if (b) {
+      b.style.display = podeEd ? '' : 'none';
+      b.textContent = st.editando ? '✔ Concluir' : '✏️ Editar';
+      b.setAttribute('aria-pressed', st.editando ? 'true' : 'false');
+    }
+    if (st.tabela === ATUAL) renderAtual(); else renderHist();
+  }
+
+  // ---------------------------------------------------------------- editar, incluir, apagar
+  function acharItem(id) { var xs = itens(); for (var i = 0; i < xs.length; i++) if (xs[i].id === id) return xs[i]; return null; }
+  function estado(tr, texto, tipo) {
+    var e = tr.querySelector('.cs-estado');
+    if (!e) return;
+    e.textContent = texto || '';
+    e.className = 'cs-estado' + (tipo ? ' ' + tipo : '');
+  }
+  function lerLinha(tr) {
+    var v = {}, erro = '';
+    tr.querySelectorAll('[data-campo]').forEach(function (i) {
+      var k = i.getAttribute('data-campo');
+      i.classList.remove('cs-invalido');
+      if (k === 'valor' || k === 'acab') {
+        var n = num(i.value);
+        if (n !== null && isNaN(n)) { i.classList.add('cs-invalido'); erro = 'Valor inválido: use só o número, ex. 2,50'; }
+        v[k] = n;
+      } else {
+        v[k] = String(i.value || '').replace(/\s+/g, ' ').trim();
+      }
+    });
+    if (!v.nome) {
+      erro = 'Falta o nome da bolsa';
+      var ni = tr.querySelector('[data-campo="nome"]');
+      if (ni) ni.classList.add('cs-invalido');
+    }
+    v.nome = (v.nome || '').toUpperCase();
+    v.erro = erro;
+    return v;
+  }
+  function igual(a, b) { return (a == null ? null : a) === (b == null ? null : b); }
+  function mudancas(x, n) {
+    var p = [];
+    if (x.nome !== n.nome) p.push('Nome "' + x.nome + '" → "' + n.nome + '"');
+    if (!igual(x.valor, n.valor)) p.push('Valor ' + (brl(x.valor) || '—') + ' → ' + (brl(n.valor) || '—'));
+    if (!igual(x.acab, n.acab)) p.push('Com acabamento ' + (brl(x.acab) || '—') + ' → ' + (brl(n.acab) || '—'));
+    if ((x.obs || '') !== (n.obs || '')) p.push('Obs. "' + (x.obs || '') + '" → "' + (n.obs || '') + '"');
+    return p;
+  }
+  function precisaConferir(tr, n) {
+    var alto = [n.valor, n.acab].filter(function (v) { return v != null && v > LIMITE_CONFERIR; });
+    if (!alto.length) return false;
+    var chave = (tr.getAttribute('data-id') || '') + '|' + n.valor + '|' + n.acab;
+    if (st.conferir[chave]) return false;
+    st.conferir[chave] = true;
+    estado(tr, 'Confira: ' + brl(alto[0]) + ' parece alto. Enter de novo para salvar.', 'aviso');
+    return true;
+  }
+  function noModelo(ref, row) {
+    ref.nome = row.nome;
+    ref.grupo = row.grupo;
+    ref.valor = row.valor != null ? parseFloat(row.valor).toFixed(2).replace('.', ',') : '';
+    ref.valor_acabamento = row.valor_acabamento;
+    ref.obs = row.obs;
+    ref.updated_at = row.updated_at;
+    ref.atualizado_por = row.atualizado_por;
+    ref.updatedAt = row.updated_at ? new Date(row.updated_at).toLocaleDateString('pt-BR') : '';
+  }
+  function erroTexto(e) {
+    if (e && (e.code === 'PGRST116' || /0 rows|no rows/i.test(e.message || ''))) return 'Não salvou: este login não pode editar a costura.';
+    return 'Não salvou: ' + ((e && e.message) || e);
+  }
+  async function log(acao, nome, detalhe) {
+    try { if (typeof registrarLog === 'function') await registrarLog(acao, 'costura', nome, detalhe); } catch (e) {}
+  }
+  async function salvarLinha(tr) {
+    var id = tr.getAttribute('data-id');
+    var x = acharItem(id);
+    if (!x) return false;
+    var n = lerLinha(tr);
+    if (n.erro) { estado(tr, n.erro, 'erro'); return false; }
+    var mud = mudancas(x, n);
+    if (!mud.length) { tr.classList.remove('cs-mudou'); estado(tr, '', ''); return true; }
+    if (precisaConferir(tr, n)) return false;
+    estado(tr, 'Salvando…', '');
+    try {
+      var r = await _supa.from('costura').update({ nome: n.nome, valor: n.valor, valor_acabamento: n.acab, obs: n.obs || null })
+        .eq('id', x.ref.id).select().single();
+      if (r.error) throw r.error;
+      noModelo(x.ref, r.data);
+      tr.classList.remove('cs-mudou');
+      estado(tr, '✓ salvo', 'ok');
+      log('editou', n.nome, mud.join('; '));
+      return true;
+    } catch (e) {
+      estado(tr, erroTexto(e), 'erro');
+      return false;
+    }
+  }
+  async function adicionar(tr) {
+    var n = lerLinha(tr);
+    var gi = tr.querySelector('[data-campo="grupo"]');
+    var grupo = gi ? gi.value : 'GERAL';
+    if (n.erro) { estado(tr, n.erro, 'erro'); return false; }
+    var repetida = itens().some(function (x) { return x.grupo === grupo && semAcento(x.nome) === semAcento(n.nome); });
+    if (repetida) { estado(tr, 'Já existe "' + n.nome + '" nesta tabela.', 'erro'); return false; }
+    if (precisaConferir(tr, n)) return false;
+    estado(tr, 'Salvando…', '');
+    try {
+      var r = await _supa.from('costura').insert([{ nome: n.nome, grupo: grupo, valor: n.valor, valor_acabamento: n.acab,
+        obs: n.obs || null }]).select().single();
+      if (r.error) throw r.error;
+      var ref = Object.assign({}, r.data);
+      noModelo(ref, r.data);
+      lista().push(ref);
+      log('criou', n.nome, (brl(n.valor) || '—') + ' / com acabamento ' + (brl(n.acab) || '—') + ' [' + rotuloGrupo(grupo) + ']');
+      tr.querySelectorAll('[data-campo]').forEach(function (i) { if (i.tagName !== 'SELECT') i.value = ''; });
+      tr.classList.remove('cs-mudou');
+      render();
+      var nova = document.querySelector('#costura-tbody tr.cs-nova');
+      if (nova) { estado(nova, '✓ ' + n.nome + ' entrou', 'ok'); var ni = nova.querySelector('[data-campo="nome"]'); if (ni) ni.focus(); }
+      return true;
+    } catch (e) {
+      estado(tr, erroTexto(e), 'erro');
+      return false;
+    }
+  }
+  async function apagar(tr) {
+    var x = acharItem(tr.getAttribute('data-id'));
+    if (!x) return;
+    if (!window.confirm('Apagar "' + x.nome + '" da tabela de costura?\nIsso não tem como desfazer pelo site.')) return;
+    estado(tr, 'Apagando…', '');
+    try {
+      var r = await _supa.from('costura').delete().eq('id', x.ref.id).select();
+      if (r.error) throw r.error;
+      if (!r.data || !r.data.length) { estado(tr, 'Não apagou: só o administrador pode apagar.', 'erro'); return; }
+      var l = lista();
+      var i = l.indexOf(x.ref);
+      if (i >= 0) l.splice(i, 1);
+      log('deletou', x.nome, 'Valor ' + (brl(x.valor) || '—') + '; com acabamento ' + (brl(x.acab) || '—'));
+      render();
+    } catch (e) {
+      estado(tr, erroTexto(e), 'erro');
+    }
+  }
+  async function concluir() {
+    var nova = document.querySelector('#costura-tbody tr.cs-nova [data-campo="nome"]');
+    if (nova && nova.value.trim()) {
+      aviso('A bolsa nova ainda não entrou: aperte Enter (ou Adicionar) ou apague o nome dela.', true);
+      nova.focus();
+      return;
+    }
+    var pend = Array.prototype.slice.call(document.querySelectorAll('#costura-tbody tr.cs-mudou'));
+    var falhou = 0;
+    for (var i = 0; i < pend.length; i++) {
+      if (pend[i].getAttribute('data-id') === 'nova') continue;
+      if (!(await salvarLinha(pend[i]))) falhou++;
+    }
+    if (falhou) { aviso(falhou + (falhou === 1 ? ' linha não foi salva' : ' linhas não foram salvas') + '. Confira as marcadas em vermelho ou amarelo.', true); return; }
+    aviso('');
+    st.editando = false;
+    render();
+  }
+
+  // ---------------------------------------------------------------- copiar e baixar
+  function copiar(btn) {
+    var texto = btn.getAttribute('data-copiar') || '';
+    function ok() {
+      btn.classList.add('copiado');
+      setTimeout(function () { btn.classList.remove('copiado'); }, 1200);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(texto).then(ok, function () { copiarVelho(texto); ok(); });
+    } else { copiarVelho(texto); ok(); }
+  }
+  function copiarVelho(texto) {
+    var ta = document.createElement('textarea');
+    ta.value = texto;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+  function celCsv(v) {
+    var t = String(v == null ? '' : v);
+    return /[";\r\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
+  }
+  function baixar() {
+    var linhas, nome, hoje = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
+    if (st.tabela === ATUAL) {
+      linhas = [['Tabela', 'Bolsa', 'Valor', 'Com acabamento', 'Observação', 'Atualizado em', 'Por']];
+      ordenar(itens()).forEach(function (x) {
+        linhas.push([rotuloGrupo(x.grupo), x.nome, dec(x.valor), dec(x.acab), x.obs, dataBR(x.em), porTexto(x.por)]);
+      });
+      nome = 'Costura 2026 - ' + hoje + '.csv';
+    } else {
+      var dados = st.hist[st.tabela];
+      if (!dados) { aviso('Espere a tabela abrir para baixar.'); return; }
+      linhas = [['Seção', 'Código', 'Bolsa', 'Valor', 'Observação']];
+      dados.forEach(function (x) { linhas.push([x.secao || '', x.codigo || '', x.nome, dec(num(x.valor)), x.obs || '']); });
+      nome = 'Costura - ' + st.tabela.replace(/[\\/:*?"<>|]/g, '') + '.csv';
+    }
+    var csv = '﻿' + linhas.map(function (l) { return l.map(celCsv).join(';'); }).join('\r\n');
+    var url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = nome;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 1500);
+  }
+
+  // ---------------------------------------------------------------- eventos (uma vez)
+  function ligar() {
+    if (st.ligado) return;
+    var sel = $('cs-tabela'), busca = $('costura-busca'), ed = $('cs-editar'), bx = $('cs-baixar'), tb = $('costura-tbody');
+    if (!sel || !busca || !tb) return;
+    st.ligado = true;
+    sel.addEventListener('change', function () {
+      if (st.editando && document.querySelector('#costura-tbody tr.cs-mudou')) {
+        sel.value = st.tabela;
+        aviso('Salve (Enter) ou desfaça (Esc) as linhas mudadas antes de trocar de tabela.', true);
+        return;
+      }
+      aviso('');
+      st.tabela = sel.value;
+      st.editando = false;
+      render();
+    });
+    var espera = null;
+    busca.addEventListener('input', function () {
+      clearTimeout(espera);
+      espera = setTimeout(function () { st.busca = busca.value || ''; render(); }, 120);
+    });
+    if (ed) ed.addEventListener('click', function () {
+      if (st.editando) { concluir(); return; }
+      st.editando = true;
+      aviso('');
+      render();
+      var primeiro = document.querySelector('#costura-tbody tr.cs-ed [data-campo="valor"]');
+      if (primeiro) primeiro.focus();
+    });
+    if (bx) bx.addEventListener('click', baixar);
+    tb.addEventListener('click', function (ev) {
+      var b = ev.target.closest('button');
+      if (!b) return;
+      var tr = b.closest('tr');
+      if (b.classList.contains('cs-copiar')) copiar(b);
+      else if (b.classList.contains('cs-apagar') && tr) apagar(tr);
+      else if (b.classList.contains('cs-add') && tr) adicionar(tr);
+    });
+    tb.addEventListener('input', function (ev) {
+      var tr = ev.target.closest('tr');
+      if (!tr || !ev.target.hasAttribute('data-campo')) return;
+      tr.classList.add('cs-mudou');
+      if (tr.getAttribute('data-id') !== 'nova') estado(tr, 'não salvo', '');
+    });
+    tb.addEventListener('keydown', function (ev) {
+      var tr = ev.target.closest('tr');
+      if (!tr || !ev.target.hasAttribute('data-campo')) return;
+      if (ev.key === 'Enter') {
+        ev.preventDefault();
+        if (tr.getAttribute('data-id') === 'nova') adicionar(tr); else salvarLinha(tr);
+      } else if (ev.key === 'Escape') {
+        ev.preventDefault();
+        if (tr.getAttribute('data-id') === 'nova') {
+          tr.querySelectorAll('[data-campo]').forEach(function (i) { if (i.tagName !== 'SELECT') i.value = ''; });
+          tr.classList.remove('cs-mudou');
+          estado(tr, '', '');
+          return;
+        }
+        var x = acharItem(tr.getAttribute('data-id'));
+        if (!x) return;
+        var vals = { nome: x.nome, valor: dec(x.valor), acab: dec(x.acab), obs: x.obs };
+        tr.querySelectorAll('[data-campo]').forEach(function (i) {
+          i.value = vals[i.getAttribute('data-campo')] || '';
+          i.classList.remove('cs-invalido');
+        });
+        tr.classList.remove('cs-mudou');
+        estado(tr, 'desfeito', '');
+      }
+    });
+  }
+
+  // ---------------------------------------------------------------- troca as funcoes antigas
+  window.costuraRender = render;
+  window.costuraBuscar = function () { var b = $('costura-busca'); st.busca = b ? b.value : ''; render(); };
+  window.admCosturaRender = function () {};  // o painel antigo de costura saiu; quem chamar nao quebra
+  window.admMostrarCostura = function () {
+    ['adm-produtos-section', 'adm-costureiras-section', 'adm-historico-section', 'adm-precohist-section'].forEach(function (id) {
+      var e = $(id); if (e) e.style.display = 'none';
+    });
+    var sec = $('adm-costura-section');
+    if (sec) sec.style.display = '';
+    ['adm-btn-costura', 'adm-btn-costureiras', 'adm-btn-historico', 'adm-btn-precohist'].forEach(function (id) {
+      var e = $(id); if (e) e.style.display = 'none';
+    });
+    var bp = $('adm-btn-produtos');
+    if (bp) bp.style.display = '';
+  };
+  window.__costura = { versao: '1.0', estado: st, num: num };
 })();
 </script>
 </body>

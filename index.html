@@ -709,7 +709,38 @@
 .ag-visor-rod { background:rgba(15,23,42,.92); color:#cbd5e1; font-size:.76rem; padding:8px 14px; line-height:1.45; }
 .ag-teste-faixa { background:#7c2d12; color:#fff; text-align:center; font-size:.8rem; font-weight:800; padding:6px 10px;
                   border-radius:10px; margin-bottom:12px; letter-spacing:.02em; }
+/* ultimos pedidos (1.3) */
+.ag-ult-btn { margin-left:auto; display:inline-flex; align-items:center; justify-content:center; gap:6px; }
+.ag-ult-badge { display:inline-flex; align-items:center; justify-content:center; min-width:20px; height:20px; padding:0 6px;
+                border-radius:999px; background:var(--ag-rosa); color:#fff; font-size:.72rem; font-weight:800; line-height:1; }
+.ag-ult-badge[hidden] { display:none; }
+.ag-ult-cab { display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin:16px 0 6px; font-size:.84rem;
+              font-weight:800; color:var(--ag-tinta); }
+.ag-ult-cab:first-child, .ag-aviso + .ag-ult-cab { margin-top:2px; }
+.ag-ult-cont { font-size:.76rem; font-weight:600; color:var(--ag-cinza); white-space:nowrap; }
+.ag-ult-item { border:1px solid var(--ag-linha); border-radius:10px; margin-bottom:6px; background:#fff; }
+.ag-ult-item[open] { border-color:#c7d7f5; }
+.ag-ult-novo { border-left:3px solid var(--ag-rosa); }
+.ag-ult-resumo { position:relative; list-style:none; cursor:pointer; display:flex; flex-direction:column; gap:2px;
+                 padding:8px 34px 8px 12px; border-radius:10px; }
+.ag-ult-resumo::-webkit-details-marker { display:none; }
+.ag-ult-resumo::after { content:'›'; position:absolute; right:14px; top:50%; transform:translateY(-50%); font-size:1.25rem;
+                        line-height:1; color:var(--ag-cinza); transition:transform .15s ease; }
+.ag-ult-item[open] > .ag-ult-resumo::after { transform:translateY(-50%) rotate(90deg); }
+.ag-ult-resumo:hover { background:var(--ag-fundo); }
+.ag-ult-resumo:focus-visible { outline:3px solid var(--ag-rosa); outline-offset:2px; }
+.ag-ult-item[open] > .ag-ult-resumo { border-bottom:1px solid var(--ag-linha); border-radius:10px 10px 0 0; }
+.ag-ult-l1 { display:flex; align-items:baseline; gap:8px; min-width:0; }
+.ag-ult-l1 .ag-chip { flex:0 0 auto; }
+.ag-ult-num { flex:0 0 auto; font-size:.95rem; font-weight:800; color:var(--ag-tinta); }
+.ag-ult-cli { flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:.88rem;
+              color:var(--ag-tinta); }
+.ag-ult-cli.ag-ni { color:var(--ag-cinza); font-style:italic; }
+.ag-ult-l2 { font-size:.78rem; color:var(--ag-cinza); }
+.ag-chip.ag-chip-novo { background:var(--ag-rosa); color:#fff; }
+.ag-ult-item .ag-ped { border:none; margin:0; border-radius:0 0 10px 10px; }
 @media (max-width:650px) {
+  .ag-ult-btn { margin-left:0; width:100%; }
   .ag .card { padding:14px 12px; }
   .ag-mes { font-size:1.15rem; }
   .ag-nav { width:100%; }
@@ -1592,6 +1623,7 @@ input, select, textarea { transition: border-color .16s ease, box-shadow .16s ea
       <div class="ag-filtro">
         <label for="ag-vendedor">Vendedor</label>
         <select id="ag-vendedor" class="ag-sel" disabled><option value="">Todos os vendedores</option></select>
+        <button type="button" class="ag-btn ag-ult-btn" id="ag-ultimos" aria-haspopup="dialog" disabled>🕐 Últimos pedidos<span class="ag-ult-badge" id="ag-ultimos-n" hidden></span></button>
       </div>
       <div class="ag-fonte" id="ag-fonte" aria-live="polite"></div>
       <div class="ag-aviso" id="ag-aviso" role="status" hidden></div>
@@ -1616,6 +1648,17 @@ input, select, textarea { transition: border-color .16s ease, box-shadow .16s ea
       </div>
       <div class="ag-painel-corpo" id="ag-dia-lista"></div>
       <div class="ag-painel-rod">A contagem é de pedidos, não de bolsas. Produção, entrega e cancelamento não são verificados na origem: “prazo passado” quer dizer só que a data de entrega já passou.</div>
+    </div>
+  </div>
+
+  <div class="ag ag-ov" id="ag-ult" role="dialog" aria-modal="true" aria-labelledby="ag-ult-titulo" hidden>
+    <div class="ag-painel">
+      <div class="ag-painel-cab">
+        <div><h3 id="ag-ult-titulo">Últimos pedidos</h3><p id="ag-ult-sub"></p></div>
+        <button type="button" class="ag-fechar" id="ag-ult-fechar" aria-label="Fechar os últimos pedidos">×</button>
+      </div>
+      <div class="ag-painel-corpo" id="ag-ult-lista"></div>
+      <div class="ag-painel-rod">Pela data do pedido, do mais novo para o mais antigo; só pedidos de venda. “Novo” = não estava aqui da última vez que você abriu esta lista neste aparelho. Pedido antigo que mudou não conta como novo.</div>
     </div>
   </div>
 
@@ -4920,13 +4963,16 @@ function moldeResumoPrint() {
 </div>
 
 <script id="agenda-fabrica-js">
-/* ===== Agenda da Fabrica (bloco novo) - versao 1.2, 18/11/2026 (1.1 em 17/11; 1.0 em 16/11/2026) =====
+/* ===== Agenda da Fabrica (bloco novo) - versao 1.3, 19/11/2026 (1.2 em 18/11; 1.1 em 17/11; 1.0 em 16/11/2026) =====
    So leitura. Le agenda_coleta e agenda_pedidos (o banco so entrega a quem tem a secao 'agenda' ou 'admin')
    e abre vias e layouts por links assinados de 10 minutos do bucket privado 'agenda'. Nao grava nada no banco.
    1.1: filtro por vendedor (FABRICA, FABRICA 2025 e ISISBOLSAS = "Fabrica"); a escolha fica guardada so neste
    aparelho. O filtro so organiza a tela: quem tem acesso a Agenda continua lendo os pedidos de todos.
    1.2: link direto. "#agenda" abre a aba; "#agenda/AAAA-MM-DD" abre a aba no mes e a lista do dia (com todos os
    vendedores, sem mudar a escolha guardada). E o link do lembrete "Entregas da Fabrica" da Isa.
+   1.3: botao "Ultimos pedidos": os pedidos feitos nos ultimos 7 dias (pela DATA PEDIDO), do mais novo para o mais
+   antigo, separados por dia, seguindo o filtro de vendedor. "Novo" = nao estava na lista da ultima vez que este
+   usuario a abriu neste aparelho (o que ja foi visto fica guardado so no aparelho, nunca no banco).
    Para nao mexer no codigo que ja existe, este bloco "embrulha" cinco funcoes do painel:
    setModo, carregarPermissoes, carregarDados, aplicarPermissoes e fazerLogout. Para desligar a agenda,
    basta retirar os blocos marcados "AGENDA DA FABRICA". */
@@ -4946,10 +4992,14 @@ function moldeResumoPrint() {
   var OUTRAS_SECOES = ['produtos', 'costura', 'costureiras', 'admin'];
   var PREF_VENDEDOR = 'agenda-fabrica.vendedor';
   var FABRICA = 'FABRICA';
+  var DIAS_ULTIMOS = 7;
+  var PREF_VISTOS = 'agenda-fabrica.vistos.';
+  var DIAS_SEMANA = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
 
   var st = { mes: null, dados: null, ultimoBom: null, erro: null, semPermissao: false, carregando: false,
              timer: null, ultimaCarga: 0, diaAberto: null, listaAberta: null, visor: null, links: new Map(),
-             pilhaFoco: [], novidadeNaLista: false, vendedor: lerPref(), assinaturaFiltro: null, pedidoLink: null };
+             pilhaFoco: [], novidadeNaLista: false, vendedor: lerPref(), assinaturaFiltro: null, pedidoLink: null,
+             email: null, ultimos: null };
   var RE_LINK = /^#agenda(?:\/(\d{4})-(\d{2})-(\d{2}))?$/;
 
   function AgErro(tipo, msg) { this.tipo = tipo; this.message = msg; }
@@ -5084,6 +5134,7 @@ function moldeResumoPrint() {
     var alvo = st.pedidoLink;
     if (!alvo || !st.dados || st.carregando || st.semPermissao) return;
     st.pedidoLink = null;
+    fecharJanela($('ag-ult'));
     abrirDia(alvo, null);
   }
 
@@ -5162,7 +5213,7 @@ function moldeResumoPrint() {
     if (!st.mes) st.mes = mesAtual();
     var nomeMes = MESES[st.mes.mes - 1];
     $('ag-titulo').textContent = nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1) + ' de ' + st.mes.ano;
-    renderFiltro(); renderFonte(); renderAviso(); renderGrade(); renderPendencias();
+    renderFiltro(); renderFonte(); renderAviso(); renderGrade(); renderPendencias(); renderUltimosBotao();
     $('ag-atualizar').disabled = st.carregando;
     $('ag-atualizar').textContent = st.carregando ? 'Atualizando…' : '↻ Atualizar';
   }
@@ -5374,9 +5425,156 @@ function moldeResumoPrint() {
     return bloco;
   }
 
+  // --- ultimos pedidos (1.3) ---------------------------------------------------------------------------------
+  // Os pedidos feitos nos ultimos 7 dias pela DATA PEDIDO do sistema antigo, do mais novo para o mais antigo (numero e
+  // data andam juntos: conferido em 19/11/2026 nos 282 pedidos da caixa). Pedido antigo que chega tarde (como os
+  // trazidos em 18/11) nao aparece como recente. "Novo" = nao estava na lista da ultima vez que este usuario a abriu
+  // neste aparelho; sem armazenamento no aparelho, nada aparece como novo (a lista continua funcionando).
+  function chaveVistos() { return st.email ? PREF_VISTOS + String(st.email).trim().toLowerCase() : null; }
+  function lerVistos() {            // null = primeira vez neste aparelho (ou sem armazenamento)
+    var k = chaveVistos();
+    if (!k) return null;
+    try {
+      var v = JSON.parse(window.localStorage.getItem(k) || 'null');
+      return Array.isArray(v) ? new Set(v.map(String)) : null;
+    } catch (e) { return null; }
+  }
+  function gravarVistos(vistos) {
+    var k = chaveVistos();
+    if (!k) return;
+    try { window.localStorage.setItem(k, JSON.stringify(Array.from(vistos))); } catch (e) { /* sem armazenamento */ }
+  }
+  function diasAntes(isoData, n) {  // data civil menos n dias (conta em UTC: nao anda um dia por causa do fuso)
+    var p = isoData.split('-');
+    return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2] - n)).toISOString().slice(0, 10);
+  }
+  function diaMes(isoData) { return isoData.slice(8, 10) + '/' + isoData.slice(5, 7); }
+  function dataCurta(isoData) {     // "qui 03/12"
+    var p = isoData.split('-');
+    return DIAS_SEMANA[new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])).getUTCDay()] + ' ' + diaMes(isoData);
+  }
+  function dataDoDia(isoData) {     // "quinta-feira, 19 de novembro"
+    var p = isoData.split('-');
+    return new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC', weekday: 'long', day: 'numeric', month: 'long' })
+      .format(new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])));
+  }
+  function ultimosPedidos(d) {
+    var hoje = hojeBahia(), desde = diasAntes(hoje, DIAS_ULTIMOS - 1);
+    if (!d || !d.pedidos) return { lista: [], desde: desde, hoje: hoje };
+    var doFiltro = d.pedidos.filter(function (p) { return !st.vendedor || p._vend === st.vendedor; });
+    var lista = doFiltro.filter(function (p) { return p.order_date && p.order_date >= desde; });
+    var menor = lista.reduce(function (m, p) { return Math.min(m, Number(p.source_order_id)); }, Infinity);
+    doFiltro.forEach(function (p) {   // DATA PEDIDO ilegivel: entra se o numero e mais novo que o menor do periodo
+      if (!p.order_date && Number(p.source_order_id) > menor) lista.push(p);
+    });
+    lista.sort(function (a, b) {
+      var da = a.order_date || '', db = b.order_date || '';
+      if (da !== db) return !da ? 1 : !db ? -1 : (da < db ? 1 : -1);
+      return Number(b.source_order_id) - Number(a.source_order_id);
+    });
+    return { lista: lista, desde: desde, hoje: hoje };
+  }
+  function contarNovos(d, vistos) {
+    if (!vistos) return 0;
+    return ultimosPedidos(d).lista.filter(function (p) { return !vistos.has(p.source_order_id); }).length;
+  }
+  function renderUltimosBotao() {
+    var b = $('ag-ultimos'), n = $('ag-ultimos-n');
+    if (!b || !n) return;
+    var d = st.semPermissao ? null : st.dados;
+    b.disabled = !d;
+    var novos = d ? contarNovos(d, lerVistos()) : 0;
+    n.hidden = !novos;
+    n.textContent = novos > 99 ? '99+' : String(novos);
+    b.title = novos ? plural(novos, 'pedido novo', 'pedidos novos') + ' desde a última vez que você abriu esta lista neste aparelho'
+                    : 'Os pedidos feitos nos últimos ' + DIAS_ULTIMOS + ' dias';
+    if (novos) b.setAttribute('aria-label', 'Últimos pedidos, ' + plural(novos, 'novo', 'novos'));
+    else b.removeAttribute('aria-label');
+  }
+  function abrirUltimos(gatilho) {
+    if (!st.dados) return;
+    st.ultimos = { vistosAntes: lerVistos(), novidade: false };
+    preencherUltimos();
+    abrirJanela($('ag-ult'), gatilho);
+  }
+  function avisoUltimos() {
+    return el('div', { class: 'ag-aviso ag-info', style: 'margin:0 0 10px' },
+      'A agenda foi atualizada enquanto esta lista estava aberta. ',
+      el('button', { type: 'button', class: 'ag-btn', onclick: function () {
+        if (st.ultimos) { st.ultimos.novidade = false; preencherUltimos(); }
+      } }, 'Ver lista atualizada'));
+  }
+  function preencherUltimos() {
+    var U = st.ultimos, d = st.dados;
+    if (!U || !d) return;
+    var r = ultimosPedidos(d), ontem = diasAntes(r.hoje, 1);
+    function ehNovo(p) { return !!U.vistosAntes && !U.vistosAntes.has(p.source_order_id); }
+    var nNovos = r.lista.filter(ehNovo).length;
+    $('ag-ult-sub').textContent = (r.lista.length ? plural(r.lista.length, 'pedido', 'pedidos') : 'Nenhum pedido') + deQuem() +
+      (r.lista.length === 1 ? ' feito' : ' feitos') + ' entre ' + diaMes(r.desde) + ' e ' + diaMes(r.hoje) +
+      (nNovos ? ' · ' + plural(nNovos, 'novo', 'novos') : '');
+    var corpo = $('ag-ult-lista'); limpar(corpo);
+    if (U.novidade) corpo.append(avisoUltimos());
+    if (!r.lista.length) {
+      corpo.append(el('p', { class: 'ag-carregando', text: 'Nenhum pedido' + deQuem() + ' feito nos últimos ' + DIAS_ULTIMOS +
+        ' dias nesta coleta.' }));
+    }
+    var porDia = new Map();
+    r.lista.forEach(function (p) { var k = p.order_date || ''; porDia.set(k, (porDia.get(k) || 0) + 1); });
+    var dia = null;
+    r.lista.forEach(function (p) {
+      var k = p.order_date || '';
+      if (k !== dia) {
+        dia = k;
+        var rot = !k ? 'Sem data do pedido legível' : k === r.hoje ? 'Hoje · ' + dataDoDia(k)
+          : k === ontem ? 'Ontem · ' + dataDoDia(k) : dataDoDia(k);
+        corpo.append(el('h4', { class: 'ag-ult-cab' }, el('span', { text: rot.charAt(0).toUpperCase() + rot.slice(1) }),
+          el('span', { class: 'ag-ult-cont', text: plural(porDia.get(k), 'pedido', 'pedidos') })));
+      }
+      corpo.append(linhaUltimo(p, r.hoje, ehNovo(p)));
+    });
+    // guarda o que esta pessoa ja viu (na 1a vez, tudo o que esta na agenda), so com pedidos que ainda estao nela
+    var atuais = new Set(d.pedidos.map(function (p) { return p.source_order_id; }));
+    var vistos = U.vistosAntes ? new Set(U.vistosAntes) : new Set(atuais);
+    r.lista.forEach(function (p) { vistos.add(p.source_order_id); });
+    Array.from(vistos).forEach(function (id) { if (!atuais.has(id)) vistos.delete(id); });
+    gravarVistos(vistos);
+    renderUltimosBotao();
+  }
+  function linhaUltimo(p, hoje, novo) {
+    var vend = grupoVendedor(p.seller_original);
+    var qtd = (p.quantity_total === null || p.quantity_total === undefined) ? 'qtd. não informada'
+      : plural(p.quantity_total, 'peça', 'peças');
+    var entrega = p.delivery_date ? 'entrega ' + dataCurta(p.delivery_date) : 'sem data de entrega válida';
+    var l1 = el('span', { class: 'ag-ult-l1' }, el('b', { class: 'ag-ult-num', text: p.source_order_id }),
+      el('span', { class: 'ag-ult-cli' + (p.customer_display_name ? '' : ' ag-ni'),
+        text: p.customer_display_name || 'Cliente não informado' }));
+    if (novo) l1.append(el('span', { class: 'ag-chip ag-chip-novo', text: 'novo' }));
+    if (p.delivery_date && p.delivery_date < hoje) l1.append(el('span', { class: 'ag-chip ag-chip-passado', text: 'prazo passado' }));
+    var item = el('details', { class: 'ag-ult-item' + (novo ? ' ag-ult-novo' : '') },
+      el('summary', { class: 'ag-ult-resumo' }, l1, el('span', { class: 'ag-ult-l2', text: vend.rotulo + ' · ' + qtd + ' · ' + entrega })));
+    item.addEventListener('toggle', function () {   // o cartao completo so e montado quando a pessoa abre a linha
+      if (!item.open || item.querySelector('.ag-ped')) return;
+      var cartao = cartaoPedido(p, hoje);
+      if (p.delivery_date) {
+        cartao.querySelector('.ag-ped-acoes').append(el('button', { type: 'button', class: 'ag-ped-btn ag-sec',
+          onclick: function () { irParaDia(p.delivery_date); } }, 'Abrir o dia ' + diaMes(p.delivery_date) + ' no calendário'));
+      }
+      item.append(cartao);
+    });
+    return item;
+  }
+  function irParaDia(chave) {
+    var volta = $('ag-ultimos');
+    fecharJanela($('ag-ult'));
+    st.mes = { ano: +chave.slice(0, 4), mes: +chave.slice(5, 7) };
+    render();
+    abrirDia(chave, volta);
+  }
+
   // --- janelas (foco, Esc, Tab) ------------------------------------------------------------------------------
   function focaveis(raiz) {
-    return Array.prototype.filter.call(raiz.querySelectorAll('button, [href], [tabindex]:not([tabindex="-1"])'),
+    return Array.prototype.filter.call(raiz.querySelectorAll('button, summary, [href], [tabindex]:not([tabindex="-1"])'),
       function (e) { return !e.disabled && !e.hidden && e.offsetParent !== null; });
   }
   function abrirJanela(ov, gatilho) {
@@ -5398,6 +5596,7 @@ function moldeResumoPrint() {
     }
     if (ov.id === 'ag-visor') { st.visor = null; $('ag-img').removeAttribute('src'); }
     if (ov.id === 'ag-dia') { st.listaAberta = null; st.diaAberto = null; }
+    if (ov.id === 'ag-ult') st.ultimos = null;
   }
   function teclado(ev, ov) {
     if (ev.key === 'Escape') { ev.preventDefault(); fecharJanela(ov); return; }
@@ -5632,6 +5831,11 @@ function moldeResumoPrint() {
   // revisao fixa: se a coleta mudou enquanto o visor estava aberto, avisa (nao troca a imagem sozinha)
   function avisarMudancas() {
     if (st.listaAberta) { st.novidadeNaLista = true; preencherLista(); }
+    if (st.ultimos && !st.ultimos.novidade) {   // nao refaz a lista sozinha (fecharia a linha que a pessoa esta lendo)
+      st.ultimos.novidade = true;
+      var corpoU = $('ag-ult-lista');
+      corpoU.insertBefore(avisoUltimos(), corpoU.firstChild);
+    }
     var v = st.visor;
     if (!v) return;
     var p = pedidoPorId(v.id), faixa = $('ag-visor-faixa');
@@ -5662,9 +5866,9 @@ function moldeResumoPrint() {
   function pausar() { if (st.timer) { clearInterval(st.timer); st.timer = null; } }
   function zerar() {
     pausar();
-    fecharJanela($('ag-visor')); fecharJanela($('ag-dia'));
+    fecharJanela($('ag-visor')); fecharJanela($('ag-dia')); fecharJanela($('ag-ult'));
     st.dados = null; st.ultimoBom = null; st.erro = null; st.semPermissao = false; st.links.clear(); st.mes = null;
-    st.pedidoLink = null;
+    st.pedidoLink = null; st.email = null;
     var sec = $('secao-agenda'); if (sec) sec.style.display = 'none';
     var btn = $('btnAgenda'); if (btn) { btn.classList.remove('ativo'); btn.style.display = 'none'; }
   }
@@ -5685,6 +5889,10 @@ function moldeResumoPrint() {
     $('ag-visor-fechar').addEventListener('click', function () { fecharJanela($('ag-visor')); });
     $('ag-dia').addEventListener('keydown', function (ev) { teclado(ev, $('ag-dia')); });
     $('ag-dia').addEventListener('click', function (ev) { if (ev.target === $('ag-dia')) fecharJanela($('ag-dia')); });
+    $('ag-ultimos').addEventListener('click', function (ev) { abrirUltimos(ev.currentTarget); });
+    $('ag-ult-fechar').addEventListener('click', function () { fecharJanela($('ag-ult')); });
+    $('ag-ult').addEventListener('keydown', function (ev) { teclado(ev, $('ag-ult')); });
+    $('ag-ult').addEventListener('click', function (ev) { if (ev.target === $('ag-ult')) fecharJanela($('ag-ult')); });
     document.addEventListener('visibilitychange', function () {
       if (document.visibilityState === 'visible' && modoAtual === 'agenda' && Date.now() - st.ultimaCarga > 60000) carregar();
     });
@@ -5717,6 +5925,7 @@ function moldeResumoPrint() {
   };
 
   window.carregarPermissoes = async function (email) {
+    st.email = email || null;     // so para guardar, neste aparelho, o que cada usuario ja viu em "Ultimos pedidos"
     var r = await _carregarPermissoes.apply(this, arguments);
     if (email === ADMIN_MASTER && userPermissoes.indexOf('agenda') < 0) userPermissoes.push('agenda');
     return r;

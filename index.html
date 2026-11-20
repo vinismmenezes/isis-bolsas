@@ -1406,6 +1406,77 @@ input, select, textarea { transition: border-color .16s ease, box-shadow .16s ea
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar); else iniciar();
 })();
 </script>
+<style id="financeiro-isis-css">
+/* ===== Financeiro (bloco novo, 19/11/2026; segue as cores e cantos do painel) ===== */
+.fin { --fin-azul:#2154A8; --fin-marinho:#1A3580; --fin-tinta:#1a2e4a; --fin-rosa:#E5007D; --fin-cinza:#64748b;
+       --fin-linha:#e2e8f0; --fin-fundo:#f8fafc; --fin-vermelho:#b91c1c; --fin-vermelho-fundo:#fef2f2;
+       --fin-ambar:#b45309; --fin-ambar-fundo:#fffbeb; }
+.fin .card { padding:18px 20px; }
+.fin [hidden] { display:none !important; }
+.fin-cab { display:flex; align-items:flex-end; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.fin-titulo { font-size:1.2rem; font-weight:800; color:var(--fin-tinta); margin:0; letter-spacing:-.01em; }
+.fin-sub { font-size:.84rem; color:var(--fin-cinza); margin:2px 0 0; }
+.fin-acoes { display:flex; gap:8px; flex-wrap:wrap; }
+.fin-btn { border:1px solid var(--fin-linha); background:#fff; color:var(--fin-tinta); font:inherit; font-size:.86rem;
+           font-weight:700; border-radius:8px; padding:8px 14px; min-height:40px; cursor:pointer; white-space:nowrap; }
+.fin-btn:hover:not(:disabled) { background:var(--fin-fundo); color:var(--fin-azul); }
+.fin-btn:disabled { opacity:.55; cursor:default; }
+.fin-btn-pri { background:var(--fin-azul); border-color:var(--fin-azul); color:#fff; }
+.fin-btn-pri:hover:not(:disabled) { background:var(--fin-marinho); border-color:var(--fin-marinho); color:#fff; }
+.fin-btn:focus-visible, .fin-in:focus-visible, .fin-pill:focus-visible { outline:3px solid var(--fin-rosa); outline-offset:2px; }
+.fin-aviso { margin:12px 0 0; background:#eef4ff; border:1px solid #c7d7f5; color:var(--fin-marinho); border-radius:10px;
+             padding:10px 14px; font-size:.86rem; line-height:1.45; }
+.fin-aviso.fin-erro { background:#fee2e2; border-color:#fca5a5; color:#991b1b; }
+.fin-aviso.fin-alerta { background:var(--fin-ambar-fundo); border-color:#fcd34d; color:#92400e; }
+.fin-h3 { margin:0 0 6px; font-size:1rem; font-weight:800; color:var(--fin-tinta); }
+.fin-txt { margin:0 0 10px; font-size:.88rem; color:#334155; line-height:1.5; }
+.fin-miudo { font-size:.78rem; color:var(--fin-cinza); margin:10px 0 0; }
+.fin-qr { display:flex; flex-direction:column; align-items:flex-start; gap:8px; margin:6px 0 12px; }
+.fin-qr img { background:#fff; border:1px solid var(--fin-linha); border-radius:10px; padding:8px; }
+.fin-chave { font-size:.82rem; word-break:break-all; background:var(--fin-fundo); border:1px solid var(--fin-linha);
+             border-radius:6px; padding:2px 6px; user-select:all; }
+.fin-form { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.fin-in { border:1px solid #cbd5e1; border-radius:8px; padding:8px 12px; font:inherit; font-size:.92rem;
+          color:var(--fin-tinta); background:#fff; min-height:40px; box-sizing:border-box; }
+.fin-in-codigo { width:150px; font-size:1.25rem; letter-spacing:.3em; text-align:center; font-weight:700;
+                 font-variant-numeric:tabular-nums; }
+.fin-resumo { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin-bottom:16px; }
+.fin-cartao { background:#fff; border:1px solid var(--fin-linha); border-radius:12px; padding:14px 16px;
+              box-shadow:0 1px 2px rgba(15,23,42,.06); }
+.fin-cartao b { display:block; font-size:1.25rem; font-weight:800; color:var(--fin-tinta); font-variant-numeric:tabular-nums; }
+.fin-cartao span { display:block; font-size:.76rem; font-weight:700; color:var(--fin-cinza); text-transform:uppercase;
+                   letter-spacing:.04em; margin-bottom:4px; }
+.fin-cartao small { display:block; font-size:.8rem; color:var(--fin-cinza); margin-top:2px; }
+.fin-cartao.fin-ruim { border-color:#fca5a5; background:var(--fin-vermelho-fundo); }
+.fin-cartao.fin-ruim b { color:var(--fin-vermelho); }
+.fin-cartao.fin-atencao { border-color:#fcd34d; background:var(--fin-ambar-fundo); }
+.fin-cartao.fin-atencao b { color:var(--fin-ambar); }
+.fin-filtro { display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:12px; }
+.fin-pills { display:flex; gap:6px; flex-wrap:wrap; }
+.fin-pill { border:1px solid var(--fin-linha); background:#fff; color:var(--fin-tinta); font:inherit; font-size:.82rem;
+            font-weight:700; border-radius:999px; padding:6px 12px; min-height:36px; cursor:pointer; }
+.fin-pill[aria-pressed="true"] { background:var(--fin-marinho); border-color:var(--fin-marinho); color:#fff; }
+.fin-busca { flex:1 1 220px; max-width:340px; }
+.fin-dia { margin:14px 0 6px; display:flex; justify-content:space-between; gap:8px; align-items:baseline;
+           border-bottom:1px solid var(--fin-linha); padding-bottom:4px; }
+.fin-dia:first-child { margin-top:0; }
+.fin-dia h4 { margin:0; font-size:.82rem; font-weight:800; color:var(--fin-marinho); text-transform:uppercase; letter-spacing:.04em; }
+.fin-dia small { font-size:.8rem; color:var(--fin-cinza); font-weight:700; font-variant-numeric:tabular-nums; }
+.fin-dia.fin-vencido h4 { color:var(--fin-vermelho); }
+.fin-boleto { display:flex; justify-content:space-between; gap:12px; padding:8px 4px; border-bottom:1px dashed #edf2f7; }
+.fin-boleto:last-child { border-bottom:0; }
+.fin-forn { font-weight:700; color:var(--fin-tinta); font-size:.92rem; }
+.fin-det { font-size:.78rem; color:var(--fin-cinza); margin-top:2px; }
+.fin-valor { font-weight:800; color:var(--fin-tinta); font-variant-numeric:tabular-nums; white-space:nowrap; font-size:.95rem; }
+.fin-boleto.fin-vencido .fin-valor { color:var(--fin-vermelho); }
+.fin-vazio { color:var(--fin-cinza); font-size:.9rem; padding:10px 0; }
+.fin-fonte { margin:14px 0 0; font-size:.78rem; color:var(--fin-cinza); }
+@media (max-width:600px) {
+  .fin .card { padding:14px; }
+  .fin-busca { max-width:none; }
+  .fin-resumo { grid-template-columns:1fr 1fr; }
+}
+</style>
 </head>
 <body>
 <svg class="icon-sprite" aria-hidden="true" focusable="false">
@@ -1488,6 +1559,9 @@ input, select, textarea { transition: border-color .16s ease, box-shadow .16s ea
     </button>
     <button class="btn-modo" id="btnAgenda" onclick="setModo('agenda')" style="display:none">
       📅 <span>Agenda da Fábrica</span>
+    </button>
+    <button class="btn-modo" id="btnFinanceiro" onclick="setModo('financeiro')" style="display:none">
+      💰 <span>Financeiro</span>
     </button>
   </div>
 
@@ -1686,6 +1760,54 @@ input, select, textarea { transition: border-color .16s ease, box-shadow .16s ea
     </div>
   </div>
   <!-- ===== fim da AGENDA DA FABRICA ===== -->
+
+    <!-- ===== FINANCEIRO (bloco novo) ===== -->
+  <section id="secao-financeiro" class="fin" style="display:none" aria-labelledby="fin-titulo">
+    <div class="card">
+      <div class="fin-cab">
+        <div>
+          <h2 class="fin-titulo" id="fin-titulo">Financeiro</h2>
+          <p class="fin-sub">Boletos a pagar lançados no sistema da fábrica. Só consulta.</p>
+        </div>
+        <div class="fin-acoes">
+          <button type="button" class="fin-btn" id="fin-atualizar" title="Lê de novo a lista que chegou do sistema da fábrica. Não dispara uma coleta nova no PC da recepção." disabled>↻ Atualizar</button>
+        </div>
+      </div>
+      <div class="fin-aviso" id="fin-aviso" role="status" hidden></div>
+    </div>
+
+    <div class="card fin-codigo" id="fin-codigo" hidden>
+      <h3 class="fin-h3" id="fin-codigo-titulo">Código do celular</h3>
+      <p class="fin-txt" id="fin-codigo-texto">Digite o código de 6 dígitos do app autenticador.</p>
+      <div class="fin-qr" id="fin-qr" hidden>
+        <img id="fin-qr-img" alt="QR code para cadastrar o Financeiro no app autenticador" width="180" height="180">
+        <p class="fin-txt">Se preferir digitar, a chave é: <code class="fin-chave" id="fin-qr-chave"></code></p>
+      </div>
+      <form id="fin-codigo-form" class="fin-form" autocomplete="off">
+        <input id="fin-codigo-in" class="fin-in fin-in-codigo" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000" aria-label="Código de 6 dígitos" required>
+        <button type="submit" class="fin-btn fin-btn-pri" id="fin-codigo-ok">Confirmar</button>
+      </form>
+      <p class="fin-txt fin-miudo">O código vale por 12 horas neste login. Depois disso o site pede de novo.</p>
+    </div>
+
+    <div id="fin-conteudo" hidden>
+      <div class="fin-resumo" id="fin-resumo"></div>
+      <div class="card">
+        <div class="fin-filtro">
+          <div class="fin-pills" role="group" aria-label="Quais boletos mostrar">
+            <button type="button" class="fin-pill" data-periodo="todos" aria-pressed="true">Todos</button>
+            <button type="button" class="fin-pill" data-periodo="vencidos" aria-pressed="false">Vencidos</button>
+            <button type="button" class="fin-pill" data-periodo="7" aria-pressed="false">Próximos 7 dias</button>
+            <button type="button" class="fin-pill" data-periodo="30" aria-pressed="false">Próximos 30 dias</button>
+          </div>
+          <input type="search" id="fin-busca" class="fin-in fin-busca" placeholder="Buscar fornecedor ou nº do documento" aria-label="Buscar fornecedor ou número do documento">
+        </div>
+        <div id="fin-lista" class="fin-lista" aria-live="polite"></div>
+        <p class="fin-fonte" id="fin-fonte"></p>
+      </div>
+    </div>
+  </section>
+  <!-- ===== fim do FINANCEIRO ===== -->
 
   <div id="resultado">
     <div class="empty-state">
@@ -6742,6 +6864,303 @@ function moldeResumoPrint() {
     };
   }
   window.__costura = { versao: '1.1', estado: st, num: num };
+})();
+</script>
+<script id="financeiro-isis-js">
+/* ===== Financeiro (bloco novo) - versao 1.0, 19/11/2026 =====
+   So leitura. Mostra os boletos a pagar que a VPS publica em fin_boletos (copia da lista "Em aberto", debitos, do
+   sistema da fabrica). O banco so entrega as linhas a quem esta na lista fin_acesso E digitou o codigo do app
+   autenticador (MFA do Supabase, aal2) nas ultimas 12 horas. Sem isso, o banco devolve zero linhas: a tela daqui
+   e so a porta; a tranca e o banco.
+   O botao "Financeiro" so aparece para quem esta na lista (fin_minha_situacao). Admin do site NAO entra por ser admin.
+   Para nao mexer no codigo que ja existe, este bloco "embrulha" tres funcoes do painel: setModo, aplicarPermissoes
+   e fazerLogout. Para desligar, basta retirar os blocos marcados "FINANCEIRO". */
+(function () {
+  'use strict';
+  var TZ = 'America/Bahia';
+  var COLUNAS = 'id_parcela,num_doc,fornecedor,modo_pagamento,data_lancamento,vencimento,valor,multa,juros,' +
+                'valor_total,cheque,observacao';
+  var DIAS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+  var HORAS_COLETA_VELHA = 26;
+  var st = { situacao: null, linhas: null, estado: null, fator: null, ocupado: false, periodo: 'todos', busca: '',
+             carregadoEm: 0 };
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function hoje() { return new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date()); }
+  function maisDias(iso, n) {
+    var d = new Date(iso + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10);
+  }
+  function dataBR(iso) { var p = String(iso).split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+  function diaSemana(iso) { return DIAS[new Date(iso + 'T12:00:00Z').getUTCDay()]; }
+  function brl(v) { return Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+  function quando(ts) {
+    try {
+      return new Intl.DateTimeFormat('pt-BR', { timeZone: TZ, day: '2-digit', month: '2-digit', hour: '2-digit',
+                                                minute: '2-digit' }).format(new Date(ts)).replace(',', ' às');
+    } catch (e) { return String(ts); }
+  }
+  function aviso(texto, tipo) {
+    var a = $('fin-aviso');
+    if (!a) return;
+    a.className = 'fin-aviso' + (tipo ? ' fin-' + tipo : '');
+    a.textContent = texto || '';
+    a.hidden = !texto;
+  }
+  function mostra(parte) {   // 'codigo' | 'conteudo' | null
+    $('fin-codigo').hidden = parte !== 'codigo';
+    $('fin-conteudo').hidden = parte !== 'conteudo';
+    if (parte !== 'codigo') { $('fin-qr').hidden = true; $('fin-qr-img').removeAttribute('src'); $('fin-qr-chave').textContent = ''; }
+  }
+
+  async function lerSituacao() {
+    var r = await _supa.rpc('fin_minha_situacao');
+    if (r.error) return null;
+    return r.data;
+  }
+
+  // --- codigo do celular (MFA TOTP do Supabase) ----------------------------------------------------------
+  async function pedirCodigo() {
+    mostra(null);
+    var f = await _supa.auth.mfa.listFactors();
+    if (f.error) { aviso('Não deu para ler o cadastro do código: ' + f.error.message, 'erro'); return; }
+    var todos = (f.data && f.data.all) || [];
+    var prontos = todos.filter(function (x) { return x.factor_type === 'totp' && x.status === 'verified'; });
+    $('fin-codigo-in').value = '';
+    if (prontos.length) {
+      st.fator = prontos[0].id;
+      $('fin-codigo-titulo').textContent = 'Código do celular';
+      $('fin-codigo-texto').textContent = 'Digite o código de 6 dígitos que o app autenticador mostra para "Isis Bolsas".';
+    } else {
+      // cadastro que ficou pela metade (QR aberto e nao confirmado): apaga antes de comecar outro
+      for (var i = 0; i < todos.length; i++) {
+        if (todos[i].factor_type === 'totp' && todos[i].status !== 'verified') {
+          try { await _supa.auth.mfa.unenroll({ factorId: todos[i].id }); } catch (e) { /* segue */ }
+        }
+      }
+      var e = await _supa.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'Financeiro ' + Date.now().toString(36),
+                                             issuer: 'Isis Bolsas' });
+      if (e.error) { aviso('Não deu para começar o cadastro do código: ' + e.error.message, 'erro'); return; }
+      st.fator = e.data.id;
+      $('fin-codigo-titulo').textContent = 'Primeira vez: cadastre o código no celular';
+      $('fin-codigo-texto').textContent = 'No app autenticador (1Password, Google Authenticator ou outro), adicione ' +
+        'uma conta lendo este QR code. Depois digite aqui o código de 6 dígitos que o app mostrar.';
+      $('fin-qr-img').src = e.data.totp.qr_code;
+      $('fin-qr-chave').textContent = e.data.totp.secret;
+      $('fin-qr').hidden = false;
+    }
+    aviso('');
+    mostra('codigo');
+    setTimeout(function () { try { $('fin-codigo-in').focus(); } catch (x) { /* nada */ } }, 50);
+  }
+
+  async function confirmarCodigo(ev) {
+    ev.preventDefault();
+    var codigo = $('fin-codigo-in').value.replace(/\D/g, '');
+    if (codigo.length !== 6) { aviso('O código tem 6 dígitos.', 'alerta'); return; }
+    if (!st.fator || st.ocupado) return;
+    st.ocupado = true; $('fin-codigo-ok').disabled = true;
+    try {
+      var r = await _supa.auth.mfa.challengeAndVerify({ factorId: st.fator, code: codigo });
+      if (r.error) {
+        aviso('O código não confere. Confira se o relógio do celular está certo e digite o código novo.', 'erro');
+        $('fin-codigo-in').value = ''; $('fin-codigo-in').focus();
+        return;
+      }
+      aviso('');
+      mostra(null);
+      await carregar();
+    } finally { st.ocupado = false; $('fin-codigo-ok').disabled = false; }
+  }
+
+  // --- dados -----------------------------------------------------------------------------------------------
+  async function abrir() {
+    aviso('Carregando…');
+    mostra(null);
+    st.situacao = await lerSituacao();
+    if (!st.situacao || !st.situacao.liberado) {
+      aviso('Este login não tem acesso ao Financeiro.', 'erro');
+      return;
+    }
+    if (!st.situacao.codigo_valido) return pedirCodigo();
+    return carregar();
+  }
+
+  async function carregar() {
+    if (st.ocupado && !$('fin-codigo').hidden) return;
+    $('fin-atualizar').disabled = true;
+    try {
+      var r = await Promise.all([
+        _supa.from('fin_boletos').select(COLUNAS).order('vencimento', { ascending: true })
+          .order('fornecedor', { ascending: true }).limit(3000),
+        _supa.from('fin_estado').select('coletado_em,publicado_em,linhas,total,vencimento_de').limit(1)
+      ]);
+      if (r[0].error || r[1].error) {
+        aviso('Não deu para ler os boletos agora. Tente de novo em instantes.', 'erro');
+        return;
+      }
+      if (!r[1].data.length) {
+        st.situacao = await lerSituacao();
+        if (st.situacao && st.situacao.liberado && !st.situacao.codigo_valido) return pedirCodigo();   // venceu as 12 h
+        aviso('Ainda não chegou nenhuma lista do sistema da fábrica.', 'alerta');
+        mostra(null);
+        return;
+      }
+      st.linhas = r[0].data;
+      st.estado = r[1].data[0];
+      st.carregadoEm = Date.now();
+      aviso('');
+      mostra('conteudo');
+      render();
+    } finally { $('fin-atualizar').disabled = false; }
+  }
+
+  function cartao(rotulo, n, valor, classe) {
+    return '<div class="fin-cartao' + (classe ? ' ' + classe : '') + '"><span>' + esc(rotulo) + '</span><b>' +
+      esc(brl(valor)) + '</b><small>' + n + ' boleto' + (n === 1 ? '' : 's') + '</small></div>';
+  }
+
+  function render() {
+    var h = hoje(), sete = maisDias(h, 7), trinta = maisDias(h, 30);
+    var ls = st.linhas || [];
+    var soma = function (arr) { return arr.reduce(function (s, l) { return s + Number(l.valor_total || 0); }, 0); };
+    var vencidos = ls.filter(function (l) { return l.vencimento < h; });
+    var deHoje = ls.filter(function (l) { return l.vencimento === h; });
+    var semana = ls.filter(function (l) { return l.vencimento >= h && l.vencimento <= sete; });
+    $('fin-resumo').innerHTML =
+      cartao('Vencidos', vencidos.length, soma(vencidos), vencidos.length ? 'fin-ruim' : '') +
+      cartao('Vencem hoje', deHoje.length, soma(deHoje), deHoje.length ? 'fin-atencao' : '') +
+      cartao('Próximos 7 dias', semana.length, soma(semana), '') +
+      cartao('Total em aberto', ls.length, soma(ls), '');
+
+    var q = st.busca.trim().toLowerCase();
+    var vis = ls.filter(function (l) {
+      if (st.periodo === 'vencidos' && !(l.vencimento < h)) return false;
+      if (st.periodo === '7' && !(l.vencimento >= h && l.vencimento <= sete)) return false;
+      if (st.periodo === '30' && !(l.vencimento >= h && l.vencimento <= trinta)) return false;
+      if (q && (String(l.fornecedor || '') + ' ' + String(l.num_doc || '')).toLowerCase().indexOf(q) < 0) return false;
+      return true;
+    });
+    var html = [], dia = null, grupo = [];
+    function fechaDia() {
+      if (!dia) return;
+      var venc = dia < h;
+      html.push('<div class="fin-dia' + (venc ? ' fin-vencido' : '') + '"><h4>' + esc(diaSemana(dia)) + ', ' +
+        esc(dataBR(dia)) + (dia === h ? ' · hoje' : (venc ? ' · vencido' : '')) + '</h4><small>' + grupo.length +
+        ' · ' + esc(brl(soma(grupo))) + '</small></div>');
+      grupo.forEach(function (l) {
+        var det = [];
+        if (l.num_doc) det.push('doc ' + l.num_doc);
+        if (l.modo_pagamento) det.push(l.modo_pagamento.toLowerCase());
+        if (Number(l.multa) || Number(l.juros)) det.push('com multa/juros ' + brl(Number(l.multa) + Number(l.juros)));
+        if (l.observacao) det.push(l.observacao);
+        html.push('<div class="fin-boleto' + (venc ? ' fin-vencido' : '') + '"><div><div class="fin-forn">' +
+          esc(l.fornecedor || '(sem fornecedor)') + '</div><div class="fin-det">' + esc(det.join(' · ')) +
+          '</div></div><div class="fin-valor">' + esc(brl(l.valor_total)) + '</div></div>');
+      });
+    }
+    vis.forEach(function (l) {
+      if (l.vencimento !== dia) { fechaDia(); dia = l.vencimento; grupo = []; }
+      grupo.push(l);
+    });
+    fechaDia();
+    $('fin-lista').innerHTML = html.length ? html.join('') :
+      '<p class="fin-vazio">' + (ls.length ? 'Nenhum boleto neste filtro.' : 'Nenhum boleto em aberto.') + '</p>';
+
+    var e = st.estado || {};
+    var fonte = 'Lista do sistema da fábrica (Gestão › Consultas › Em aberto) conferida em ' + quando(e.coletado_em) +
+      ' · vencimentos desde ' + (e.vencimento_de ? dataBR(e.vencimento_de) : '?') + '.';
+    $('fin-fonte').textContent = fonte;
+    var horas = (Date.now() - new Date(e.coletado_em).getTime()) / 3600000;
+    var semana2 = new Date().getDay();
+    if (horas > HORAS_COLETA_VELHA && semana2 >= 1 && semana2 <= 5) {
+      aviso('A lista pode estar desatualizada: a última coleta foi em ' + quando(e.coletado_em) +
+            '. O PC da recepção pode estar desligado.', 'alerta');
+    }
+  }
+
+  function zerar() {
+    st.linhas = null; st.estado = null; st.situacao = null; st.fator = null; st.busca = ''; st.periodo = 'todos';
+    var sec = $('secao-financeiro'); if (sec) sec.style.display = 'none';
+    var btn = $('btnFinanceiro'); if (btn) { btn.classList.remove('ativo'); btn.style.display = 'none'; }
+    if ($('fin-lista')) $('fin-lista').innerHTML = '';
+    if ($('fin-resumo')) $('fin-resumo').innerHTML = '';
+    if ($('fin-busca')) $('fin-busca').value = '';
+    if ($('fin-codigo')) mostra(null);
+    aviso('');
+  }
+
+  function ligar() {
+    $('fin-atualizar').addEventListener('click', function () { carregar(); });
+    $('fin-codigo-form').addEventListener('submit', confirmarCodigo);
+    $('fin-busca').addEventListener('input', function (ev) { st.busca = ev.target.value; if (st.linhas) render(); });
+    document.querySelectorAll('#secao-financeiro .fin-pill').forEach(function (b) {
+      b.addEventListener('click', function () {
+        st.periodo = b.getAttribute('data-periodo');
+        document.querySelectorAll('#secao-financeiro .fin-pill').forEach(function (x) {
+          x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
+        });
+        if (st.linhas) render();
+      });
+    });
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible' && modoAtual === 'financeiro' && st.linhas &&
+          Date.now() - st.carregadoEm > 120000) carregar();
+    });
+  }
+
+  // --- encaixe no painel (embrulha 3 funcoes que ja existem) -----------------------------------------------
+  var _setModo = window.setModo, _aplicarPermissoes = window.aplicarPermissoes, _fazerLogout = window.fazerLogout;
+
+  window.setModo = function (modo) {
+    var sec = $('secao-financeiro'), btn = $('btnFinanceiro');
+    if (modo === 'financeiro') {
+      modoAtual = 'financeiro';
+      ['btnRapido', 'btnAvancado', 'btnCostura', 'btnCostureiras', 'btnAgenda'].forEach(function (id) {
+        var b = $(id); if (b) b.classList.remove('ativo');
+      });
+      if (btn) btn.classList.add('ativo');
+      document.querySelectorAll('.card.avancado').forEach(function (c) { c.classList.remove('visivel'); });
+      ['secao-costura', 'secao-costureiras', 'card-busca', 'secao-agenda'].forEach(function (id) {
+        var x = $(id); if (x) x.style.display = 'none';
+      });
+      var r = $('resultado'); if (r) r.innerHTML = '';
+      if (sec) sec.style.display = 'block';
+      abrir();
+      return;
+    }
+    if (sec) sec.style.display = 'none';
+    if (btn) btn.classList.remove('ativo');
+    st.linhas = null;   // nada de boleto fica na tela de outra aba
+    if ($('fin-lista')) $('fin-lista').innerHTML = '';
+    if ($('fin-resumo')) $('fin-resumo').innerHTML = '';
+    return _setModo.apply(this, arguments);
+  };
+
+  window.aplicarPermissoes = function () {
+    var r = _aplicarPermissoes.apply(this, arguments);
+    var btn = $('btnFinanceiro');
+    lerSituacao().then(function (s) {
+      st.situacao = s;
+      var tem = !!(s && s.liberado);
+      if (btn) btn.style.display = tem ? '' : 'none';
+      if (!tem && modoAtual === 'financeiro') {
+        window.setModo(temPermissao('produtos') ? 'rapido' : (temPermissao('costura') ? 'costura' : 'rapido'));
+      }
+    });
+    return r;
+  };
+
+  window.fazerLogout = async function () {
+    zerar();
+    if (modoAtual === 'financeiro') { try { _setModo('rapido'); } catch (e) { /* tela de login cobre tudo */ } }
+    return _fazerLogout.apply(this, arguments);
+  };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ligar); else ligar();
 })();
 </script>
 </body>

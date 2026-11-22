@@ -1407,7 +1407,7 @@ input, select, textarea { transition: border-color .16s ease, box-shadow .16s ea
 })();
 </script>
 <style id="financeiro-isis-css">
-/* ===== Financeiro (bloco novo, 19/11/2026; segue as cores e cantos do painel) ===== */
+/* ===== Financeiro (bloco novo; 1.0 de 19/11/2026, 1.1 de 22/11/2026 com Representantes; segue as cores e cantos do painel) ===== */
 .fin { --fin-azul:#2154A8; --fin-marinho:#1A3580; --fin-tinta:#1a2e4a; --fin-rosa:#E5007D; --fin-cinza:#64748b;
        --fin-linha:#e2e8f0; --fin-fundo:#f8fafc; --fin-vermelho:#b91c1c; --fin-vermelho-fundo:#fef2f2;
        --fin-ambar:#b45309; --fin-ambar-fundo:#fffbeb; }
@@ -1471,10 +1471,83 @@ input, select, textarea { transition: border-color .16s ease, box-shadow .16s ea
 .fin-boleto.fin-vencido .fin-valor { color:var(--fin-vermelho); }
 .fin-vazio { color:var(--fin-cinza); font-size:.9rem; padding:10px 0; }
 .fin-fonte { margin:14px 0 0; font-size:.78rem; color:var(--fin-cinza); }
+/* 1.1: abas internas e Representantes */
+.fin-abas { display:flex; gap:4px; margin:14px 0 0; border-bottom:1px solid var(--fin-linha); }
+.fin-aba { border:0; border-bottom:3px solid transparent; background:none; font:inherit; font-size:.9rem; font-weight:700;
+           color:var(--fin-cinza); padding:8px 14px 9px; min-height:40px; cursor:pointer; margin-bottom:-1px; }
+.fin-aba[aria-selected="true"] { color:var(--fin-marinho); border-bottom-color:var(--fin-rosa); }
+.fin-aba:hover { color:var(--fin-azul); }
+.fin-aba:focus-visible, .fin-x:focus-visible, .fin-ped input:focus-visible { outline:3px solid var(--fin-rosa); outline-offset:2px; }
+.fin-rotulo { display:block; font-size:.76rem; font-weight:700; color:var(--fin-cinza); text-transform:uppercase;
+              letter-spacing:.04em; margin:0 0 4px; }
+.fin-rep-topo { margin-bottom:14px; }
+.fin-rep-sel { width:100%; max-width:560px; }
+.fin-rep-cartoes { margin:4px 0 12px; }
+.fin-rep-marcar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+.fin-rep-lista { border-top:1px solid var(--fin-linha); }
+.fin-ped { display:grid; grid-template-columns:28px 1fr auto; gap:4px 12px; align-items:start; padding:10px 4px;
+           border-bottom:1px dashed #edf2f7; cursor:pointer; }
+.fin-ped:hover { background:var(--fin-fundo); }
+.fin-ped.fin-marcado { background:#eef4ff; }
+.fin-ped input { width:18px; height:18px; margin:2px 0 0; accent-color:var(--fin-azul); cursor:pointer; }
+.fin-ped-cli { font-weight:700; color:var(--fin-tinta); font-size:.92rem; }
+.fin-ped-det { font-size:.78rem; color:var(--fin-cinza); margin-top:2px; font-variant-numeric:tabular-nums; }
+.fin-ped-dir { text-align:right; }
+.fin-ped-valor { font-weight:800; color:var(--fin-tinta); font-variant-numeric:tabular-nums; white-space:nowrap; font-size:.95rem; }
+.fin-ped-pc { display:block; font-size:.78rem; color:var(--fin-cinza); font-variant-numeric:tabular-nums; }
+.fin-tag { display:inline-block; font-size:.7rem; font-weight:800; border-radius:999px; padding:1px 8px; margin-left:6px;
+           vertical-align:1px; white-space:nowrap; }
+.fin-tag-sem { background:var(--fin-ambar-fundo); color:var(--fin-ambar); border:1px solid #fcd34d; }
+.fin-tag-res { background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; }
+.fin-tag-velho { background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; }
+.fin-rep-barra { position:sticky; bottom:10px; z-index:20; display:flex; justify-content:space-between; align-items:center;
+                 gap:12px; background:var(--fin-marinho); color:#fff; border-radius:12px; padding:10px 12px 10px 16px;
+                 box-shadow:0 8px 24px rgba(15,23,42,.25); margin-top:12px; }
+.fin-rep-barra b { display:block; font-size:.95rem; font-variant-numeric:tabular-nums; }
+.fin-rep-barra small { display:block; font-size:.78rem; opacity:.85; font-variant-numeric:tabular-nums; }
+.fin-rep-barra .fin-btn-pri { background:var(--fin-rosa); border-color:var(--fin-rosa); }
+.fin-rep-salvos { display:flex; flex-direction:column; }
+.fin-salvo { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:9px 4px;
+             border-bottom:1px dashed #edf2f7; }
+.fin-salvo:last-child { border-bottom:0; }
+.fin-salvo.fin-cancelado { opacity:.55; }
+.fin-salvo.fin-cancelado .fin-forn { text-decoration:line-through; }
+.fin-modal { position:fixed; inset:0; z-index:1000; background:rgba(15,23,42,.55); display:flex; align-items:center;
+             justify-content:center; padding:16px; }
+.fin-modal-caixa { background:#fff; border-radius:14px; width:100%; max-width:760px; max-height:calc(100vh - 32px);
+                   overflow:auto; padding:18px 20px; box-shadow:0 20px 50px rgba(15,23,42,.35); box-sizing:border-box; }
+.fin-modal-cab { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+.fin-x { border:0; background:none; font-size:1.6rem; line-height:1; color:var(--fin-cinza); cursor:pointer; padding:2px 8px;
+         min-height:40px; }
+.fin-modal-corpo { margin:6px 0 12px; overflow-x:auto; }
+.fin-res-tab { width:100%; min-width:0; border-collapse:collapse; font-size:.84rem; font-variant-numeric:tabular-nums; }
+.fin-res-tab th { text-align:left; font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; color:var(--fin-cinza);
+                  border-bottom:1px solid var(--fin-linha); padding:6px 6px; }
+.fin-res-tab td { border-bottom:1px dashed #edf2f7; padding:6px 6px; color:var(--fin-tinta); vertical-align:top; }
+.fin-res-tab .fin-num { text-align:right; white-space:nowrap; }
+.fin-res-tab tfoot td { font-weight:800; border-top:2px solid var(--fin-linha); border-bottom:0; }
+.fin-obs { width:100%; resize:vertical; min-height:56px; margin-bottom:12px; }
+.fin-modal-acoes { display:flex; gap:8px; flex-wrap:wrap; }
+.fin-btn-perigo { color:var(--fin-vermelho); border-color:#fca5a5; }
+.fin-btn-perigo:hover:not(:disabled) { background:var(--fin-vermelho-fundo); color:var(--fin-vermelho); }
 @media (max-width:600px) {
   .fin .card { padding:14px; }
   .fin-busca { max-width:none; }
-  .fin-resumo { grid-template-columns:1fr 1fr; }
+  .fin-resumo { grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px; }
+  .fin-cartao { min-width:0; padding:12px; }
+  .fin-cartao b { font-size:1.05rem; overflow-wrap:anywhere; }
+  .fin-cartao span, .fin-cartao small { overflow-wrap:anywhere; }
+  .fin-ped { grid-template-columns:24px minmax(0, 1fr); }
+  .fin-ped-dir { grid-column:2; text-align:left; }
+  .fin-ped-pc { display:inline; margin-left:8px; }
+  .fin-modal { padding:8px; }
+  .fin-modal-caixa { padding:14px; max-height:calc(100vh - 16px); }
+  .fin-res-tab { table-layout:fixed; font-size:.78rem; }
+  .fin-res-tab .fin-col-entrega, .fin-res-tab .fin-c-data { display:none; }
+  .fin-res-tab .fin-c-n { width:54px; white-space:nowrap; }
+  .fin-res-tab .fin-c-pc { width:36px; }
+  .fin-res-tab .fin-c-val { width:100px; }
+  .fin-res-tab td, .fin-res-tab th { padding:6px 3px; overflow-wrap:anywhere; }
 }
 </style>
 </head>
@@ -1767,11 +1840,15 @@ input, select, textarea { transition: border-color .16s ease, box-shadow .16s ea
       <div class="fin-cab">
         <div>
           <h2 class="fin-titulo" id="fin-titulo">Financeiro</h2>
-          <p class="fin-sub">Boletos a pagar lançados no sistema da fábrica. Só consulta.</p>
+          <p class="fin-sub">Boletos a pagar e pedidos em aberto por representante, do sistema da fábrica. Só consulta.</p>
         </div>
         <div class="fin-acoes">
-          <button type="button" class="fin-btn" id="fin-atualizar" title="Lê de novo a lista que chegou do sistema da fábrica. Não dispara uma coleta nova no PC da recepção." disabled>↻ Atualizar</button>
+          <button type="button" class="fin-btn" id="fin-atualizar" title="Lê de novo a última lista que chegou do sistema da fábrica. Não dispara uma coleta nova no PC da recepção." disabled>↻ Atualizar</button>
         </div>
+      </div>
+      <div class="fin-abas" id="fin-abas" role="tablist" aria-label="Partes do Financeiro" hidden>
+        <button type="button" class="fin-aba" role="tab" id="fin-aba-boletos" data-aba="boletos" aria-selected="true" aria-controls="fin-conteudo">Boletos a pagar</button>
+        <button type="button" class="fin-aba" role="tab" id="fin-aba-rep" data-aba="rep" aria-selected="false" aria-controls="fin-rep">Representantes</button>
       </div>
       <div class="fin-aviso" id="fin-aviso" role="status" hidden></div>
     </div>
@@ -1790,7 +1867,7 @@ input, select, textarea { transition: border-color .16s ease, box-shadow .16s ea
       <p class="fin-txt fin-miudo">O código vale por 12 horas neste login. Depois disso o site pede de novo.</p>
     </div>
 
-    <div id="fin-conteudo" hidden>
+    <div id="fin-conteudo" role="tabpanel" aria-labelledby="fin-aba-boletos" hidden>
       <div class="fin-resumo" id="fin-resumo"></div>
       <div class="card">
         <div class="fin-filtro">
@@ -1804,6 +1881,58 @@ input, select, textarea { transition: border-color .16s ease, box-shadow .16s ea
         </div>
         <div id="fin-lista" class="fin-lista" aria-live="polite"></div>
         <p class="fin-fonte" id="fin-fonte"></p>
+      </div>
+    </div>
+
+    <div id="fin-rep" role="tabpanel" aria-labelledby="fin-aba-rep" hidden>
+      <div class="card">
+        <div class="fin-rep-topo">
+          <label class="fin-rotulo" for="fin-rep-sel">Representante</label>
+          <select id="fin-rep-sel" class="fin-in fin-rep-sel"></select>
+        </div>
+        <div id="fin-rep-corpo" hidden>
+          <div class="fin-filtro fin-rep-filtro">
+            <div class="fin-pills" role="group" aria-label="Quais pedidos mostrar">
+              <button type="button" class="fin-pill" data-rep-periodo="6m" aria-pressed="true">Últimos 6 meses</button>
+              <button type="button" class="fin-pill" data-rep-periodo="todos" aria-pressed="false">Todos em aberto</button>
+            </div>
+            <input type="search" id="fin-rep-busca" class="fin-in fin-busca" placeholder="Buscar cliente ou nº do pedido" aria-label="Buscar cliente ou número do pedido">
+          </div>
+          <div class="fin-resumo fin-rep-cartoes" id="fin-rep-cartoes"></div>
+          <div class="fin-rep-marcar">
+            <button type="button" class="fin-btn" id="fin-rep-todos">Marcar todos da lista</button>
+            <button type="button" class="fin-btn" id="fin-rep-limpar">Desmarcar todos</button>
+          </div>
+          <div id="fin-rep-lista" class="fin-rep-lista" aria-live="polite"></div>
+        </div>
+        <p class="fin-fonte" id="fin-rep-fonte"></p>
+      </div>
+      <div class="card" id="fin-rep-salvos-card" hidden>
+        <h3 class="fin-h3">Resumos salvos deste representante</h3>
+        <div id="fin-rep-salvos" class="fin-rep-salvos"></div>
+      </div>
+      <div class="fin-rep-barra" id="fin-rep-barra" hidden>
+        <div class="fin-rep-barra-txt"><b id="fin-rep-barra-n"></b><small id="fin-rep-barra-sub"></small></div>
+        <button type="button" class="fin-btn fin-btn-pri" id="fin-rep-ver">Ver resumo</button>
+      </div>
+    </div>
+
+    <div class="fin-modal" id="fin-rep-modal" role="dialog" aria-modal="true" aria-labelledby="fin-rep-modal-titulo" hidden>
+      <div class="fin-modal-caixa">
+        <div class="fin-modal-cab">
+          <h3 class="fin-h3" id="fin-rep-modal-titulo">Resumo</h3>
+          <button type="button" class="fin-x" id="fin-rep-fechar" aria-label="Fechar">×</button>
+        </div>
+        <div id="fin-rep-modal-corpo" class="fin-modal-corpo"></div>
+        <label class="fin-rotulo" for="fin-rep-obs" id="fin-rep-obs-rot">Observação (opcional; vai junto no texto)</label>
+        <textarea id="fin-rep-obs" class="fin-in fin-obs" maxlength="500" rows="2"></textarea>
+        <div class="fin-modal-acoes">
+          <button type="button" class="fin-btn" id="fin-rep-copiar">Copiar texto</button>
+          <button type="button" class="fin-btn" id="fin-rep-imprimir">Imprimir</button>
+          <button type="button" class="fin-btn fin-btn-pri" id="fin-rep-salvar">Salvar resumo</button>
+          <button type="button" class="fin-btn fin-btn-perigo" id="fin-rep-cancelar-res" hidden>Cancelar este resumo</button>
+        </div>
+        <p class="fin-miudo" id="fin-rep-modal-nota"></p>
       </div>
     </div>
   </section>
@@ -6867,12 +6996,17 @@ function moldeResumoPrint() {
 })();
 </script>
 <script id="financeiro-isis-js">
-/* ===== Financeiro (bloco novo) - versao 1.0, 19/11/2026 =====
-   So leitura. Mostra os boletos a pagar que a VPS publica em fin_boletos (copia da lista "Em aberto", debitos, do
-   sistema da fabrica). O banco so entrega as linhas a quem esta na lista fin_acesso E digitou o codigo do app
-   autenticador (MFA do Supabase, aal2) nas ultimas 12 horas. Sem isso, o banco devolve zero linhas: a tela daqui
-   e so a porta; a tranca e o banco.
-   O botao "Financeiro" so aparece para quem esta na lista (fin_minha_situacao). Admin do site NAO entra por ser admin.
+/* ===== Financeiro (bloco novo) - versao 1.1, 22/11/2026 (a 1.0 e de 19/11) =====
+   Duas partes, as duas so leitura do sistema da fabrica:
+   - Boletos a pagar (1.0, igual): fin_boletos, copia da lista "Em aberto" (debitos).
+   - Representantes (1.1): fin_rep_pedidos, copia da lista "Pedidos de Venda" em PRODUCAO. Escolhe o representante,
+     marca os pedidos e monta o resumo (copiar para o WhatsApp, imprimir, salvar). Salvar e cancelar passam pelas
+     funcoes fin_rep_salvar_resumo / fin_rep_cancelar_resumo, que conferem o acesso e montam o resumo NO BANCO, com os
+     valores da ultima coleta (daqui so vao os numeros dos pedidos). Nada disso muda o sistema da fabrica.
+   O banco so entrega as linhas a quem esta na lista fin_acesso E digitou o codigo do app autenticador (MFA do
+   Supabase, aal2) nas ultimas 12 horas. Sem isso, o banco devolve zero linhas: a tela daqui e so a porta; a tranca
+   e o banco. O botao "Financeiro" so aparece para quem esta na lista (fin_minha_situacao). Admin do site NAO entra
+   por ser admin.
    Para nao mexer no codigo que ja existe, este bloco "embrulha" tres funcoes do painel: setModo, aplicarPermissoes
    e fazerLogout. Para desligar, basta retirar os blocos marcados "FINANCEIRO". */
 (function () {
@@ -6880,10 +7014,19 @@ function moldeResumoPrint() {
   var TZ = 'America/Bahia';
   var COLUNAS = 'id_parcela,num_doc,fornecedor,modo_pagamento,data_lancamento,vencimento,valor,multa,juros,' +
                 'valor_total,cheque,observacao';
+  var COLUNAS_PED = 'id_pedido,representante,cliente,nr_controle,data_pedido,data_entrega,total_pedido,quantidade,' +
+                    'observacao';
+  var COLUNAS_RES = 'id,representante,criado_por,criado_em,n_pedidos,quantidade,total,sem_valor,pedidos,obs,' +
+                    'cancelado_em,cancelado_por';
   var DIAS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
   var HORAS_COLETA_VELHA = 26;
+  var DIAS_RECENTES = 183;          // "Ultimos 6 meses"
+  var SEM_REP = '(sem representante)';
+  var CHAVE_ABA = 'fin-aba';
   var st = { situacao: null, linhas: null, estado: null, fator: null, ocupado: false, periodo: 'todos', busca: '',
-             carregadoEm: 0 };
+             carregadoEm: 0, aba: 'boletos',
+             ped: null, estadoRep: null, resumos: null, carregadoRepEm: 0, rep: null, repPeriodo: '6m', repBusca: '',
+             sel: {}, modal: null, voltaFoco: null, salvando: false };
 
   function $(id) { return document.getElementById(id); }
   function esc(s) {
@@ -6894,15 +7037,18 @@ function moldeResumoPrint() {
   function maisDias(iso, n) {
     var d = new Date(iso + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10);
   }
-  function dataBR(iso) { var p = String(iso).split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+  function dataBR(iso) { if (!iso) return '?'; var p = String(iso).slice(0, 10).split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
   function diaSemana(iso) { return DIAS[new Date(iso + 'T12:00:00Z').getUTCDay()]; }
   function brl(v) { return Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+  function pecas(v) { return Number(v || 0).toLocaleString('pt-BR', { maximumFractionDigits: 2 }); }
   function quando(ts) {
     try {
       return new Intl.DateTimeFormat('pt-BR', { timeZone: TZ, day: '2-digit', month: '2-digit', hour: '2-digit',
                                                 minute: '2-digit' }).format(new Date(ts)).replace(',', ' às');
     } catch (e) { return String(ts); }
   }
+  function diaDe(ts) { return new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date(ts)); }
+  function nomeRep(r) { return r ? r : SEM_REP; }
   function aviso(texto, tipo) {
     var a = $('fin-aviso');
     if (!a) return;
@@ -6912,8 +7058,16 @@ function moldeResumoPrint() {
   }
   function mostra(parte) {   // 'codigo' | 'conteudo' | null
     $('fin-codigo').hidden = parte !== 'codigo';
-    $('fin-conteudo').hidden = parte !== 'conteudo';
+    var dentro = parte === 'conteudo';
+    $('fin-abas').hidden = !dentro;
+    $('fin-conteudo').hidden = !(dentro && st.aba === 'boletos');
+    $('fin-rep').hidden = !(dentro && st.aba === 'rep');
     if (parte !== 'codigo') { $('fin-qr').hidden = true; $('fin-qr-img').removeAttribute('src'); $('fin-qr-chave').textContent = ''; }
+  }
+  function coletaVelha(ts) {
+    var horas = (Date.now() - new Date(ts).getTime()) / 3600000;
+    var dia = new Date().getDay();
+    return horas > HORAS_COLETA_VELHA && dia >= 1 && dia <= 5;
   }
 
   async function lerSituacao() {
@@ -6925,6 +7079,7 @@ function moldeResumoPrint() {
   // --- codigo do celular (MFA TOTP do Supabase) ----------------------------------------------------------
   async function pedirCodigo() {
     mostra(null);
+    fecharResumo();
     var f = await _supa.auth.mfa.listFactors();
     if (f.error) { aviso('Não deu para ler o cadastro do código: ' + f.error.message, 'erro'); return; }
     var todos = (f.data && f.data.all) || [];
@@ -6976,7 +7131,7 @@ function moldeResumoPrint() {
     } finally { st.ocupado = false; $('fin-codigo-ok').disabled = false; }
   }
 
-  // --- dados -----------------------------------------------------------------------------------------------
+  // --- abrir e carregar ------------------------------------------------------------------------------------
   async function abrir() {
     aviso('Carregando…');
     mostra(null);
@@ -6990,6 +7145,31 @@ function moldeResumoPrint() {
   }
 
   async function carregar() {
+    return st.aba === 'rep' ? carregarRep() : carregarBoletos();
+  }
+
+  async function codigoVenceu() {
+    // zero linhas pode ser "ainda nao chegou lista" ou "o codigo de 12 h venceu": pergunta ao banco
+    st.situacao = await lerSituacao();
+    if (st.situacao && st.situacao.liberado && !st.situacao.codigo_valido) { pedirCodigo(); return true; }
+    return false;
+  }
+
+  function setAba(aba) {
+    st.aba = aba === 'rep' ? 'rep' : 'boletos';
+    try { localStorage.setItem(CHAVE_ABA, st.aba); } catch (e) { /* sem armazenamento: tudo bem */ }
+    ['boletos', 'rep'].forEach(function (a) {
+      var b = $('fin-aba-' + a); if (b) b.setAttribute('aria-selected', a === st.aba ? 'true' : 'false');
+    });
+    if ($('fin-codigo').hidden === false) return;   // pedindo o codigo: a troca vale depois
+    aviso('');
+    mostra('conteudo');
+    if (st.aba === 'rep') { if (!st.ped) carregarRep(); else renderRep(); }
+    else { if (!st.linhas) carregarBoletos(); else render(); }
+  }
+
+  // --- BOLETOS (1.0) ---------------------------------------------------------------------------------------
+  async function carregarBoletos() {
     if (st.ocupado && !$('fin-codigo').hidden) return;
     $('fin-atualizar').disabled = true;
     try {
@@ -7003,10 +7183,11 @@ function moldeResumoPrint() {
         return;
       }
       if (!r[1].data.length) {
-        st.situacao = await lerSituacao();
-        if (st.situacao && st.situacao.liberado && !st.situacao.codigo_valido) return pedirCodigo();   // venceu as 12 h
-        aviso('Ainda não chegou nenhuma lista do sistema da fábrica.', 'alerta');
-        mostra(null);
+        if (await codigoVenceu()) return;   // venceu as 12 h
+        st.linhas = []; st.estado = null;
+        mostra('conteudo');
+        $('fin-resumo').innerHTML = ''; $('fin-lista').innerHTML = ''; $('fin-fonte').textContent = '';
+        aviso('Ainda não chegou nenhuma lista de boletos do sistema da fábrica.', 'alerta');
         return;
       }
       st.linhas = r[0].data;
@@ -7018,12 +7199,13 @@ function moldeResumoPrint() {
     } finally { $('fin-atualizar').disabled = false; }
   }
 
-  function cartao(rotulo, n, valor, classe) {
+  function cartao(rotulo, n, valor, classe, unidade) {
     return '<div class="fin-cartao' + (classe ? ' ' + classe : '') + '"><span>' + esc(rotulo) + '</span><b>' +
-      esc(brl(valor)) + '</b><small>' + n + ' boleto' + (n === 1 ? '' : 's') + '</small></div>';
+      esc(brl(valor)) + '</b><small>' + n + ' ' + esc(unidade || 'boleto') + (n === 1 ? '' : 's') + '</small></div>';
   }
 
   function render() {
+    if (!st.estado) return;
     var h = hoje(), sete = maisDias(h, 7), trinta = maisDias(h, 30);
     var ls = st.linhas || [];
     var soma = function (arr) { return arr.reduce(function (s, l) { return s + Number(l.valor_total || 0); }, 0); };
@@ -7071,19 +7253,406 @@ function moldeResumoPrint() {
       '<p class="fin-vazio">' + (ls.length ? 'Nenhum boleto neste filtro.' : 'Nenhum boleto em aberto.') + '</p>';
 
     var e = st.estado || {};
-    var fonte = 'Lista do sistema da fábrica (Gestão › Consultas › Em aberto) conferida em ' + quando(e.coletado_em) +
-      ' · vencimentos desde ' + (e.vencimento_de ? dataBR(e.vencimento_de) : '?') + '.';
-    $('fin-fonte').textContent = fonte;
-    var horas = (Date.now() - new Date(e.coletado_em).getTime()) / 3600000;
-    var semana2 = new Date().getDay();
-    if (horas > HORAS_COLETA_VELHA && semana2 >= 1 && semana2 <= 5) {
+    $('fin-fonte').textContent = 'Lista do sistema da fábrica (Gestão › Consultas › Em aberto) conferida em ' +
+      quando(e.coletado_em) + ' · vencimentos desde ' + (e.vencimento_de ? dataBR(e.vencimento_de) : '?') + '.';
+    if (coletaVelha(e.coletado_em)) {
       aviso('A lista pode estar desatualizada: a última coleta foi em ' + quando(e.coletado_em) +
             '. O PC da recepção pode estar desligado.', 'alerta');
     }
   }
 
+  // --- REPRESENTANTES (1.1) --------------------------------------------------------------------------------
+  async function lerPedidos() {
+    // o Supabase entrega no maximo 1000 linhas por pedido: le em paginas, ordenado pelo numero (estavel)
+    var todos = [], de = 0, passo = 1000;
+    for (var volta = 0; volta < 20; volta++) {
+      var r = await _supa.from('fin_rep_pedidos').select(COLUNAS_PED).order('id_pedido', { ascending: true })
+        .range(de, de + passo - 1);
+      if (r.error) return { error: r.error };
+      todos = todos.concat(r.data || []);
+      if (!r.data || r.data.length < passo) return { data: todos };
+      de += passo;
+    }
+    return { data: todos };
+  }
+
+  async function lerResumos() {
+    var r = await _supa.from('fin_rep_resumos').select(COLUNAS_RES).order('criado_em', { ascending: false }).limit(1000);
+    return r.error ? null : r.data;
+  }
+
+  async function carregarRep() {
+    if (st.ocupado && !$('fin-codigo').hidden) return;
+    $('fin-atualizar').disabled = true;
+    try {
+      var est, ped, res;
+      for (var tentativa = 0; tentativa < 2; tentativa++) {
+        est = await _supa.from('fin_rep_estado').select('coletado_em,publicado_em,linhas,total,data_pedido_de').limit(1);
+        if (est.error) { aviso('Não deu para ler os pedidos agora. Tente de novo em instantes.', 'erro'); return; }
+        if (!est.data.length) break;
+        ped = await lerPedidos();
+        if (ped.error) { aviso('Não deu para ler os pedidos agora. Tente de novo em instantes.', 'erro'); return; }
+        var depois = await _supa.from('fin_rep_estado').select('publicado_em').limit(1);
+        // a VPS pode ter trocado a lista no meio da leitura: le de novo uma vez
+        if (!depois.error && depois.data.length && depois.data[0].publicado_em === est.data[0].publicado_em) break;
+      }
+      if (!est.data.length) {
+        if (await codigoVenceu()) return;
+        st.ped = []; st.estadoRep = null; st.resumos = [];
+        mostra('conteudo');
+        $('fin-rep-sel').innerHTML = '<option value="">Ainda não chegou a lista de pedidos</option>';
+        $('fin-rep-corpo').hidden = true; $('fin-rep-salvos-card').hidden = true; $('fin-rep-barra').hidden = true;
+        $('fin-rep-fonte').textContent = '';
+        aviso('Ainda não chegou nenhuma lista de pedidos do sistema da fábrica (o PC da recepção manda a cada 2 horas, ' +
+              'em dia útil).', 'alerta');
+        return;
+      }
+      res = await lerResumos();
+      st.ped = ped.data;
+      st.estadoRep = est.data[0];
+      st.resumos = res || [];
+      st.carregadoRepEm = Date.now();
+      // marcados que sumiram da lista (entregues ou cancelados no sistema) saem da selecao
+      var existe = {};
+      st.ped.forEach(function (p) { existe[p.id_pedido] = true; });
+      Object.keys(st.sel).forEach(function (id) { if (!existe[id]) delete st.sel[id]; });
+      aviso(res ? '' : 'Os pedidos vieram, mas não deu para ler os resumos salvos agora.', res ? '' : 'alerta');
+      mostra('conteudo');
+      renderRepSel();
+      renderRep();
+    } finally { $('fin-atualizar').disabled = false; }
+  }
+
+  function grupos() {
+    var g = {};
+    (st.ped || []).forEach(function (p) {
+      var k = p.representante || '';
+      if (!g[k]) g[k] = { n: 0, total: 0, recentes: 0 };
+      g[k].n++; g[k].total += Number(p.total_pedido || 0);
+      if (p.data_pedido && p.data_pedido >= maisDias(hoje(), -DIAS_RECENTES)) g[k].recentes++;
+    });
+    return g;
+  }
+
+  function renderRepSel() {
+    var g = grupos();
+    var nomes = Object.keys(g).sort(function (a, b) { return nomeRep(a).localeCompare(nomeRep(b), 'pt-BR'); });
+    if (st.rep !== null && !(st.rep in g)) st.rep = null;
+    var html = ['<option value="">Escolha o representante… (' + nomes.length + ' com pedido em aberto)</option>'];
+    nomes.forEach(function (k, i) {
+      html.push('<option value="' + i + '"' + (k === st.rep ? ' selected' : '') + '>' + esc(nomeRep(k)) + ' — ' +
+                g[k].n + ' pedido' + (g[k].n === 1 ? '' : 's') + ' · ' + esc(brl(g[k].total)) + '</option>');
+    });
+    var sel = $('fin-rep-sel');
+    sel.innerHTML = html.join('');
+    sel._nomes = nomes;
+  }
+
+  function pedidosDoRep() {
+    return (st.ped || []).filter(function (p) { return (p.representante || '') === st.rep; })
+      .sort(function (a, b) {
+        var da = a.data_pedido || '9999', db = b.data_pedido || '9999';
+        return da < db ? -1 : (da > db ? 1 : a.id_pedido - b.id_pedido);
+      });
+  }
+
+  function visiveis() {
+    var corte = maisDias(hoje(), -DIAS_RECENTES);
+    var q = st.repBusca.trim().toLowerCase();
+    return pedidosDoRep().filter(function (p) {
+      if (st.repPeriodo === '6m' && !(p.data_pedido && p.data_pedido >= corte)) return false;
+      if (q && (String(p.cliente || '') + ' ' + p.id_pedido + ' ' + String(p.nr_controle || '')).toLowerCase().indexOf(q) < 0) return false;
+      return true;
+    });
+  }
+
+  function emResumo() {
+    // pedido -> data do resumo salvo (nao cancelado) mais novo em que ele entrou, para este representante
+    var m = {};
+    (st.resumos || []).forEach(function (r) {
+      if (r.cancelado_em || (r.representante || '') !== st.rep) return;
+      (r.pedidos || []).forEach(function (p) { if (!m[p.id_pedido]) m[p.id_pedido] = r.criado_em; });
+    });
+    return m;
+  }
+
+  function marcados() {
+    var lista = pedidosDoRep().filter(function (p) { return st.sel[p.id_pedido]; });
+    var soma = 0, qtd = 0, sem = 0;
+    lista.forEach(function (p) {
+      var v = Number(p.total_pedido || 0);
+      soma += v; qtd += Number(p.quantidade || 0); if (!v) sem++;
+    });
+    return { lista: lista, soma: soma, qtd: qtd, sem: sem };
+  }
+
+  function renderRep() {
+    var temRep = st.rep !== null && st.ped;
+    $('fin-rep-corpo').hidden = !temRep;
+    $('fin-rep-salvos-card').hidden = !temRep;
+    var e = st.estadoRep || {};
+    $('fin-rep-fonte').textContent = e.coletado_em ? ('Lista do sistema da fábrica (Pedidos de Venda, estado PRODUÇÃO, ' +
+      'pedidos desde ' + dataBR(e.data_pedido_de) + ') conferida em ' + quando(e.coletado_em) + '. O valor é o total ' +
+      'do pedido digitado no sistema (venda); o valor de fábrica só sai quando a planilha do representante é fechada.') : '';
+    if (e.coletado_em && coletaVelha(e.coletado_em)) {
+      aviso('A lista de pedidos pode estar desatualizada: a última coleta foi em ' + quando(e.coletado_em) +
+            '. O PC da recepção pode estar desligado.', 'alerta');
+    }
+    if (!temRep) { $('fin-rep-barra').hidden = true; return; }
+
+    var todos = pedidosDoRep(), vis = visiveis(), corte = maisDias(hoje(), -DIAS_RECENTES);
+    var somaVis = vis.reduce(function (s, p) { return s + Number(p.total_pedido || 0); }, 0);
+    var semVis = vis.filter(function (p) { return !Number(p.total_pedido || 0); }).length;
+    var velhos = todos.filter(function (p) { return !(p.data_pedido && p.data_pedido >= corte); });
+    var m = marcados();
+    $('fin-rep-cartoes').innerHTML =
+      '<div class="fin-cartao"><span>' + (st.repPeriodo === '6m' ? 'Em aberto · 6 meses' : 'Em aberto · todos') +
+        '</span><b>' + esc(brl(somaVis)) + '</b><small>' + vis.length + ' pedido' + (vis.length === 1 ? '' : 's') + ' · ' +
+        esc(pecas(vis.reduce(function (s, p) { return s + Number(p.quantidade || 0); }, 0))) + ' peças</small></div>' +
+      '<div class="fin-cartao' + (semVis ? ' fin-atencao' : '') + '"><span>Sem valor no sistema</span><b>' + semVis +
+        '</b><small>pedido' + (semVis === 1 ? '' : 's') + ' com total zero (fora da soma)</small></div>' +
+      '<div class="fin-cartao"><span>Mais de 6 meses</span><b>' + velhos.length + '</b><small>' +
+        esc(brl(velhos.reduce(function (s, p) { return s + Number(p.total_pedido || 0); }, 0))) +
+        (st.repPeriodo === '6m' && velhos.length ? ' · em "Todos em aberto"' : '') + '</small></div>' +
+      '<div class="fin-cartao"><span>Marcados</span><b>' + esc(brl(m.soma)) + '</b><small>' + m.lista.length +
+        ' pedido' + (m.lista.length === 1 ? '' : 's') + '</small></div>';
+
+    var resumoDe = emResumo();
+    var html = vis.map(function (p) {
+      var v = Number(p.total_pedido || 0), marc = !!st.sel[p.id_pedido];
+      var tags = '';
+      if (!v) tags += '<span class="fin-tag fin-tag-sem">sem valor</span>';
+      if (resumoDe[p.id_pedido]) tags += '<span class="fin-tag fin-tag-res">no resumo de ' + esc(dataBR(diaDe(resumoDe[p.id_pedido])).slice(0, 5)) + '</span>';
+      if (!(p.data_pedido && p.data_pedido >= corte)) tags += '<span class="fin-tag fin-tag-velho">+6 meses</span>';
+      var det = ['nº ' + p.id_pedido, 'pedido ' + dataBR(p.data_pedido)];
+      if (p.data_entrega) det.push('entrega ' + dataBR(p.data_entrega));
+      if (p.observacao) det.push(p.observacao);
+      return '<div class="fin-ped' + (marc ? ' fin-marcado' : '') + '" data-id="' + p.id_pedido + '">' +
+        '<input type="checkbox" aria-label="Marcar o pedido ' + p.id_pedido + '"' + (marc ? ' checked' : '') + '>' +
+        '<div><div class="fin-ped-cli">' + esc(p.cliente || '(sem cliente)') + tags + '</div><div class="fin-ped-det">' +
+        esc(det.join(' · ')) + '</div></div>' +
+        '<div class="fin-ped-dir"><span class="fin-ped-valor">' + (v ? esc(brl(v)) : '—') + '</span><span class="fin-ped-pc">' +
+        esc(pecas(p.quantidade)) + ' pç</span></div></div>';
+    });
+    $('fin-rep-lista').innerHTML = html.length ? html.join('') : '<p class="fin-vazio">' + (todos.length ?
+      (st.repPeriodo === '6m' ? 'Nenhum pedido dos últimos 6 meses neste filtro. Veja em "Todos em aberto".' :
+        'Nenhum pedido neste filtro.') : 'Nenhum pedido em aberto.') + '</p>';
+    renderBarra();
+    renderSalvos();
+  }
+
+  function renderBarra() {
+    var m = marcados();
+    $('fin-rep-barra').hidden = !m.lista.length;
+    if (!m.lista.length) return;
+    $('fin-rep-barra-n').textContent = m.lista.length + ' pedido' + (m.lista.length === 1 ? '' : 's') + ' marcado' +
+      (m.lista.length === 1 ? '' : 's') + ' · ' + brl(m.soma);
+    $('fin-rep-barra-sub').textContent = pecas(m.qtd) + ' peças' + (m.sem ? ' · ' + m.sem + ' sem valor' : '');
+  }
+
+  function renderSalvos() {
+    var lista = (st.resumos || []).filter(function (r) { return (r.representante || '') === st.rep; });
+    $('fin-rep-salvos').innerHTML = lista.length ? lista.map(function (r) {
+      var linha2 = r.n_pedidos + ' pedido' + (r.n_pedidos === 1 ? '' : 's') + ' · ' + pecas(r.quantidade) + ' peças · por ' +
+        String(r.criado_por || '').split('@')[0] + (r.cancelado_em ? ' · cancelado em ' + quando(r.cancelado_em) : '');
+      return '<div class="fin-salvo' + (r.cancelado_em ? ' fin-cancelado' : '') + '"><div><div class="fin-forn">' +
+        esc(quando(r.criado_em)) + ' · ' + esc(brl(r.total)) + '</div><div class="fin-det">' + esc(linha2) +
+        '</div></div><button type="button" class="fin-btn" data-resumo="' + r.id + '">Ver</button></div>';
+    }).join('') : '<p class="fin-vazio">Nenhum resumo salvo ainda para este representante.</p>';
+  }
+
+  function alterna(id, marcar) {
+    if (marcar) st.sel[id] = true; else delete st.sel[id];
+    var linha = document.querySelector('#fin-rep-lista .fin-ped[data-id="' + id + '"]');
+    if (linha) { linha.classList.toggle('fin-marcado', !!marcar); linha.querySelector('input').checked = !!marcar; }
+    renderRep();
+  }
+
+  // --- o resumo (janela) -----------------------------------------------------------------------------------
+  function dadosNovo() {
+    var m = marcados();
+    return { modo: 'novo', rep: st.rep, quando: new Date().toISOString(), obs: $('fin-rep-obs').value || '',
+             pedidos: m.lista.map(function (p) {
+               return { id_pedido: p.id_pedido, data_pedido: p.data_pedido, data_entrega: p.data_entrega,
+                        cliente: p.cliente, quantidade: p.quantidade, total_pedido: p.total_pedido };
+             }) };
+  }
+
+  function contas(pedidos) {
+    var soma = 0, qtd = 0, sem = 0;
+    pedidos.forEach(function (p) { var v = Number(p.total_pedido || 0); soma += v; qtd += Number(p.quantidade || 0); if (!v) sem++; });
+    return { soma: soma, qtd: qtd, sem: sem, n: pedidos.length };
+  }
+
+  function textoResumo(d) {
+    var c = contas(d.pedidos);
+    var linhas = ['*Resumo de pedidos — ' + nomeRep(d.rep) + '*', 'Isis Bolsas · ' + dataBR(diaDe(d.quando)), ''];
+    d.pedidos.forEach(function (p) {
+      var v = Number(p.total_pedido || 0);
+      linhas.push('Nº ' + p.id_pedido + ' · ' + dataBR(p.data_pedido) + ' · ' + (p.cliente || '') + ' · ' +
+                  pecas(p.quantidade) + ' pç · ' + (v ? brl(v) : 'sem valor no sistema'));
+    });
+    linhas.push('');
+    linhas.push('*Total: ' + c.n + ' pedido' + (c.n === 1 ? '' : 's') + ' · ' + pecas(c.qtd) + ' peças · ' + brl(c.soma) + '*');
+    if (c.sem) linhas.push('(' + c.sem + ' pedido' + (c.sem === 1 ? '' : 's') + ' sem valor no sistema, fora do total)');
+    if (d.obs && d.obs.trim()) { linhas.push(''); linhas.push('Obs.: ' + d.obs.trim()); }
+    return linhas.join('\n');
+  }
+
+  function tabelaResumo(d) {
+    var c = contas(d.pedidos);
+    var corpo = d.pedidos.map(function (p) {
+      var v = Number(p.total_pedido || 0);
+      return '<tr><td class="fin-c-n">' + p.id_pedido + '</td><td class="fin-c-data">' + esc(dataBR(p.data_pedido)) +
+        '</td><td class="fin-col-entrega">' + esc(p.data_entrega ? dataBR(p.data_entrega) : '') + '</td><td class="fin-c-cli">' +
+        esc(p.cliente || '') + '</td><td class="fin-num fin-c-pc">' + esc(pecas(p.quantidade)) + '</td><td class="fin-num fin-c-val">' +
+        (v ? esc(brl(v)) : 'sem valor') + '</td></tr>';
+    }).join('');
+    return '<table class="fin-res-tab"><thead><tr><th class="fin-c-n">Nº</th><th class="fin-c-data">Pedido</th>' +
+      '<th class="fin-col-entrega">Entrega</th><th class="fin-c-cli">Cliente</th><th class="fin-num fin-c-pc">Peças</th>' +
+      '<th class="fin-num fin-c-val">Valor</th></tr></thead><tbody>' + corpo +
+      '</tbody><tfoot><tr><td class="fin-c-n"></td><td class="fin-c-data"></td><td class="fin-col-entrega"></td><td class="fin-c-cli">' +
+      c.n + ' pedido' + (c.n === 1 ? '' : 's') + '</td><td class="fin-num fin-c-pc">' + esc(pecas(c.qtd)) +
+      '</td><td class="fin-num fin-c-val">' + esc(brl(c.soma)) + '</td></tr></tfoot></table>' + (c.sem ? '<p class="fin-miudo">' + c.sem + ' pedido' +
+      (c.sem === 1 ? '' : 's') + ' sem valor no sistema (fora do total). Confira o valor no sistema antes de mandar.</p>' : '');
+  }
+
+  function abrirResumo(d) {
+    st.modal = d;
+    st.voltaFoco = document.activeElement;
+    var salvo = d.modo === 'salvo';
+    $('fin-rep-modal-titulo').textContent = (salvo ? 'Resumo salvo — ' : 'Resumo — ') + nomeRep(d.rep);
+    $('fin-rep-modal-corpo').innerHTML = tabelaResumo(d);
+    var obs = $('fin-rep-obs');
+    if (salvo) { obs.value = d.obs || ''; }
+    obs.readOnly = salvo;
+    obs.hidden = salvo && !d.obs;
+    $('fin-rep-obs-rot').hidden = obs.hidden;
+    $('fin-rep-obs-rot').textContent = salvo ? 'Observação' : 'Observação (opcional; vai junto no texto)';
+    $('fin-rep-salvar').hidden = salvo;
+    $('fin-rep-salvar').disabled = false;
+    $('fin-rep-cancelar-res').hidden = !salvo || !!d.cancelado_em;
+    $('fin-rep-modal-nota').textContent = salvo ? ('Salvo em ' + quando(d.quando) + ' por ' + (d.criado_por || '?') +
+      (d.cancelado_em ? '. Cancelado em ' + quando(d.cancelado_em) + ' por ' + (d.cancelado_por || '?') : '') +
+      '. Os valores são os daquele momento.') :
+      'Salvar guarda este resumo no site (com nome e hora), para consulta depois. Não muda nada no sistema da fábrica: ' +
+      'marcar os pedidos como entregues continua sendo lá.';
+    $('fin-rep-modal').hidden = false;
+    document.body.style.overflow = 'hidden';
+    setTimeout(function () { try { $('fin-rep-fechar').focus(); } catch (x) { /* nada */ } }, 30);
+  }
+
+  function fecharResumo() {
+    if (!$('fin-rep-modal') || $('fin-rep-modal').hidden) return;
+    $('fin-rep-modal').hidden = true;
+    $('fin-rep-modal-corpo').innerHTML = '';
+    document.body.style.overflow = '';
+    st.modal = null;
+    if (st.voltaFoco && st.voltaFoco.focus) { try { st.voltaFoco.focus(); } catch (e) { /* nada */ } }
+  }
+
+  function dadosParaTexto() {
+    var d = st.modal;
+    if (d && d.modo === 'novo') d.obs = $('fin-rep-obs').value || '';
+    return d;
+  }
+
+  async function copiarResumo() {
+    var d = dadosParaTexto(); if (!d) return;
+    var texto = textoResumo(d), ok = false;
+    try { await navigator.clipboard.writeText(texto); ok = true; } catch (e) {
+      var ta = document.createElement('textarea');
+      ta.value = texto; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { ok = document.execCommand('copy'); } catch (x) { ok = false; }
+      document.body.removeChild(ta);
+    }
+    $('fin-rep-modal-nota').textContent = ok ? 'Texto copiado. É só colar no WhatsApp.' :
+      'Não deu para copiar automaticamente. Use Imprimir ou selecione a tabela.';
+  }
+
+  function imprimirResumo() {
+    var d = dadosParaTexto(); if (!d) return;
+    var w = window.open('', '_blank', 'width=900,height=700');
+    if (!w) { $('fin-rep-modal-nota').textContent = 'O navegador bloqueou a janela de impressão. Libere pop-ups deste site.'; return; }
+    var css = 'body{font-family:Inter,Arial,sans-serif;color:#1a2e4a;margin:24px}h1{font-size:18px;margin:0 0 4px}' +
+      'p{margin:0 0 12px;font-size:12px;color:#475569}table{width:100%;border-collapse:collapse;font-size:12px}' +
+      'th,td{border-bottom:1px solid #cbd5e1;padding:6px;text-align:left}.fin-num{text-align:right;white-space:nowrap}' +
+      'tfoot td{font-weight:700;border-top:2px solid #1a2e4a}.fin-miudo{font-size:11px;color:#64748b}';
+    w.document.open();
+    w.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Resumo de pedidos</title><style>' +
+      css + '</style></head><body><h1>Resumo de pedidos — ' + esc(nomeRep(d.rep)) + '</h1><p>Isis Bolsas · ' +
+      esc(dataBR(diaDe(d.quando))) + '</p>' + tabelaResumo(d) + (d.obs && d.obs.trim() ? '<p>Obs.: ' + esc(d.obs.trim()) +
+      '</p>' : '') + '<p class="fin-miudo">Valores dos pedidos como estão no sistema da fábrica (valor de venda).</p>' +
+      '</body></html>');
+    w.document.close();
+    w.focus();
+    setTimeout(function () { try { w.print(); } catch (e) { /* nada */ } }, 250);
+  }
+
+  async function salvarResumo() {
+    var d = dadosParaTexto();
+    if (!d || d.modo !== 'novo' || st.salvando) return;
+    if (!d.pedidos.length) return;
+    st.salvando = true; $('fin-rep-salvar').disabled = true;
+    $('fin-rep-modal-nota').textContent = 'Salvando…';
+    try {
+      var r = await _supa.rpc('fin_rep_salvar_resumo', { p_representante: d.rep, p_obs: (d.obs || '').trim() || null,
+        p_pedidos: d.pedidos.map(function (p) { return p.id_pedido; }) });
+      if (r.error) {
+        if (/sem acesso/i.test(r.error.message || '')) { fecharResumo(); return pedirCodigo(); }
+        $('fin-rep-modal-nota').textContent = 'Não salvou: ' + (r.error.message || 'erro') +
+          '. Clique em Atualizar e confira os pedidos.';
+        $('fin-rep-salvar').disabled = false;
+        return;
+      }
+      var id = r.data && r.data.id;
+      st.sel = {};
+      st.resumos = (await lerResumos()) || st.resumos;
+      var novo = (st.resumos || []).filter(function (x) { return x.id === id; })[0];
+      renderRep();
+      if (novo) abrirResumo(paraSalvo(novo));
+      $('fin-rep-modal-nota').textContent = 'Resumo salvo. ' + $('fin-rep-modal-nota').textContent;
+    } finally { st.salvando = false; }
+  }
+
+  function paraSalvo(r) {
+    return { modo: 'salvo', id: r.id, rep: r.representante || '', quando: r.criado_em, obs: r.obs || '',
+             criado_por: r.criado_por, cancelado_em: r.cancelado_em, cancelado_por: r.cancelado_por,
+             pedidos: r.pedidos || [] };
+  }
+
+  async function cancelarResumo() {
+    var d = st.modal;
+    if (!d || d.modo !== 'salvo' || d.cancelado_em) return;
+    if (!window.confirm('Cancelar este resumo? Ele continua no histórico, marcado como cancelado.')) return;
+    var r = await _supa.rpc('fin_rep_cancelar_resumo', { p_id: d.id });
+    if (r.error) {
+      if (/sem acesso/i.test(r.error.message || '')) { fecharResumo(); return pedirCodigo(); }
+      $('fin-rep-modal-nota').textContent = 'Não cancelou: ' + (r.error.message || 'erro');
+      return;
+    }
+    st.resumos = (await lerResumos()) || st.resumos;
+    var atual = (st.resumos || []).filter(function (x) { return x.id === d.id; })[0];
+    renderRep();
+    if (atual) abrirResumo(paraSalvo(atual)); else fecharResumo();
+  }
+
+  // --- limpeza e ligacoes ----------------------------------------------------------------------------------
+  function limparRep() {
+    st.ped = null; st.estadoRep = null; st.resumos = null; st.sel = {}; st.rep = null; st.repBusca = '';
+    fecharResumo();
+    if ($('fin-rep-lista')) $('fin-rep-lista').innerHTML = '';
+    if ($('fin-rep-cartoes')) $('fin-rep-cartoes').innerHTML = '';
+    if ($('fin-rep-salvos')) $('fin-rep-salvos').innerHTML = '';
+    if ($('fin-rep-sel')) $('fin-rep-sel').innerHTML = '';
+    if ($('fin-rep-busca')) $('fin-rep-busca').value = '';
+    if ($('fin-rep-barra')) $('fin-rep-barra').hidden = true;
+  }
+
   function zerar() {
     st.linhas = null; st.estado = null; st.situacao = null; st.fator = null; st.busca = ''; st.periodo = 'todos';
+    limparRep();
     var sec = $('secao-financeiro'); if (sec) sec.style.display = 'none';
     var btn = $('btnFinanceiro'); if (btn) { btn.classList.remove('ativo'); btn.style.display = 'none'; }
     if ($('fin-lista')) $('fin-lista').innerHTML = '';
@@ -7094,21 +7663,81 @@ function moldeResumoPrint() {
   }
 
   function ligar() {
+    try { var a = localStorage.getItem(CHAVE_ABA); if (a === 'rep' || a === 'boletos') st.aba = a; } catch (e) { /* nada */ }
+    ['boletos', 'rep'].forEach(function (x) {
+      var b = $('fin-aba-' + x); if (b) b.setAttribute('aria-selected', x === st.aba ? 'true' : 'false');
+    });
     $('fin-atualizar').addEventListener('click', function () { carregar(); });
     $('fin-codigo-form').addEventListener('submit', confirmarCodigo);
     $('fin-busca').addEventListener('input', function (ev) { st.busca = ev.target.value; if (st.linhas) render(); });
-    document.querySelectorAll('#secao-financeiro .fin-pill').forEach(function (b) {
+    document.querySelectorAll('#secao-financeiro .fin-pill[data-periodo]').forEach(function (b) {
       b.addEventListener('click', function () {
         st.periodo = b.getAttribute('data-periodo');
-        document.querySelectorAll('#secao-financeiro .fin-pill').forEach(function (x) {
+        document.querySelectorAll('#secao-financeiro .fin-pill[data-periodo]').forEach(function (x) {
           x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
         });
         if (st.linhas) render();
       });
     });
+    document.querySelectorAll('#fin-abas .fin-aba').forEach(function (b) {
+      b.addEventListener('click', function () { setAba(b.getAttribute('data-aba')); });
+      b.addEventListener('keydown', function (ev) {
+        if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft') {
+          ev.preventDefault();
+          var outro = b.getAttribute('data-aba') === 'rep' ? 'boletos' : 'rep';
+          setAba(outro); $('fin-aba-' + outro).focus();
+        }
+      });
+    });
+    // representantes
+    $('fin-rep-sel').addEventListener('change', function (ev) {
+      var nomes = ev.target._nomes || [];
+      var v = ev.target.value;
+      var novo = v === '' ? null : nomes[Number(v)];
+      if (novo !== st.rep) { st.sel = {}; st.repBusca = ''; $('fin-rep-busca').value = ''; }
+      st.rep = (novo === undefined) ? null : novo;
+      renderRep();
+    });
+    document.querySelectorAll('#secao-financeiro .fin-pill[data-rep-periodo]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        st.repPeriodo = b.getAttribute('data-rep-periodo');
+        document.querySelectorAll('#secao-financeiro .fin-pill[data-rep-periodo]').forEach(function (x) {
+          x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
+        });
+        renderRep();
+      });
+    });
+    $('fin-rep-busca').addEventListener('input', function (ev) { st.repBusca = ev.target.value; renderRep(); });
+    $('fin-rep-lista').addEventListener('click', function (ev) {
+      var linha = ev.target.closest('.fin-ped'); if (!linha) return;
+      var id = Number(linha.getAttribute('data-id'));
+      if (ev.target.tagName === 'INPUT') { alterna(id, ev.target.checked); return; }
+      alterna(id, !st.sel[id]);
+    });
+    $('fin-rep-todos').addEventListener('click', function () {
+      visiveis().forEach(function (p) { st.sel[p.id_pedido] = true; }); renderRep();
+    });
+    $('fin-rep-limpar').addEventListener('click', function () { st.sel = {}; renderRep(); });
+    $('fin-rep-ver').addEventListener('click', function () {
+      $('fin-rep-obs').value = ''; abrirResumo(dadosNovo());
+    });
+    $('fin-rep-salvos').addEventListener('click', function (ev) {
+      var b = ev.target.closest('[data-resumo]'); if (!b) return;
+      var id = Number(b.getAttribute('data-resumo'));
+      var r = (st.resumos || []).filter(function (x) { return x.id === id; })[0];
+      if (r) abrirResumo(paraSalvo(r));
+    });
+    $('fin-rep-fechar').addEventListener('click', fecharResumo);
+    $('fin-rep-modal').addEventListener('click', function (ev) { if (ev.target === $('fin-rep-modal')) fecharResumo(); });
+    document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && st.modal) fecharResumo(); });
+    $('fin-rep-copiar').addEventListener('click', copiarResumo);
+    $('fin-rep-imprimir').addEventListener('click', imprimirResumo);
+    $('fin-rep-salvar').addEventListener('click', salvarResumo);
+    $('fin-rep-cancelar-res').addEventListener('click', cancelarResumo);
     document.addEventListener('visibilitychange', function () {
-      if (document.visibilityState === 'visible' && modoAtual === 'financeiro' && st.linhas &&
-          Date.now() - st.carregadoEm > 120000) carregar();
+      if (document.visibilityState !== 'visible' || modoAtual !== 'financeiro' || st.modal) return;
+      if (st.aba === 'boletos' && st.linhas && Date.now() - st.carregadoEm > 120000) carregarBoletos();
+      if (st.aba === 'rep' && st.ped && Date.now() - st.carregadoRepEm > 120000) carregarRep();
     });
   }
 
@@ -7134,9 +7763,10 @@ function moldeResumoPrint() {
     }
     if (sec) sec.style.display = 'none';
     if (btn) btn.classList.remove('ativo');
-    st.linhas = null;   // nada de boleto fica na tela de outra aba
+    st.linhas = null;   // nada de boleto nem de pedido fica na tela de outra aba
     if ($('fin-lista')) $('fin-lista').innerHTML = '';
     if ($('fin-resumo')) $('fin-resumo').innerHTML = '';
+    limparRep();
     return _setModo.apply(this, arguments);
   };
 

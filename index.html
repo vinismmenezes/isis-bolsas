@@ -1550,6 +1550,75 @@ input, select, textarea { transition: border-color .16s ease, box-shadow .16s ea
   .fin-res-tab td, .fin-res-tab th { padding:6px 3px; overflow-wrap:anywhere; }
 }
 </style>
+<style id="menu-isis-css">
+/* ===== Menu do painel (Menu 1.0 de 22/11/2026; segue as cores e cantos do tema Isis) =====
+   Quem tem mais de uma area ganha o botao "Menu" no cabecalho; a fileira de abas mostra so as abas da area aberta. */
+.btn-menu { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 38px; padding: 0 14px 0 11px;
+            border: 1px solid var(--t-borda); border-radius: 10px; background: var(--t-card); color: var(--t-texto);
+            font: inherit; font-size: .88rem; font-weight: 600; cursor: pointer; flex: 0 0 auto; position: relative; z-index: 1;
+            transition: background-color .16s ease, border-color .16s ease, color .16s ease, box-shadow .16s ease, transform .12s ease; }
+.btn-menu:hover { background: var(--t-suave); }
+.btn-menu:active { transform: scale(.96); }
+.btn-menu[aria-expanded="true"] { border-color: var(--isis-azul); color: var(--isis-azul); }
+.btn-menu[hidden] { display: none !important; }
+.mn-ic { width: 18px; height: 18px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round;
+         stroke-linejoin: round; }
+
+/* com o menu, a fileira de abas mostra so a area aberta (no Financeiro, as abas ficam dentro do cartao dele) */
+body.tem-menu .btn-modo.menu-fora { display: none !important; }
+body.tem-menu .modo-toggle.menu-oculta { display: none !important; }
+
+/* gaveta */
+.menu-fundo { position: fixed; inset: 0; background: rgba(15, 23, 42, .40); z-index: 9500; opacity: 0; transition: opacity .22s ease; }
+.menu-fundo.aberto { opacity: 1; }
+.menu-gaveta { position: fixed; top: 0; left: 0; bottom: 0; width: min(320px, 86vw); background: var(--t-card); z-index: 9501;
+               border-right: 1px solid var(--t-borda); box-shadow: 8px 0 40px rgba(15, 23, 42, .18);
+               transform: translateX(-104%); transition: transform .3s cubic-bezier(.22, .8, .24, 1);
+               display: flex; flex-direction: column; overflow-y: auto; overscroll-behavior: contain; padding: 14px 12px 18px; }
+.menu-gaveta.aberto { transform: none; }
+.menu-fundo[hidden], .menu-gaveta[hidden] { display: none !important; }
+.menu-topo { display: flex; align-items: center; gap: 10px; padding: 2px 4px 12px 6px; border-bottom: 1px solid var(--t-borda);
+             margin-bottom: 4px; }
+.menu-topo img { height: 34px; width: auto; display: block; }
+.menu-topo-txt { flex: 1; min-width: 0; }
+.menu-topo-txt b { display: block; font-size: .95rem; font-weight: 600; color: var(--t-texto); }
+.menu-topo-txt span { display: block; font-size: .76rem; color: var(--t-suave-texto); white-space: nowrap; overflow: hidden;
+                      text-overflow: ellipsis; }
+.menu-fechar { width: 36px; height: 36px; border: 0; border-radius: 8px; background: transparent; color: var(--t-suave-texto);
+               cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+.menu-fechar:hover { background: var(--t-suave); color: var(--t-texto); }
+.menu-grupo { padding: 2px 0; }
+.menu-grupo[hidden] { display: none; }
+.menu-grupo-titulo { display: flex; align-items: center; gap: 8px; padding: 12px 10px 6px; font-size: .72rem; font-weight: 700;
+                     letter-spacing: .07em; text-transform: uppercase; color: var(--t-suave-texto); }
+.menu-grupo-titulo .mn-ic { width: 15px; height: 15px; }
+.menu-item { display: flex; align-items: center; gap: 11px; width: 100%; min-height: 44px; padding: 10px 12px; border: 0;
+             border-radius: 9px; background: transparent; color: var(--t-texto); font: inherit; font-size: .92rem; font-weight: 500;
+             text-align: left; cursor: pointer; transition: background-color .16s ease, color .16s ease, box-shadow .16s ease; }
+.menu-item .mn-ic, .menu-item .ui-icon { width: 18px; height: 18px; color: var(--t-suave-texto); }
+.menu-item:hover { background: var(--t-suave); }
+.menu-item[aria-current="page"] { background: var(--isis-rosa-claro); color: var(--isis-azul); font-weight: 600;
+                                  box-shadow: inset 3px 0 0 var(--isis-rosa); }
+.menu-item[aria-current="page"] .mn-ic, .menu-item[aria-current="page"] .ui-icon { color: var(--isis-rosa); }
+.menu-item[hidden] { display: none; }
+.menu-item:focus-visible, .menu-fechar:focus-visible, .btn-menu:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--t-anel); }
+
+/* Financeiro em destaque: primeiro da lista, num bloco proprio */
+.menu-grupo-fin { background: linear-gradient(180deg, #eef3fc 0%, #f7f9fd 100%); border: 1px solid #d8e2f4; border-radius: 12px;
+                  padding: 2px 6px 8px; margin: 10px 0 6px; }
+.menu-grupo-fin .menu-grupo-titulo { color: var(--isis-azul); }
+.menu-grupo-fin .menu-item:hover { background: rgba(255, 255, 255, .8); }
+.menu-grupo-fin .menu-item[aria-current="page"] { background: #fff; }
+.menu-tranca { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; font-size: .7rem; font-weight: 600;
+               letter-spacing: 0; text-transform: none; color: var(--isis-azul); opacity: .75; }
+.menu-tranca .mn-ic { width: 12px; height: 12px; }
+html.menu-trava, html.menu-trava body { overflow: hidden; }
+
+@media (max-width: 650px) {
+  .btn-menu { width: 36px; height: 36px; padding: 0; border-radius: 9px; }
+  .btn-menu span { display: none; }
+}
+</style>
 </head>
 <body>
 <svg class="icon-sprite" aria-hidden="true" focusable="false">
@@ -7741,6 +7810,19 @@ function moldeResumoPrint() {
     });
   }
 
+  // --- Menu 1.0: o menu do painel abre o Financeiro ja na parte escolhida -----------------------------------
+  window.finIrPara = function (aba) {
+    aba = aba === 'rep' ? 'rep' : 'boletos';
+    if (modoAtual === 'financeiro') { if (aba !== st.aba) setAba(aba); return; }
+    st.aba = aba;   // fora do Financeiro: so escolhe a parte; quem carrega e o abrir() de sempre
+    try { localStorage.setItem(CHAVE_ABA, aba); } catch (e) { /* sem armazenamento: tudo bem */ }
+    ['boletos', 'rep'].forEach(function (a) {
+      var b = $('fin-aba-' + a); if (b) b.setAttribute('aria-selected', a === aba ? 'true' : 'false');
+    });
+    window.setModo('financeiro');
+  };
+  window.finAbaAtual = function () { return st.aba; };
+
   // --- encaixe no painel (embrulha 3 funcoes que ja existem) -----------------------------------------------
   var _setModo = window.setModo, _aplicarPermissoes = window.aplicarPermissoes, _fazerLogout = window.fazerLogout;
 
@@ -7791,6 +7873,224 @@ function moldeResumoPrint() {
   };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ligar); else ligar();
+})();
+</script>
+<script id="menu-isis-js">
+/* ===== Menu do painel (Menu 1.0 de 22/11/2026) =====
+   Quem tem acesso a mais de uma area (Financeiro, Precos, Fabrica) ganha o botao "Menu" no cabecalho, e a
+   fileira de abas passa a mostrar so as abas da area aberta. Quem tem uma area so (as vendedoras) ve o painel
+   como antes. Nao muda dados nem permissoes: le quais botoes de aba o proprio painel deixou visiveis.
+   Precisa do gancho finIrPara/finAbaAtual no bloco do Financeiro (gancho-financeiro.js); sem ele, os dois
+   itens do Financeiro abrem a ultima parte usada. */
+(function () {
+  'use strict';
+  function $(id) { return document.getElementById(id); }
+
+  var ICONES = {
+    'mn-menu': '<path d="M4 6h16M4 12h16M4 18h16"/>',
+    'mn-x': '<path d="M18 6 6 18M6 6l12 12"/>',
+    'mn-carteira': '<path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>',
+    'mn-recibo': '<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/>',
+    'mn-maleta': '<path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/>',
+    'mn-etiqueta': '<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
+    'mn-fabrica': '<path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M17 18h1M12 18h1M7 18h1"/>',
+    'mn-calendario': '<path d="M8 2v4M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/>',
+    'mn-pessoas': '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+    'mn-cadeado': '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>'
+  };
+  // a ordem aqui e a ordem do menu: o Financeiro vem primeiro
+  var GRUPOS = [
+    { id: 'financeiro', titulo: 'Financeiro', icone: 'mn-carteira', itens: [
+      { ir: 'fin:boletos', nome: 'Boletos a pagar', icone: 'mn-recibo', botao: 'btnFinanceiro' },
+      { ir: 'fin:rep', nome: 'Representantes', icone: 'mn-maleta', botao: 'btnFinanceiro' }] },
+    { id: 'precos', titulo: 'Preços', icone: 'mn-etiqueta', itens: [
+      { ir: 'rapido', nome: 'Preços Rápidos', icone: '#icon-badge-dollar', botao: 'btnRapido' },
+      { ir: 'avancado', nome: 'Preços Avançados', icone: '#icon-sliders', botao: 'btnAvancado' }] },
+    // a aba Costureiras esta desligada no site (#btnCostureiras { display:none !important }): fica fora do menu
+    { id: 'fabrica', titulo: 'Fábrica', icone: 'mn-fabrica', itens: [
+      { ir: 'costura', nome: 'Costura', icone: '#icon-scissors', botao: 'btnCostura' },
+      { ir: 'agenda', nome: 'Agenda da Fábrica', icone: 'mn-calendario', botao: 'btnAgenda' }] }
+  ];
+  var GRUPO_DO_MODO = { financeiro: 'financeiro', rapido: 'precos', avancado: 'precos', agenda: 'fabrica', costura: 'fabrica',
+                        costureiras: 'fabrica' };
+  var BOTOES = {};
+  GRUPOS.forEach(function (g) {
+    BOTOES[g.id] = g.itens.map(function (i) { return i.botao; }).filter(function (b, k, l) { return l.indexOf(b) === k; });
+  });
+
+  var pronto = false;      // so liga depois que o painel aplicou as permissoes do login (evita o botao piscar)
+  var aberto = false, voltaFoco = null, fechando = null;
+
+  function icone(nome, classe) {
+    if (nome.charAt(0) === '#') {
+      return '<svg class="ui-icon ' + (classe || '') + '" aria-hidden="true"><use href="' + nome + '"></use></svg>';
+    }
+    return '<svg class="mn-ic ' + (classe || '') + '" viewBox="0 0 24 24" aria-hidden="true">' + ICONES[nome] + '</svg>';
+  }
+  function pode(idBotao) { var b = $(idBotao); return !!b && b.style.display !== 'none'; }
+  function grupoAtual() { return GRUPO_DO_MODO[modoAtual] || 'precos'; }
+  function destinoAtual() {
+    if (modoAtual !== 'financeiro') return modoAtual;
+    return 'fin:' + (typeof window.finAbaAtual === 'function' ? window.finAbaAtual() : 'boletos');
+  }
+
+  // --- liga/desliga e filtra a fileira de abas --------------------------------------------------------------
+  function aplicar() {
+    var btn = $('btn-menu');
+    if (!btn) return;
+    var areas = GRUPOS.filter(function (g) { return BOTOES[g.id].some(pode); }).length;
+    var ligado = pronto && areas >= 2;
+    if (document.body.classList.contains('tem-menu') !== ligado) document.body.classList.toggle('tem-menu', ligado);
+    btn.hidden = !ligado;
+    var atual = grupoAtual();
+    Object.keys(BOTOES).forEach(function (g) {
+      BOTOES[g].forEach(function (id) {
+        var b = $(id); if (!b) return;
+        var fora = ligado && g !== atual;
+        if (b.classList.contains('menu-fora') !== fora) b.classList.toggle('menu-fora', fora);
+      });
+    });
+    var barra = document.querySelector('.modo-toggle');
+    if (barra) {
+      var oculta = ligado && (atual === 'financeiro' || BOTOES[atual].filter(pode).length < 2);
+      if (barra.classList.contains('menu-oculta') !== oculta) barra.classList.toggle('menu-oculta', oculta);
+    }
+    if (!ligado) fechar(true);
+    else if (aberto) marcar();
+  }
+
+  function marcar() {
+    var nav = $('menu-gaveta'); if (!nav) return;
+    var alvo = destinoAtual();
+    nav.querySelectorAll('.menu-item').forEach(function (it) {
+      it.hidden = !pode(it.getAttribute('data-botao'));
+      if (it.getAttribute('data-ir') === alvo) it.setAttribute('aria-current', 'page'); else it.removeAttribute('aria-current');
+    });
+    nav.querySelectorAll('.menu-grupo').forEach(function (g) { g.hidden = !g.querySelector('.menu-item:not([hidden])'); });
+    var quem = $('menu-quem');
+    if (quem) quem.textContent = (typeof userEmail === 'string' && userEmail) ? userEmail : '';
+  }
+
+  // --- abrir, fechar, ir ----------------------------------------------------------------------------------
+  function abrirMenu() {
+    if (aberto || !document.body.classList.contains('tem-menu')) return;
+    marcar();
+    var nav = $('menu-gaveta'), fundo = $('menu-fundo');
+    if (fechando) { clearTimeout(fechando); fechando = null; }
+    nav.hidden = false; fundo.hidden = false;
+    void nav.offsetWidth;   // deixa o navegador desenhar fechada antes de deslizar
+    nav.classList.add('aberto'); fundo.classList.add('aberto');
+    aberto = true;
+    $('btn-menu').setAttribute('aria-expanded', 'true');
+    document.documentElement.classList.add('menu-trava');
+    voltaFoco = document.activeElement;
+    var foco = nav.querySelector('.menu-item[aria-current="page"]:not([hidden])') || nav.querySelector('.menu-item:not([hidden])');
+    if (foco) foco.focus({ preventScroll: true });
+  }
+
+  function fechar(semFoco) {
+    if (!aberto) return;
+    aberto = false;
+    var nav = $('menu-gaveta'), fundo = $('menu-fundo');
+    nav.classList.remove('aberto'); fundo.classList.remove('aberto');
+    $('btn-menu').setAttribute('aria-expanded', 'false');
+    document.documentElement.classList.remove('menu-trava');
+    fechando = setTimeout(function () { fechando = null; if (!aberto) { nav.hidden = true; fundo.hidden = true; } }, 320);
+    if (!semFoco && voltaFoco && voltaFoco.focus) voltaFoco.focus({ preventScroll: true });
+  }
+
+  function ir(destino) {
+    fechar(true);
+    var b = $('btn-menu'); if (b) b.focus({ preventScroll: true });
+    if (destino === destinoAtual()) return;
+    if (destino.indexOf('fin:') === 0) {
+      if (typeof window.finIrPara === 'function') window.finIrPara(destino.slice(4));
+      else window.setModo('financeiro');
+    } else {
+      window.setModo(destino);
+    }
+    if (window.scrollY > 0) window.scrollTo(0, 0);
+  }
+
+  // --- montagem -------------------------------------------------------------------------------------------
+  function montar() {
+    var header = document.querySelector('header');
+    if (!header || $('btn-menu')) return;
+
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'btn-menu'; btn.id = 'btn-menu'; btn.hidden = true; btn.title = 'Menu';
+    btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-controls', 'menu-gaveta');
+    btn.setAttribute('aria-label', 'Abrir o menu');
+    btn.innerHTML = icone('mn-menu') + '<span>Menu</span>';
+    header.insertBefore(btn, header.firstChild);
+
+    var fundo = document.createElement('div');
+    fundo.className = 'menu-fundo'; fundo.id = 'menu-fundo'; fundo.hidden = true;
+
+    var nav = document.createElement('div');
+    nav.className = 'menu-gaveta'; nav.id = 'menu-gaveta'; nav.hidden = true;
+    nav.setAttribute('role', 'dialog'); nav.setAttribute('aria-modal', 'true'); nav.setAttribute('aria-label', 'Menu do painel');
+    var logo = document.querySelector('.logo-wrap img');
+    var html = '<div class="menu-topo">' + (logo ? '<img alt="" src="' + logo.getAttribute('src') + '">' : '') +
+      '<div class="menu-topo-txt"><b>Painel ISIS Bolsas</b><span id="menu-quem"></span></div>' +
+      '<button type="button" class="menu-fechar" id="menu-fechar" aria-label="Fechar o menu">' + icone('mn-x') + '</button></div>' +
+      '<nav aria-label="Áreas do painel">';
+    GRUPOS.forEach(function (g) {
+      html += '<div class="menu-grupo' + (g.id === 'financeiro' ? ' menu-grupo-fin' : '') + '" data-grupo="' + g.id + '">' +
+        '<div class="menu-grupo-titulo">' + icone(g.icone) + '<span>' + g.titulo + '</span>' +
+        (g.id === 'financeiro' ? '<span class="menu-tranca" title="Pede o código do celular">' + icone('mn-cadeado') +
+          'protegido</span>' : '') + '</div>';
+      g.itens.forEach(function (i) {
+        html += '<button type="button" class="menu-item" data-ir="' + i.ir + '" data-botao="' + i.botao + '">' +
+          icone(i.icone) + '<span>' + i.nome + '</span></button>';
+      });
+      html += '</div>';
+    });
+    nav.innerHTML = html + '</nav>';
+    document.body.appendChild(fundo);
+    document.body.appendChild(nav);
+
+    btn.addEventListener('click', function () { if (aberto) fechar(); else abrirMenu(); });
+    fundo.addEventListener('click', function () { fechar(); });
+    $('menu-fechar').addEventListener('click', function () { fechar(); });
+    nav.addEventListener('click', function (ev) {
+      var it = ev.target.closest('.menu-item'); if (it) ir(it.getAttribute('data-ir'));
+    });
+    nav.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Escape') { ev.preventDefault(); fechar(); return; }
+      var focaveis = [].slice.call(nav.querySelectorAll('button')).filter(function (b) { return b.offsetParent !== null; });
+      if (!focaveis.length) return;
+      var k = focaveis.indexOf(document.activeElement);
+      if (ev.key === 'Tab') {
+        if (ev.shiftKey && k <= 0) { ev.preventDefault(); focaveis[focaveis.length - 1].focus(); }
+        else if (!ev.shiftKey && k === focaveis.length - 1) { ev.preventDefault(); focaveis[0].focus(); }
+      } else if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
+        var itens = focaveis.filter(function (b) { return b.classList.contains('menu-item'); });
+        var j = itens.indexOf(document.activeElement);
+        if (j < 0) return;
+        ev.preventDefault();
+        itens[(j + (ev.key === 'ArrowDown' ? 1 : itens.length - 1)) % itens.length].focus();
+      }
+    });
+
+    // o painel mostra/esconde os botoes de aba conforme as permissoes (o do Financeiro, depois de perguntar ao banco)
+    var barra = document.querySelector('.modo-toggle');
+    if (barra) new MutationObserver(function (lista) {
+      for (var i = 0; i < lista.length; i++) {
+        var t = lista[i].target;
+        if (t.classList && t.classList.contains('btn-modo')) { aplicar(); return; }
+      }
+    }).observe(barra, { attributes: true, subtree: true, attributeFilter: ['style'] });
+    aplicar();
+  }
+
+  // --- encaixe no painel (embrulha 3 funcoes que ja existem) -----------------------------------------------
+  var _setModo = window.setModo, _aplicarPermissoes = window.aplicarPermissoes, _fazerLogout = window.fazerLogout;
+  window.setModo = function () { var r = _setModo.apply(this, arguments); aplicar(); return r; };
+  window.aplicarPermissoes = function () { var r = _aplicarPermissoes.apply(this, arguments); pronto = true; aplicar(); return r; };
+  window.fazerLogout = async function () { pronto = false; fechar(true); aplicar(); return _fazerLogout.apply(this, arguments); };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', montar); else montar();
 })();
 </script>
 </body>

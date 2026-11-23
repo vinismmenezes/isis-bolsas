@@ -1549,6 +1549,17 @@ input, select, textarea { transition: border-color .16s ease, box-shadow .16s ea
   .fin-res-tab .fin-c-val { width:100px; }
   .fin-res-tab td, .fin-res-tab th { padding:6px 3px; overflow-wrap:anywhere; }
 }
+/* 1.2: o cartao "Sem valor no sistema" e um botao que mostra so os pedidos sem valor */
+.fin-cartao-btn { font:inherit; color:inherit; text-align:left; width:100%; cursor:pointer;
+                  transition:border-color .15s ease, box-shadow .15s ease, transform .12s ease; }
+.fin-cartao-btn:hover:not([disabled]) { border-color:var(--fin-ambar); }
+.fin-cartao-btn:active:not([disabled]) { transform:scale(.98); }
+.fin-cartao-btn[aria-pressed="true"] { border-color:var(--fin-ambar); box-shadow:inset 0 0 0 2px var(--fin-ambar); }
+.fin-cartao-btn[disabled] { cursor:default; }
+.fin-cartao-btn:focus-visible { outline:3px solid var(--fin-rosa); outline-offset:2px; }
+.fin-filtro-ativo { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+                    background:var(--fin-ambar-fundo); border:1px solid #fcd34d; color:var(--fin-ambar); border-radius:10px;
+                    padding:8px 8px 8px 12px; margin-bottom:10px; font-size:.86rem; font-weight:700; }
 </style>
 <style id="menu-isis-css">
 /* ===== Menu do painel (Menu 1.0 de 22/11/2026; segue as cores e cantos do tema Isis) =====
@@ -7065,7 +7076,9 @@ function moldeResumoPrint() {
 })();
 </script>
 <script id="financeiro-isis-js">
-/* ===== Financeiro (bloco novo) - versao 1.1, 22/11/2026 (a 1.0 e de 19/11) =====
+/* ===== Financeiro (bloco novo) - versao 1.2, 23/11/2026 (1.1 de 22/11, 1.0 de 19/11) =====
+   1.2: o cartao "Sem valor no sistema" vira botao e mostra so os pedidos sem valor (pedido do Vini em 23/11); o gancho
+   do menu (finIrPara/finAbaAtual, Menu 1.0) passa a morar aqui.
    Duas partes, as duas so leitura do sistema da fabrica:
    - Boletos a pagar (1.0, igual): fin_boletos, copia da lista "Em aberto" (debitos).
    - Representantes (1.1): fin_rep_pedidos, copia da lista "Pedidos de Venda" em PRODUCAO. Escolhe o representante,
@@ -7095,7 +7108,7 @@ function moldeResumoPrint() {
   var st = { situacao: null, linhas: null, estado: null, fator: null, ocupado: false, periodo: 'todos', busca: '',
              carregadoEm: 0, aba: 'boletos',
              ped: null, estadoRep: null, resumos: null, carregadoRepEm: 0, rep: null, repPeriodo: '6m', repBusca: '',
-             sel: {}, modal: null, voltaFoco: null, salvando: false };
+             repSoSem: false, sel: {}, modal: null, voltaFoco: null, salvando: false };
 
   function $(id) { return document.getElementById(id); }
   function esc(s) {
@@ -7425,7 +7438,9 @@ function moldeResumoPrint() {
       });
   }
 
-  function visiveis() {
+  function semValor(p) { return !Number(p.total_pedido || 0); }
+
+  function visiveisBase() {   // periodo + busca (os cartoes contam daqui)
     var corte = maisDias(hoje(), -DIAS_RECENTES);
     var q = st.repBusca.trim().toLowerCase();
     return pedidosDoRep().filter(function (p) {
@@ -7433,6 +7448,11 @@ function moldeResumoPrint() {
       if (q && (String(p.cliente || '') + ' ' + p.id_pedido + ' ' + String(p.nr_controle || '')).toLowerCase().indexOf(q) < 0) return false;
       return true;
     });
+  }
+
+  function visiveis() {       // a lista na tela (1.2: com o botao "sem valor" ligado, so os sem valor)
+    var base = visiveisBase();
+    return st.repSoSem ? base.filter(semValor) : base;
   }
 
   function emResumo() {
@@ -7469,17 +7489,22 @@ function moldeResumoPrint() {
     }
     if (!temRep) { $('fin-rep-barra').hidden = true; return; }
 
-    var todos = pedidosDoRep(), vis = visiveis(), corte = maisDias(hoje(), -DIAS_RECENTES);
-    var somaVis = vis.reduce(function (s, p) { return s + Number(p.total_pedido || 0); }, 0);
-    var semVis = vis.filter(function (p) { return !Number(p.total_pedido || 0); }).length;
+    var todos = pedidosDoRep(), base = visiveisBase(), vis = visiveis(), corte = maisDias(hoje(), -DIAS_RECENTES);
+    var somaBase = base.reduce(function (s, p) { return s + Number(p.total_pedido || 0); }, 0);
+    var semBase = base.filter(semValor).length;
     var velhos = todos.filter(function (p) { return !(p.data_pedido && p.data_pedido >= corte); });
     var m = marcados();
+    // 1.2: o cartao "Sem valor no sistema" e um botao: liga/desliga "so os sem valor" na lista
+    var dicaSem = st.repSoSem ? 'mostrando só estes · toque para ver todos' :
+      ('pedido' + (semBase === 1 ? '' : 's') + ' com total zero (fora da soma)' + (semBase ? ' · toque para ver só ' +
+        (semBase === 1 ? 'ele' : 'eles') : ''));
     $('fin-rep-cartoes').innerHTML =
       '<div class="fin-cartao"><span>' + (st.repPeriodo === '6m' ? 'Em aberto · 6 meses' : 'Em aberto · todos') +
-        '</span><b>' + esc(brl(somaVis)) + '</b><small>' + vis.length + ' pedido' + (vis.length === 1 ? '' : 's') + ' · ' +
-        esc(pecas(vis.reduce(function (s, p) { return s + Number(p.quantidade || 0); }, 0))) + ' peças</small></div>' +
-      '<div class="fin-cartao' + (semVis ? ' fin-atencao' : '') + '"><span>Sem valor no sistema</span><b>' + semVis +
-        '</b><small>pedido' + (semVis === 1 ? '' : 's') + ' com total zero (fora da soma)</small></div>' +
+        '</span><b>' + esc(brl(somaBase)) + '</b><small>' + base.length + ' pedido' + (base.length === 1 ? '' : 's') + ' · ' +
+        esc(pecas(base.reduce(function (s, p) { return s + Number(p.quantidade || 0); }, 0))) + ' peças</small></div>' +
+      '<button type="button" class="fin-cartao fin-cartao-btn' + (semBase ? ' fin-atencao' : '') + '" data-filtro="sem"' +
+        ' aria-pressed="' + (st.repSoSem ? 'true' : 'false') + '"' + (semBase || st.repSoSem ? '' : ' disabled') +
+        '><span>Sem valor no sistema</span><b>' + semBase + '</b><small>' + esc(dicaSem) + '</small></button>' +
       '<div class="fin-cartao"><span>Mais de 6 meses</span><b>' + velhos.length + '</b><small>' +
         esc(brl(velhos.reduce(function (s, p) { return s + Number(p.total_pedido || 0); }, 0))) +
         (st.repPeriodo === '6m' && velhos.length ? ' · em "Todos em aberto"' : '') + '</small></div>' +
@@ -7503,9 +7528,12 @@ function moldeResumoPrint() {
         '<div class="fin-ped-dir"><span class="fin-ped-valor">' + (v ? esc(brl(v)) : '—') + '</span><span class="fin-ped-pc">' +
         esc(pecas(p.quantidade)) + ' pç</span></div></div>';
     });
-    $('fin-rep-lista').innerHTML = html.length ? html.join('') : '<p class="fin-vazio">' + (todos.length ?
+    var faixa = st.repSoSem ? '<div class="fin-filtro-ativo" role="status"><span>Mostrando só os pedidos sem valor (' +
+      vis.length + ')</span><button type="button" class="fin-btn" data-filtro="todos">Ver todos</button></div>' : '';
+    $('fin-rep-lista').innerHTML = faixa + (html.length ? html.join('') : '<p class="fin-vazio">' + (st.repSoSem ?
+      'Nenhum pedido sem valor neste filtro.' : (todos.length ?
       (st.repPeriodo === '6m' ? 'Nenhum pedido dos últimos 6 meses neste filtro. Veja em "Todos em aberto".' :
-        'Nenhum pedido neste filtro.') : 'Nenhum pedido em aberto.') + '</p>';
+        'Nenhum pedido neste filtro.') : 'Nenhum pedido em aberto.')) + '</p>');
     renderBarra();
     renderSalvos();
   }
@@ -7709,7 +7737,7 @@ function moldeResumoPrint() {
 
   // --- limpeza e ligacoes ----------------------------------------------------------------------------------
   function limparRep() {
-    st.ped = null; st.estadoRep = null; st.resumos = null; st.sel = {}; st.rep = null; st.repBusca = '';
+    st.ped = null; st.estadoRep = null; st.resumos = null; st.sel = {}; st.rep = null; st.repBusca = ''; st.repSoSem = false;
     fecharResumo();
     if ($('fin-rep-lista')) $('fin-rep-lista').innerHTML = '';
     if ($('fin-rep-cartoes')) $('fin-rep-cartoes').innerHTML = '';
@@ -7763,7 +7791,7 @@ function moldeResumoPrint() {
       var nomes = ev.target._nomes || [];
       var v = ev.target.value;
       var novo = v === '' ? null : nomes[Number(v)];
-      if (novo !== st.rep) { st.sel = {}; st.repBusca = ''; $('fin-rep-busca').value = ''; }
+      if (novo !== st.rep) { st.sel = {}; st.repBusca = ''; st.repSoSem = false; $('fin-rep-busca').value = ''; }
       st.rep = (novo === undefined) ? null : novo;
       renderRep();
     });
@@ -7777,6 +7805,14 @@ function moldeResumoPrint() {
       });
     });
     $('fin-rep-busca').addEventListener('input', function (ev) { st.repBusca = ev.target.value; renderRep(); });
+    // 1.2: o cartao "Sem valor no sistema" e o "Ver todos" da faixa ligam/desligam o filtro
+    $('fin-rep-corpo').addEventListener('click', function (ev) {
+      var b = ev.target.closest('[data-filtro]'); if (!b || b.disabled) return;
+      st.repSoSem = b.getAttribute('data-filtro') === 'sem' ? !st.repSoSem : false;
+      renderRep();
+      var foco = b.getAttribute('data-filtro') === 'sem' ? document.querySelector('#fin-rep-cartoes [data-filtro="sem"]') : null;
+      if (foco) foco.focus({ preventScroll: true });
+    });
     $('fin-rep-lista').addEventListener('click', function (ev) {
       var linha = ev.target.closest('.fin-ped'); if (!linha) return;
       var id = Number(linha.getAttribute('data-id'));

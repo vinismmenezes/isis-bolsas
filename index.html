@@ -1407,7 +1407,7 @@ input, select, textarea { transition: border-color .16s ease, box-shadow .16s ea
 })();
 </script>
 <style id="financeiro-isis-css">
-/* ===== Financeiro (bloco novo; 1.0 de 19/11/2026, 1.1 de 22/11/2026 com Representantes; segue as cores e cantos do painel) ===== */
+/* ===== Financeiro (bloco novo; 1.0 de 19/11/2026, 1.1 de 22/11/2026 com Representantes, 1.3 de 23/11/2026 com o resumo completo; segue as cores e cantos do painel) ===== */
 .fin { --fin-azul:#2154A8; --fin-marinho:#1A3580; --fin-tinta:#1a2e4a; --fin-rosa:#E5007D; --fin-cinza:#64748b;
        --fin-linha:#e2e8f0; --fin-fundo:#f8fafc; --fin-vermelho:#b91c1c; --fin-vermelho-fundo:#fef2f2;
        --fin-ambar:#b45309; --fin-ambar-fundo:#fffbeb; }
@@ -1560,6 +1560,40 @@ input, select, textarea { transition: border-color .16s ease, box-shadow .16s ea
 .fin-filtro-ativo { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
                     background:var(--fin-ambar-fundo); border:1px solid #fcd34d; color:var(--fin-ambar); border-radius:10px;
                     padding:8px 8px 8px 12px; margin-bottom:10px; font-size:.86rem; font-weight:700; }
+/* 1.3: resumo Resumido | Completo (as bolsas de cada pedido, da Via Cliente) */
+.fin-modo { display:inline-flex; flex-wrap:wrap; gap:2px; border:1px solid var(--fin-linha); border-radius:999px; padding:3px;
+            background:var(--fin-fundo); margin:4px 0 10px; }
+.fin-modo-btn { border:0; background:none; font:inherit; font-size:.84rem; font-weight:700; color:var(--fin-cinza);
+                border-radius:999px; padding:6px 14px; min-height:34px; cursor:pointer; }
+.fin-modo-btn[aria-pressed="true"] { background:#fff; color:var(--fin-marinho); box-shadow:0 1px 3px rgba(15,23,42,.18); }
+.fin-modo-btn:hover:not([aria-pressed="true"]) { color:var(--fin-azul); }
+.fin-modo-btn:focus-visible { outline:3px solid var(--fin-rosa); outline-offset:2px; }
+.fin-comp-ped { border:1px solid var(--fin-linha); border-radius:12px; padding:10px 12px; margin:0 0 12px; }
+.fin-comp-cab { display:flex; gap:10px; align-items:baseline; flex-wrap:wrap; }
+.fin-comp-cab b { color:var(--fin-marinho); font-size:.95rem; font-variant-numeric:tabular-nums; }
+.fin-comp-cab span { color:var(--fin-cinza); font-size:.8rem; font-variant-numeric:tabular-nums; }
+.fin-comp-cli { font-weight:700; color:var(--fin-tinta); font-size:.9rem; margin-top:2px; }
+.fin-comp-ref { font-size:.82rem; color:#334155; margin-top:2px; overflow-wrap:anywhere; }
+.fin-comp-ref span { font-size:.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; color:var(--fin-cinza);
+                     margin-right:4px; }
+.fin-comp-tab { margin-top:8px; }
+.fin-comp-tab .fin-comp-q { width:56px; }
+.fin-comp-tab .fin-comp-u { width:92px; }
+.fin-comp-tab .fin-comp-t { width:108px; }
+.fin-comp-cod { font-size:.72rem; color:var(--fin-cinza); font-weight:700; white-space:nowrap; }
+.fin-comp-desc { font-size:.74rem; color:var(--fin-cinza); margin-top:2px; overflow-wrap:anywhere; }
+.fin-comp-aviso { margin:8px 0 0; font-size:.8rem; color:#92400e; background:var(--fin-ambar-fundo); border:1px solid #fcd34d;
+                  border-radius:8px; padding:6px 10px; line-height:1.4; }
+.fin-comp-total { display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap;
+                  border-top:2px solid var(--fin-tinta); padding:8px 2px 0; font-weight:800; color:var(--fin-tinta); }
+.fin-comp-total b { font-size:1.05rem; font-variant-numeric:tabular-nums; }
+@media (max-width:600px) {
+  .fin-comp-ped { padding:8px; }
+  .fin-res-tab.fin-comp-tab { table-layout:auto; }
+  .fin-comp-tab .fin-comp-q { width:34px; }
+  .fin-comp-tab .fin-comp-u { width:64px; }
+  .fin-comp-tab .fin-comp-t { width:76px; }
+}
 </style>
 <style id="menu-isis-css">
 /* ===== Menu do painel (Menu 1.0 de 22/11/2026; segue as cores e cantos do tema Isis) =====
@@ -2003,12 +2037,17 @@ html.menu-trava, html.menu-trava body { overflow: hidden; }
           <h3 class="fin-h3" id="fin-rep-modal-titulo">Resumo</h3>
           <button type="button" class="fin-x" id="fin-rep-fechar" aria-label="Fechar">×</button>
         </div>
+        <div class="fin-modo" role="group" aria-label="Formato do resumo" id="fin-rep-modo">
+          <button type="button" class="fin-modo-btn" data-modo="resumido" aria-pressed="true">Resumido</button>
+          <button type="button" class="fin-modo-btn" data-modo="completo" aria-pressed="false">Completo, com as bolsas</button>
+        </div>
         <div id="fin-rep-modal-corpo" class="fin-modal-corpo"></div>
         <label class="fin-rotulo" for="fin-rep-obs" id="fin-rep-obs-rot">Observação (opcional; vai junto no texto)</label>
         <textarea id="fin-rep-obs" class="fin-in fin-obs" maxlength="500" rows="2"></textarea>
         <div class="fin-modal-acoes">
           <button type="button" class="fin-btn" id="fin-rep-copiar">Copiar texto</button>
           <button type="button" class="fin-btn" id="fin-rep-imprimir">Imprimir</button>
+          <button type="button" class="fin-btn" id="fin-rep-pdf">Baixar PDF</button>
           <button type="button" class="fin-btn fin-btn-pri" id="fin-rep-salvar">Salvar resumo</button>
           <button type="button" class="fin-btn fin-btn-perigo" id="fin-rep-cancelar-res" hidden>Cancelar este resumo</button>
         </div>
@@ -7076,7 +7115,11 @@ function moldeResumoPrint() {
 })();
 </script>
 <script id="financeiro-isis-js">
-/* ===== Financeiro (bloco novo) - versao 1.2, 23/11/2026 (1.1 de 22/11, 1.0 de 19/11) =====
+/* ===== Financeiro (bloco novo) - versao 1.3, 23/11/2026 (1.2 e 1.1 de 23 e 22/11, 1.0 de 19/11) =====
+   1.3: a janela do resumo tem "Resumido | Completo". O completo mostra, de cada pedido, as bolsas (codigo, produto,
+   descricoes, quantidade, preco e total, da Via Cliente que o PC da recepcao le) e a referencia (observacao). Os dois
+   formatos tem Copiar texto, Imprimir e Baixar PDF (jsPDF + autotable do cdnjs, com versao e impressao digital fixas,
+   carregados so quando alguem clica). As bolsas vem de fin_rep_vias / fin_rep_itens, com a mesma tranca do resto.
    1.2: o cartao "Sem valor no sistema" vira botao e mostra so os pedidos sem valor (pedido do Vini em 23/11); o gancho
    do menu (finIrPara/finAbaAtual, Menu 1.0) passa a morar aqui.
    Duas partes, as duas so leitura do sistema da fabrica:
@@ -7100,6 +7143,14 @@ function moldeResumoPrint() {
                     'observacao';
   var COLUNAS_RES = 'id,representante,criado_por,criado_em,n_pedidos,quantidade,total,sem_valor,pedidos,obs,' +
                     'cancelado_em,cancelado_por';
+  var COLUNAS_VIA = 'id_pedido,quantidade,total,desconto,total_geral,observacao,coletado_em,n_itens';           // 1.3
+  var COLUNAS_ITEM = 'id_pedido,item,codigo,produto,material,detalhe,logo,quantidade,preco_unit,total';
+  var CHAVE_MODO_RES = 'fin-res-modo';
+  var LIBS_PDF = [
+    { src: 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+      sri: 'sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==' },
+    { src: 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js',
+      sri: 'sha512-2/YdOMV+YNpanLCF5MdQwaoFRVbTmrJ4u4EpqS/USXAQNUDgI5uwYi6J98WVtJKcfe1AbgerygzDFToxAlOGEQ==' }];
   var DIAS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
   var HORAS_COLETA_VELHA = 26;
   var DIAS_RECENTES = 183;          // "Ultimos 6 meses"
@@ -7108,7 +7159,7 @@ function moldeResumoPrint() {
   var st = { situacao: null, linhas: null, estado: null, fator: null, ocupado: false, periodo: 'todos', busca: '',
              carregadoEm: 0, aba: 'boletos',
              ped: null, estadoRep: null, resumos: null, carregadoRepEm: 0, rep: null, repPeriodo: '6m', repBusca: '',
-             repSoSem: false, sel: {}, modal: null, voltaFoco: null, salvando: false };
+             repSoSem: false, sel: {}, modal: null, voltaFoco: null, salvando: false, modoRes: 'resumido', pdf: false };
 
   function $(id) { return document.getElementById(id); }
   function esc(s) {
@@ -7614,12 +7665,315 @@ function moldeResumoPrint() {
       (c.sem === 1 ? '' : 's') + ' sem valor no sistema (fora do total). Confira o valor no sistema antes de mandar.</p>' : '');
   }
 
+  // --- 1.3: as bolsas de cada pedido (Via Cliente) e o resumo completo -----------------------------------------
+  async function lerVias(ids) {
+    // vias e bolsas dos pedidos pedidos: em pedacos de 100 pedidos; bolsas em paginas de 1000 (limite do Supabase)
+    var vias = {};
+    for (var k = 0; k < ids.length; k += 100) {
+      var parte = ids.slice(k, k + 100);
+      var rv = await _supa.from('fin_rep_vias').select(COLUNAS_VIA).in('id_pedido', parte);
+      if (rv.error) return { error: rv.error };
+      (rv.data || []).forEach(function (v) { v.itens = []; vias[v.id_pedido] = v; });
+      for (var pag = 0; pag < 50; pag++) {
+        var ri = await _supa.from('fin_rep_itens').select(COLUNAS_ITEM).in('id_pedido', parte)
+          .order('id_pedido', { ascending: true }).order('item', { ascending: true }).range(pag * 1000, pag * 1000 + 999);
+        if (ri.error) return { error: ri.error };
+        (ri.data || []).forEach(function (i) { if (vias[i.id_pedido]) vias[i.id_pedido].itens.push(i); });
+        if (!ri.data || ri.data.length < 1000) break;
+      }
+    }
+    return { data: vias };
+  }
+
+  function viasIncompletas(vias) {
+    return Object.keys(vias).some(function (id) { return vias[id].itens.length !== Number(vias[id].n_itens); });
+  }
+
+  async function garanteVias(d) {
+    // resumo salvo no 1.3 ja traz as bolsas daquele momento; o resto le agora (uma vez por janela aberta)
+    if (d.temBolsas || d.viasProntas) return true;
+    var ids = d.pedidos.map(function (p) { return p.id_pedido; });
+    var r = await lerVias(ids);
+    if (!r.error && viasIncompletas(r.data)) r = await lerVias(ids);   // a VPS trocou uma via no meio da leitura
+    if (r.error) { d.viasErro = true; return false; }
+    d.vias = r.data; d.viasProntas = true; d.viasErro = false;
+    return true;
+  }
+
+  function viaDe(d, p) { return d.temBolsas ? (p.via || null) : ((d.vias && d.vias[p.id_pedido]) || null); }
+
+  function viaConfere(d, p, via) {
+    if (d.temBolsas) return via.confere !== false;
+    return Math.abs(Number(via.total_geral || 0) - Number(p.total_pedido || 0)) < 0.005 &&
+           Math.abs(Number(via.quantidade || 0) - Number(p.quantidade || 0)) < 0.005;
+  }
+
+  function refDe(p, via) { return String((via && via.observacao) || p.observacao || '').trim(); }
+
+  function descricao(i) {
+    return [i.material, i.detalhe, i.logo].filter(function (x) { return x && String(x).trim(); }).join(' · ');
+  }
+
+  function notasCompleto(d) {
+    var semVia = 0, mudou = 0;
+    d.pedidos.forEach(function (p) { var v = viaDe(d, p); if (!v) semVia++; else if (!viaConfere(d, p, v)) mudou++; });
+    return { semVia: semVia, mudou: mudou };
+  }
+
+  function tabelaCompleta(d) {
+    if (!d.temBolsas && !d.viasProntas) {
+      return '<p class="fin-vazio">' + (d.viasErro ? 'Não deu para ler as bolsas agora. Tente de novo em instantes ' +
+        '(o Resumido continua funcionando).' : 'Carregando as bolsas dos pedidos…') + '</p>';
+    }
+    var c = contas(d.pedidos), n = notasCompleto(d);
+    var blocos = d.pedidos.map(function (p) {
+      var via = viaDe(d, p), v = Number(p.total_pedido || 0), ref = refDe(p, via);
+      var cab = '<div class="fin-comp-cab"><b>Nº ' + p.id_pedido + '</b><span>pedido ' + esc(dataBR(p.data_pedido)) +
+        (p.data_entrega ? ' · entrega ' + esc(dataBR(p.data_entrega)) : '') + '</span></div>' +
+        '<div class="fin-comp-cli">' + esc(p.cliente || '') + '</div>' +
+        (ref ? '<div class="fin-comp-ref"><span>Referência</span>' + esc(ref) + '</div>' : '');
+      if (!via) {
+        return '<section class="fin-comp-ped">' + cab + '<p class="fin-comp-aviso">As bolsas deste pedido ainda não foram ' +
+          'lidas do sistema da fábrica (o PC da recepção lê aos poucos, em dia útil). ' + esc(pecas(p.quantidade)) +
+          ' peças · ' + (v ? esc(brl(v)) : 'sem valor no sistema') + '.</p></section>';
+      }
+      var ok = viaConfere(d, p, via), desconto = Number(via.desconto || 0);
+      var corpo = (via.itens || []).map(function (i) {
+        var pu = Number(i.preco_unit || 0), tl = Number(i.total || 0), ds = descricao(i);
+        return '<tr><td><b>' + esc(i.produto || '') + '</b>' + (i.codigo ? ' <span class="fin-comp-cod">' + esc(i.codigo) +
+          '</span>' : '') + (ds ? '<div class="fin-comp-desc">' + esc(ds) + '</div>' : '') + '</td><td class="fin-num fin-comp-q">' +
+          esc(pecas(i.quantidade)) + '</td><td class="fin-num fin-comp-u">' + (pu ? esc(brl(pu)) : '—') +
+          '</td><td class="fin-num fin-comp-t">' + (tl ? esc(brl(tl)) : '—') + '</td></tr>';
+      }).join('');
+      var pe = '';
+      if (ok && desconto) {
+        pe += '<tr><td>Subtotal</td><td></td><td></td><td class="fin-num">' + esc(brl(via.total)) + '</td></tr>' +
+              '<tr><td>Desconto</td><td></td><td></td><td class="fin-num">– ' + esc(brl(desconto)) + '</td></tr>';
+      }
+      pe += '<tr><td>Total do pedido</td><td class="fin-num">' + esc(pecas(p.quantidade)) + '</td><td></td><td class="fin-num">' +
+            (v ? esc(brl(v)) : 'sem valor') + '</td></tr>';
+      return '<section class="fin-comp-ped">' + cab + (ok ? '' : '<p class="fin-comp-aviso">O pedido mudou depois que as bolsas ' +
+        'foram lidas (' + esc(quando(via.coletado_em)) + '). Confira as bolsas no sistema antes de mandar.</p>') +
+        '<table class="fin-res-tab fin-comp-tab"><thead><tr><th>Bolsa</th><th class="fin-num fin-comp-q">Qtd</th>' +
+        '<th class="fin-num fin-comp-u">Unit.</th><th class="fin-num fin-comp-t">Total</th></tr></thead><tbody>' + corpo +
+        '</tbody><tfoot>' + pe + '</tfoot></table></section>';
+    }).join('');
+    var notas = [];
+    if (c.sem) notas.push(c.sem + ' pedido' + (c.sem === 1 ? '' : 's') + ' sem valor no sistema (fora do total).');
+    if (n.semVia) notas.push(n.semVia + ' pedido' + (n.semVia === 1 ? '' : 's') + ' ainda sem as bolsas lidas.');
+    if (n.mudou) notas.push(n.mudou + ' pedido' + (n.mudou === 1 ? '' : 's') + ' mudou depois que as bolsas foram lidas.');
+    if (d.modo === 'salvo' && !d.temBolsas) notas.push('Este resumo foi salvo antes de o site guardar as bolsas: as bolsas ' +
+      'acima são as de agora; peças e valores são os do resumo salvo.');
+    return '<div class="fin-comp">' + blocos + '<div class="fin-comp-total"><span>' + c.n + ' pedido' + (c.n === 1 ? '' : 's') +
+      ' · ' + esc(pecas(c.qtd)) + ' peças</span><b>' + esc(brl(c.soma)) + '</b></div>' +
+      (notas.length ? '<p class="fin-miudo">' + esc(notas.join(' ')) + '</p>' : '') + '</div>';
+  }
+
+  function textoCompleto(d) {
+    var c = contas(d.pedidos);
+    var linhas = ['*Resumo de pedidos — ' + nomeRep(d.rep) + '*', 'Isis Bolsas · ' + dataBR(diaDe(d.quando)), ''];
+    d.pedidos.forEach(function (p) {
+      var via = viaDe(d, p), v = Number(p.total_pedido || 0), ref = refDe(p, via);
+      linhas.push('*Nº ' + p.id_pedido + '* · ' + dataBR(p.data_pedido) + ' · ' + (p.cliente || ''));
+      if (ref) linhas.push('Ref.: ' + ref);
+      if (!via) {
+        linhas.push('(bolsas ainda não lidas do sistema)');
+      } else {
+        if (!viaConfere(d, p, via)) linhas.push('(o pedido mudou depois que as bolsas foram lidas; confira no sistema)');
+        (via.itens || []).forEach(function (i) {
+          var pu = Number(i.preco_unit || 0);
+          linhas.push('• ' + pecas(i.quantidade) + ' × ' + (i.produto || '') + (i.codigo ? ' (' + i.codigo + ')' : '') +
+                      (pu ? ' · ' + brl(pu) + ' = ' + brl(i.total) : ' · sem valor'));
+        });
+      }
+      linhas.push('Total do pedido: ' + pecas(p.quantidade) + ' pç · ' + (v ? brl(v) : 'sem valor no sistema'));
+      linhas.push('');
+    });
+    linhas.push('*Total: ' + c.n + ' pedido' + (c.n === 1 ? '' : 's') + ' · ' + pecas(c.qtd) + ' peças · ' + brl(c.soma) + '*');
+    if (c.sem) linhas.push('(' + c.sem + ' pedido' + (c.sem === 1 ? '' : 's') + ' sem valor no sistema, fora do total)');
+    if (d.obs && d.obs.trim()) { linhas.push(''); linhas.push('Obs.: ' + d.obs.trim()); }
+    return linhas.join('\n');
+  }
+
+  function lerModoRes() {
+    try { var m = localStorage.getItem(CHAVE_MODO_RES); if (m === 'completo' || m === 'resumido') st.modoRes = m; } catch (e) { /* nada */ }
+  }
+
+  function renderModal() {
+    var d = st.modal; if (!d) return;
+    var completo = st.modoRes === 'completo';
+    document.querySelectorAll('#fin-rep-modo .fin-modo-btn').forEach(function (b) {
+      b.setAttribute('aria-pressed', b.getAttribute('data-modo') === st.modoRes ? 'true' : 'false');
+    });
+    $('fin-rep-modal-corpo').innerHTML = completo ? tabelaCompleta(d) : tabelaResumo(d);
+  }
+
+  async function mudaModo(modo) {
+    if (modo !== 'completo' && modo !== 'resumido') return;
+    st.modoRes = modo;
+    try { localStorage.setItem(CHAVE_MODO_RES, modo); } catch (e) { /* nada */ }
+    var d = st.modal; if (!d) return;
+    renderModal();
+    if (modo === 'completo' && !(d.temBolsas || d.viasProntas)) {
+      var ok = await garanteVias(d);
+      if (st.modal !== d) return;
+      if (!ok || !Object.keys(d.vias || {}).length) {
+        // nenhuma via pode ser o codigo de 12 h vencido (o banco devolve zero linhas): pergunta e pede de novo
+        if (await codigoVenceu()) { fecharResumo(); return; }
+      }
+      renderModal();
+    }
+  }
+
+  function carregaPdf() {
+    // jsPDF e autotable so quando alguem pede o PDF; versao e impressao digital (SRI) fixas
+    if (st.pdfPronto) return st.pdfPronto;
+    st.pdfPronto = LIBS_PDF.reduce(function (anterior, lib) {
+      return anterior.then(function () {
+        return new Promise(function (ok, falha) {
+          var s = document.createElement('script');
+          s.src = lib.src; s.integrity = lib.sri; s.crossOrigin = 'anonymous'; s.referrerPolicy = 'no-referrer';
+          s.onload = function () { ok(); };
+          s.onerror = function () { falha(new Error('não carregou a biblioteca do PDF')); };
+          document.head.appendChild(s);
+        });
+      });
+    }, Promise.resolve()).then(function () {
+      if (!window.jspdf || !window.jspdf.jsPDF) throw new Error('a biblioteca do PDF não apareceu');
+      return window.jspdf.jsPDF;
+    });
+    st.pdfPronto.catch(function () { st.pdfPronto = null; });
+    return st.pdfPronto;
+  }
+
+  function nomeArquivo(d, completo) {
+    var rep = String(nomeRep(d.rep)).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'representante';
+    return 'resumo-' + rep + '-' + diaDe(d.quando) + '-' + (completo ? 'completo' : 'resumido') + '.pdf';
+  }
+
+  function montaPdf(doc, d, completo) {
+    var M = 12, W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight();
+    var AZUL = [26, 53, 128], TINTA = [26, 46, 74], CINZA = [100, 116, 139], AMBAR = [146, 64, 14];
+    var c = contas(d.pedidos), y;
+    var cor = function (rgb) { doc.setTextColor(rgb[0], rgb[1], rgb[2]); };
+    var escreve = function (texto, x, yy, largura, alt) {
+      var linhas = doc.splitTextToSize(String(texto), largura);
+      doc.text(linhas, x, yy);
+      return yy + linhas.length * alt;
+    };
+    var estilo = { font: 'helvetica', fontSize: 8.5, cellPadding: 1.6, textColor: TINTA, lineColor: [226, 232, 240],
+                   lineWidth: 0.1, overflow: 'linebreak' };
+    var cab = { fillColor: AZUL, textColor: 255, fontStyle: 'bold' };
+    var pe = { fillColor: [241, 245, 249], textColor: TINTA, fontStyle: 'bold' };
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(14); cor(TINTA);
+    y = escreve('Resumo de pedidos — ' + nomeRep(d.rep), M, 16, W - 2 * M, 6);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); cor(CINZA);
+    y = escreve('Isis Bolsas · ' + dataBR(diaDe(d.quando)) + ' · ' + (completo ? 'completo, com as bolsas' : 'resumido') +
+                (d.modo === 'salvo' ? ' · resumo salvo em ' + quando(d.quando) : ''), M, y, W - 2 * M, 4.5) + 3;
+    if (!completo) {
+      doc.autoTable({ startY: y, margin: { left: M, right: M }, styles: estilo, headStyles: cab, footStyles: pe,
+        head: [['Nº', 'Pedido', 'Entrega', 'Cliente', 'Peças', 'Valor']],
+        body: d.pedidos.map(function (p) {
+          var v = Number(p.total_pedido || 0);
+          return [String(p.id_pedido), dataBR(p.data_pedido), p.data_entrega ? dataBR(p.data_entrega) : '', p.cliente || '',
+                  pecas(p.quantidade), v ? brl(v) : 'sem valor'];
+        }),
+        foot: [['', '', '', c.n + ' pedido' + (c.n === 1 ? '' : 's'), pecas(c.qtd), brl(c.soma)]],
+        columnStyles: { 0: { cellWidth: 15 }, 1: { cellWidth: 20 }, 2: { cellWidth: 20 }, 4: { halign: 'right', cellWidth: 16 },
+                        5: { halign: 'right', cellWidth: 28 } },
+        didParseCell: function (h) { if ((h.section === 'head' || h.section === 'foot') && h.column.index >= 4) h.cell.styles.halign = 'right'; } });
+      y = doc.lastAutoTable.finalY + 6;
+    } else {
+      d.pedidos.forEach(function (p) {
+        var via = viaDe(d, p), v = Number(p.total_pedido || 0), ref = refDe(p, via);
+        // o pedido inteiro (titulo + tabela) cabe no resto da pagina? senao comeca na proxima (sem titulo sozinho no pe)
+        var altura = 16 + ((via ? (via.itens || []).length : 0) + 3) * 8.5;
+        if (y + Math.min(altura, H - 50) > H - 14) { doc.addPage(); y = 16; }
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5); cor(AZUL);
+        doc.text('Nº ' + p.id_pedido, M, y);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(9); cor(CINZA);
+        doc.text('pedido ' + dataBR(p.data_pedido) + (p.data_entrega ? ' · entrega ' + dataBR(p.data_entrega) : ''), M + 24, y);
+        y += 4.8;
+        doc.setFont('helvetica', 'bold'); cor(TINTA);
+        if (p.cliente) y = escreve(p.cliente, M, y, W - 2 * M, 4.2);
+        doc.setFont('helvetica', 'normal');
+        if (ref) y = escreve('Referência: ' + ref, M, y, W - 2 * M, 4.2);
+        if (!via) {
+          cor(AMBAR);
+          y = escreve('Bolsas ainda não lidas do sistema da fábrica. ' + pecas(p.quantidade) + ' peças · ' +
+                      (v ? brl(v) : 'sem valor no sistema') + '.', M, y + 1, W - 2 * M, 4.2) + 5;
+          return;
+        }
+        var ok = viaConfere(d, p, via), desconto = Number(via.desconto || 0);
+        if (!ok) {
+          cor(AMBAR);
+          y = escreve('O pedido mudou depois que as bolsas foram lidas (' + quando(via.coletado_em) + '). Confira no sistema.',
+                      M, y + 1, W - 2 * M, 4.2);
+        }
+        var rodape = [];
+        if (ok && desconto) rodape.push(['Subtotal', '', '', '', brl(via.total)], ['Desconto', '', '', '', '– ' + brl(desconto)]);
+        rodape.push(['Total do pedido', '', pecas(p.quantidade), '', v ? brl(v) : 'sem valor']);
+        doc.autoTable({ startY: y + 1, margin: { left: M, right: M }, styles: estilo, headStyles: cab, footStyles: pe,
+          showFoot: 'lastPage', rowPageBreak: 'avoid',
+          head: [['Bolsa', 'Descrição', 'Qtd', 'Unit.', 'Total']],
+          body: (via.itens || []).map(function (i) {
+            var pu = Number(i.preco_unit || 0), tl = Number(i.total || 0);
+            return [(i.produto || '') + (i.codigo ? '\n' + i.codigo : ''), descricao(i), pecas(i.quantidade),
+                    pu ? brl(pu) : '—', tl ? brl(tl) : '—'];
+          }),
+          foot: rodape,
+          columnStyles: { 0: { cellWidth: 40, fontStyle: 'bold' }, 2: { halign: 'right', cellWidth: 14 },
+                          3: { halign: 'right', cellWidth: 22 }, 4: { halign: 'right', cellWidth: 26 } },
+          didParseCell: function (h) { if ((h.section === 'head' || h.section === 'foot') && h.column.index >= 2) h.cell.styles.halign = 'right'; } });
+        y = doc.lastAutoTable.finalY + 7;
+      });
+      if (y > H - 30) { doc.addPage(); y = 16; }
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5); cor(TINTA);
+      y = escreve('Total: ' + c.n + ' pedido' + (c.n === 1 ? '' : 's') + ' · ' + pecas(c.qtd) + ' peças · ' + brl(c.soma),
+                  M, y, W - 2 * M, 5) + 2;
+    }
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); cor(CINZA);
+    if (c.sem) y = escreve(c.sem + ' pedido' + (c.sem === 1 ? '' : 's') + ' sem valor no sistema (fora do total).', M, y, W - 2 * M, 4);
+    if (d.obs && d.obs.trim()) { cor(TINTA); y = escreve('Obs.: ' + d.obs.trim(), M, y + 1, W - 2 * M, 4); }
+    var n = doc.internal.getNumberOfPages();
+    for (var k = 1; k <= n; k++) {
+      doc.setPage(k); doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); cor(CINZA);
+      doc.text('Valores dos pedidos como estão no sistema da fábrica (valor de venda).', M, H - 6);
+      doc.text('Página ' + k + ' de ' + n, W - M, H - 6, { align: 'right' });
+    }
+  }
+
+  async function baixarPdf() {
+    var d = dadosParaTexto(); if (!d || st.pdf) return;
+    var completo = st.modoRes === 'completo';
+    st.pdf = true; $('fin-rep-pdf').disabled = true;
+    $('fin-rep-modal-nota').textContent = 'Montando o PDF…';
+    try {
+      if (completo && !(await garanteVias(d))) {
+        $('fin-rep-modal-nota').textContent = 'Não deu para ler as bolsas agora. Tente de novo em instantes.';
+        return;
+      }
+      var JsPDF = await carregaPdf();
+      var doc = new JsPDF({ unit: 'mm', format: 'a4' });
+      if (typeof doc.autoTable !== 'function') throw new Error('a biblioteca da tabela do PDF não apareceu');
+      montaPdf(doc, d, completo);
+      var nome = nomeArquivo(d, completo);
+      doc.save(nome);
+      $('fin-rep-modal-nota').textContent = 'PDF baixado: ' + nome + '. No celular, ele fica em Downloads (dá para mandar no WhatsApp).';
+    } catch (e) {
+      $('fin-rep-modal-nota').textContent = 'Não deu para montar o PDF agora (' + ((e && e.message) || 'erro') +
+        '). Use Imprimir e escolha "Salvar como PDF".';
+    } finally { st.pdf = false; $('fin-rep-pdf').disabled = false; }
+  }
+
   function abrirResumo(d) {
     st.modal = d;
     st.voltaFoco = document.activeElement;
     var salvo = d.modo === 'salvo';
     $('fin-rep-modal-titulo').textContent = (salvo ? 'Resumo salvo — ' : 'Resumo — ') + nomeRep(d.rep);
-    $('fin-rep-modal-corpo').innerHTML = tabelaResumo(d);
+    renderModal();
+    if (st.modoRes === 'completo') mudaModo('completo');
     var obs = $('fin-rep-obs');
     if (salvo) { obs.value = d.obs || ''; }
     obs.readOnly = salvo;
@@ -7656,7 +8010,11 @@ function moldeResumoPrint() {
 
   async function copiarResumo() {
     var d = dadosParaTexto(); if (!d) return;
-    var texto = textoResumo(d), ok = false;
+    if (st.modoRes === 'completo' && !(await garanteVias(d))) {
+      $('fin-rep-modal-nota').textContent = 'Não deu para ler as bolsas agora. Tente de novo em instantes.';
+      return;
+    }
+    var texto = st.modoRes === 'completo' ? textoCompleto(d) : textoResumo(d), ok = false;
     try { await navigator.clipboard.writeText(texto); ok = true; } catch (e) {
       var ta = document.createElement('textarea');
       ta.value = texto; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
@@ -7668,18 +8026,32 @@ function moldeResumoPrint() {
       'Não deu para copiar automaticamente. Use Imprimir ou selecione a tabela.';
   }
 
-  function imprimirResumo() {
+  async function imprimirResumo() {
     var d = dadosParaTexto(); if (!d) return;
+    var completo = st.modoRes === 'completo';
+    // a janela abre antes de esperar as bolsas (o navegador so deixa abrir janela no clique)
     var w = window.open('', '_blank', 'width=900,height=700');
     if (!w) { $('fin-rep-modal-nota').textContent = 'O navegador bloqueou a janela de impressão. Libere pop-ups deste site.'; return; }
+    if (completo && !(await garanteVias(d))) {
+      w.close();
+      $('fin-rep-modal-nota').textContent = 'Não deu para ler as bolsas agora. Tente de novo em instantes.';
+      return;
+    }
     var css = 'body{font-family:Inter,Arial,sans-serif;color:#1a2e4a;margin:24px}h1{font-size:18px;margin:0 0 4px}' +
       'p{margin:0 0 12px;font-size:12px;color:#475569}table{width:100%;border-collapse:collapse;font-size:12px}' +
-      'th,td{border-bottom:1px solid #cbd5e1;padding:6px;text-align:left}.fin-num{text-align:right;white-space:nowrap}' +
-      'tfoot td{font-weight:700;border-top:2px solid #1a2e4a}.fin-miudo{font-size:11px;color:#64748b}';
+      'th,td{border-bottom:1px solid #cbd5e1;padding:6px;text-align:left;vertical-align:top}.fin-num{text-align:right;white-space:nowrap}' +
+      'tfoot td{font-weight:700;border-top:2px solid #1a2e4a}.fin-miudo{font-size:11px;color:#64748b}' +
+      '.fin-comp-ped{border:1px solid #cbd5e1;border-radius:8px;padding:8px 10px;margin:0 0 10px;break-inside:avoid}' +
+      '.fin-comp-cab b{color:#1A3580;margin-right:8px}.fin-comp-cab span,.fin-comp-cod,.fin-comp-desc{color:#64748b;font-size:11px}' +
+      '.fin-comp-cli{font-weight:700;font-size:12px}.fin-comp-ref{font-size:12px}.fin-comp-ref span{font-size:10px;font-weight:700;' +
+      'text-transform:uppercase;color:#64748b;margin-right:4px}.fin-comp-aviso{font-size:11px;color:#92400e;margin:6px 0 0}' +
+      '.fin-comp-tab{margin-top:6px}.fin-comp-total{display:flex;justify-content:space-between;font-weight:800;' +
+      'border-top:2px solid #1a2e4a;padding-top:6px;font-size:13px}';
     w.document.open();
     w.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Resumo de pedidos</title><style>' +
       css + '</style></head><body><h1>Resumo de pedidos — ' + esc(nomeRep(d.rep)) + '</h1><p>Isis Bolsas · ' +
-      esc(dataBR(diaDe(d.quando))) + '</p>' + tabelaResumo(d) + (d.obs && d.obs.trim() ? '<p>Obs.: ' + esc(d.obs.trim()) +
+      esc(dataBR(diaDe(d.quando))) + (completo ? ' · completo, com as bolsas' : '') + '</p>' +
+      (completo ? tabelaCompleta(d) : tabelaResumo(d)) + (d.obs && d.obs.trim() ? '<p>Obs.: ' + esc(d.obs.trim()) +
       '</p>' : '') + '<p class="fin-miudo">Valores dos pedidos como estão no sistema da fábrica (valor de venda).</p>' +
       '</body></html>');
     w.document.close();
@@ -7714,9 +8086,11 @@ function moldeResumoPrint() {
   }
 
   function paraSalvo(r) {
+    var pedidos = r.pedidos || [];
     return { modo: 'salvo', id: r.id, rep: r.representante || '', quando: r.criado_em, obs: r.obs || '',
              criado_por: r.criado_por, cancelado_em: r.cancelado_em, cancelado_por: r.cancelado_por,
-             pedidos: r.pedidos || [] };
+             pedidos: pedidos,
+             temBolsas: pedidos.length > 0 && pedidos.every(function (p) { return Object.prototype.hasOwnProperty.call(p, 'via'); }) };
   }
 
   async function cancelarResumo() {
@@ -7837,6 +8211,11 @@ function moldeResumoPrint() {
     document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && st.modal) fecharResumo(); });
     $('fin-rep-copiar').addEventListener('click', copiarResumo);
     $('fin-rep-imprimir').addEventListener('click', imprimirResumo);
+    $('fin-rep-pdf').addEventListener('click', baixarPdf);
+    $('fin-rep-modo').addEventListener('click', function (ev) {
+      var b = ev.target.closest('[data-modo]'); if (b) mudaModo(b.getAttribute('data-modo'));
+    });
+    lerModoRes();
     $('fin-rep-salvar').addEventListener('click', salvarResumo);
     $('fin-rep-cancelar-res').addEventListener('click', cancelarResumo);
     document.addEventListener('visibilitychange', function () {

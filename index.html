@@ -747,20 +747,27 @@
 .ag-atr-badge { display:inline-flex; align-items:center; justify-content:center; min-width:20px; height:20px; padding:0 6px;
                 border-radius:999px; background:var(--ag-vermelho); color:#fff; font-size:.72rem; font-weight:800; line-height:1; }
 .ag-atr-badge[hidden] { display:none; }
-.ag-legenda { margin-top:6px; font-size:.78rem; color:var(--ag-cinza); display:flex; flex-wrap:wrap; gap:6px 18px; }
+.ag-legenda { margin-top:6px; font-size:.78rem; color:var(--ag-cinza); display:flex; flex-wrap:wrap; align-items:center; gap:6px 14px; }
 .ag-legenda[hidden] { display:none; }
-.ag-leg-item { display:inline-flex; align-items:flex-start; gap:6px; line-height:1.4; }
-.ag-leg { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:999px;
-          color:#fff; font-size:.72rem; font-weight:900; line-height:1; flex:0 0 auto; }
-.ag-leg-atr, .ag-marca-dia.ag-marca-atr { background:var(--ag-vermelho); }
-.ag-leg-ok, .ag-marca-dia.ag-marca-ok { background:var(--ag-verde); }
-.ag-leg .ui-icon, .ag-marca-dia .ui-icon { width:12px; height:12px; margin:0; }
-.ag-marca-dia { position:absolute; top:6px; right:6px; width:20px; height:20px; border-radius:999px; display:inline-flex;
-                align-items:center; justify-content:center; font-size:.78rem; font-weight:900; color:#fff; line-height:1; }
-.ag-dia.ag-hoje .ag-marca-dia { right:58px; }
+.ag-leg-item { display:inline-flex; align-items:center; gap:5px; line-height:1.4; }
 .ag-dia.ag-dia-atr { border-color:#fca5a5; }
-.ag-dia.ag-dia-atr .ag-qtd { background:var(--ag-vermelho); }
-.ag-dia.ag-dia-ok .ag-qtd { background:var(--ag-verde); }
+/* 1.4.1: no dia, quantos pedidos em cada situacao (o total "N pedidos" fica neutro) */
+.ag-sit { display:flex; flex-wrap:wrap; gap:3px; }
+.ag-sit-chip { display:inline-flex; align-items:center; justify-content:center; gap:3px; font-size:.68rem; font-weight:800;
+               line-height:1; color:#fff; border-radius:999px; padding:3px 7px 3px 6px; }
+.ag-sit-ic { display:inline-flex; align-items:center; font-weight:900; }
+.ag-sit-chip .ui-icon { width:11px; height:11px; margin:0; }
+.ag-sit-atrasado { background:var(--ag-vermelho); }
+.ag-sit-hoje { background:var(--ag-laranja); }
+.ag-sit-concluido { background:var(--ag-verde); }
+.ag-sit-cancelado { background:#64748b; }
+.ag-sit-resto { display:none; background:var(--ag-azul); }
+.ag-dia.ag-passado .ag-sit-resto { background:#7c8aa5; }
+.ag-leg-chip { min-width:20px; padding:3px 6px; }
+.ag-ids .ag-id-concluido { color:var(--ag-verde); }
+.ag-ids .ag-id-atrasado { color:var(--ag-vermelho); font-weight:800; }
+.ag-ids .ag-id-hoje { color:var(--ag-laranja); font-weight:800; }
+.ag-ids .ag-id-cancelado { text-decoration:line-through; }
 .ag-chip.ag-chip-concluido { background:#dcfce7; color:#166534; }
 .ag-chip.ag-chip-atrasado { background:#fee2e2; color:#991b1b; }
 .ag-chip.ag-chip-hoje { background:#ffedd5; color:#9a3412; }
@@ -813,9 +820,11 @@
   .ag-marca-acoes { flex-direction:row; flex-wrap:wrap; }
   .ag-marca-acoes .ag-marca-btn { flex:1 1 auto; }
   .ag-marca-acoes .ag-marca-pergunta { flex:1 1 100%; }
-  .ag-marca-dia { top:3px; right:3px; width:16px; height:16px; font-size:.66rem; }
-  .ag-dia.ag-hoje .ag-marca-dia { right:3px; }
-  .ag-marca-dia .ui-icon { width:10px; height:10px; }
+  .ag-dia.ag-com-sit .ag-qtd { display:none; }   /* no celular a celula e estreita: so as bolinhas coloridas */
+  .ag-sit { gap:2px; }
+  .ag-sit-resto { display:inline-flex; }
+  .ag-sit .ag-sit-ic { display:none; }
+  .ag-sit .ag-sit-chip { font-size:.66rem; min-width:17px; padding:2px 5px; }
   .ag .card { padding:14px 12px; }
   .ag-mes { font-size:1.15rem; }
   .ag-nav { width:100%; }
@@ -5410,7 +5419,7 @@ function moldeResumoPrint() {
 </div>
 
 <script id="agenda-fabrica-js">
-/* ===== Agenda da Fabrica (bloco novo) - versao 1.4, 24/11/2026 (1.3 em 19/11; 1.2 em 18/11; 1.1 em 17/11; 1.0 em 16/11) =====
+/* ===== Agenda da Fabrica (bloco novo) - versao 1.4.1, 24/11/2026 (1.4 e 1.3 em 24 e 19/11; 1.2 em 18/11; 1.1 em 17/11; 1.0 em 16/11) =====
    Le agenda_coleta e agenda_pedidos (o banco so entrega a quem tem a secao 'agenda' ou 'admin') e abre vias e
    layouts por links assinados de 10 minutos do bucket privado 'agenda'. A unica coisa que grava no banco sao as
    marcacoes da 1.4, e so pela funcao agenda_marcar (nada vai para o sistema antigo).
@@ -5427,6 +5436,8 @@ function moldeResumoPrint() {
    do pedido segue a cor; o calendario mostra "!" no dia com atrasado e um visto no dia todo concluido; o botao
    "Atrasados" lista todos. Quem so ve a agenda ve as cores, sem os botoes. Sem o SQL 04 no banco, a tela fica
    igual a 1.3.
+   1.4.1: no dia do calendario o total "N pedidos" fica neutro e cada situacao ganha a sua bolinha com o numero
+   (! atrasado, relogio vence hoje, visto concluido, x cancelado); os numeros dos pedidos no dia seguem a cor.
    Para nao mexer no codigo que ja existe, este bloco "embrulha" cinco funcoes do painel:
    setModo, carregarPermissoes, carregarDados, aplicarPermissoes e fazerLogout. Para desligar a agenda,
    basta retirar os blocos marcados "AGENDA DA FABRICA". */
@@ -5453,6 +5464,9 @@ function moldeResumoPrint() {
   var ROTULO_ESTADO = { concluido: '✓ Concluído', cancelado: 'Cancelado', atrasado: 'Atrasado', hoje: 'Vence hoje',
                         pendente: 'Pendente' };
   var CHIP_ESTADO = { concluido: 'concluído', cancelado: 'cancelado', atrasado: 'atrasado', hoje: 'vence hoje' };
+  // 1.4.1: as situacoes que aparecem no dia do calendario, nesta ordem: [tipo, icone, uma, varias]
+  var SITUACOES = [['atrasado', '!', 'atrasado', 'atrasados'], ['hoje', '🕐', 'vence hoje', 'vencem hoje'],
+                   ['concluido', '✓', 'concluído', 'concluídos'], ['cancelado', '✕', 'cancelado', 'cancelados']];
 
   var st = { mes: null, dados: null, ultimoBom: null, erro: null, semPermissao: false, carregando: false,
              timer: null, ultimaCarga: 0, diaAberto: null, listaAberta: null, visor: null, links: new Map(),
@@ -5808,30 +5822,32 @@ function moldeResumoPrint() {
       var chave = iso(ano, mes, d);
       var lista = (st.dados && st.dados.porDia.get(chave)) || [];
       noMes += lista.length;
-      var nAtr = 0, nFeito = 0, nCanc = 0;
+      // 1.4.1: conta cada situacao do dia; o total fica neutro e cada situacao ganha a sua bolinha com o numero
+      var cont = { atrasado: 0, hoje: 0, concluido: 0, cancelado: 0 }, comSit = 0, tipos = {};
       lista.forEach(function (p) {
         var e = estadoDe(p, hoje);
-        if (!e) return;
-        if (e.tipo === 'atrasado') nAtr++; else if (e.tipo === 'concluido') nFeito++; else if (e.tipo === 'cancelado') nCanc++;
+        if (!e || !Object.prototype.hasOwnProperty.call(cont, e.tipo)) return;
+        cont[e.tipo]++; comSit++; tipos[p.source_order_id] = e.tipo;
       });
-      var tudoFeito = nFeito > 0 && nFeito + nCanc === lista.length;
       var classes = 'ag-dia' + (chave === hoje ? ' ag-hoje' : '') + (chave < hoje ? ' ag-passado' : '') +
-        (nAtr ? ' ag-dia-atr' : '') + (tudoFeito ? ' ag-dia-ok' : '');
+        (cont.atrasado ? ' ag-dia-atr' : '') + (comSit ? ' ag-com-sit' : '');
       var rotulo = d + ' de ' + MESES[mes - 1] + ': ' + (lista.length ? plural(lista.length, 'pedido', 'pedidos') : 'nenhum pedido nesta coleta') +
-        (nAtr ? ', ' + plural(nAtr, 'atrasado', 'atrasados') : '') + (tudoFeito ? ', tudo concluído' : '') + (chave === hoje ? ' (hoje)' : '');
+        SITUACOES.map(function (s) { return cont[s[0]] ? ', ' + plural(cont[s[0]], s[2], s[3]) : ''; }).join('') +
+        (chave === hoje ? ' (hoje)' : '');
       var botao = el('button', { type: 'button', class: classes, 'aria-label': rotulo, 'data-dia': chave,
         onclick: (function (k) { return function (ev) { abrirDia(k, ev.currentTarget); }; })(chave) },
         el('span', { class: 'ag-num', text: String(d) }),
-        chave === hoje ? el('span', { class: 'ag-hoje-tag', text: 'hoje' }) : null,
-        nAtr ? el('span', { class: 'ag-marca-dia ag-marca-atr', 'aria-hidden': 'true',
-                            title: plural(nAtr, 'pedido atrasado', 'pedidos atrasados'), text: '!' })
-          : tudoFeito ? el('span', { class: 'ag-marca-dia ag-marca-ok', 'aria-hidden': 'true', title: 'Tudo concluído', text: '✓' })
-          : null);
+        chave === hoje ? el('span', { class: 'ag-hoje-tag', text: 'hoje' }) : null);
       if (lista.length) {
         botao.append(el('span', { class: 'ag-qtd' }, el('b', { text: String(lista.length) }),
           el('span', { class: 'ag-qtd-txt', text: lista.length === 1 ? ' pedido' : ' pedidos' })));
-        var mostrados = lista.slice(0, IDS_NA_CELULA).map(function (p) { return p.source_order_id; }).join(' · ');
-        botao.append(el('span', { class: 'ag-ids', text: mostrados }));
+        if (comSit) botao.append(situacaoDia(cont, lista.length - comSit));
+        var ids = el('span', { class: 'ag-ids' });
+        lista.slice(0, IDS_NA_CELULA).forEach(function (p, i) {
+          if (i) ids.append(' · ');
+          ids.append(el('span', { class: tipos[p.source_order_id] ? 'ag-id-' + tipos[p.source_order_id] : null, text: p.source_order_id }));
+        });
+        botao.append(ids);
         if (lista.length > IDS_NA_CELULA) botao.append(el('span', { class: 'ag-mais', text: '+' + (lista.length - IDS_NA_CELULA) + ' · ver todos' }));
       }
       g.append(botao);
@@ -6246,11 +6262,24 @@ function moldeResumoPrint() {
     l.hidden = !M;
     limpar(l);
     if (!M) return;
-    l.append(el('span', { class: 'ag-leg-item' }, el('span', { class: 'ag-leg ag-leg-atr', 'aria-hidden': 'true', text: '!' }),
-        el('span', { text: 'pedido atrasado: a entrega passou e ninguém marcou “Concluído”' +
-          (M.desde ? ' (vale para entregas a partir de ' + diaMes(M.desde) + ')' : '') })),
-      el('span', { class: 'ag-leg-item' }, el('span', { class: 'ag-leg ag-leg-ok', 'aria-hidden': 'true', text: '✓' }),
-        el('span', { text: 'dia com tudo concluído' })));
+    function item(tipo, icone, texto) {
+      return el('span', { class: 'ag-leg-item' },
+        el('span', { class: 'ag-sit-chip ag-leg-chip ag-sit-' + tipo, 'aria-hidden': 'true', text: icone }), el('span', { text: texto }));
+    }
+    l.append(item('atrasado', '!', 'atrasado: a entrega passou sem “Concluído”' +
+               (M.desde ? ' (entregas a partir de ' + diaMes(M.desde) + ')' : '')),
+      item('hoje', '🕐', 'vence hoje'), item('concluido', '✓', 'concluído'), item('cancelado', '✕', 'cancelado'),
+      el('span', { class: 'ag-leg-item', text: 'No dia, o número é quantos pedidos estão em cada situação.' }));
+  }
+  function situacaoDia(cont, resto) {   // 1.4.1: as bolinhas do dia (o rotulo do botao ja diz tudo para o leitor de tela)
+    var caixa = el('span', { class: 'ag-sit', 'aria-hidden': 'true' });
+    SITUACOES.forEach(function (s) {
+      var n = cont[s[0]];
+      if (n) caixa.append(el('span', { class: 'ag-sit-chip ag-sit-' + s[0], title: plural(n, s[2], s[3]) },
+        el('span', { class: 'ag-sit-ic', text: s[1] }), String(n)));
+    });
+    if (resto) caixa.append(el('span', { class: 'ag-sit-chip ag-sit-resto', title: plural(resto, 'pedido sem marcação', 'pedidos sem marcação') }, String(resto)));
+    return caixa;
   }
   function abrirUltimos(gatilho) {
     if (!st.dados) return;

@@ -739,8 +739,83 @@
 .ag-ult-l2 { font-size:.78rem; color:var(--ag-cinza); }
 .ag-chip.ag-chip-novo { background:var(--ag-rosa); color:#fff; }
 .ag-ult-item .ag-ped { border:none; margin:0; border-radius:0 0 10px 10px; }
+/* marcacoes de producao (1.4): concluido, cancelado, atrasado (calculado) e vence hoje */
+.ag { --ag-verde:#15803d; --ag-verde-claro:#f0fdf4; --ag-vermelho:#dc2626; --ag-vermelho-claro:#fef2f2;
+      --ag-laranja:#ea580c; --ag-laranja-claro:#fff7ed; --ag-cinza-claro:#f1f5f9; }
+.ag-atr-btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; }
+.ag-atr-btn[hidden] { display:none; }
+.ag-atr-badge { display:inline-flex; align-items:center; justify-content:center; min-width:20px; height:20px; padding:0 6px;
+                border-radius:999px; background:var(--ag-vermelho); color:#fff; font-size:.72rem; font-weight:800; line-height:1; }
+.ag-atr-badge[hidden] { display:none; }
+.ag-legenda { margin-top:6px; font-size:.78rem; color:var(--ag-cinza); display:flex; flex-wrap:wrap; gap:6px 18px; }
+.ag-legenda[hidden] { display:none; }
+.ag-leg-item { display:inline-flex; align-items:flex-start; gap:6px; line-height:1.4; }
+.ag-leg { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:999px;
+          color:#fff; font-size:.72rem; font-weight:900; line-height:1; flex:0 0 auto; }
+.ag-leg-atr, .ag-marca-dia.ag-marca-atr { background:var(--ag-vermelho); }
+.ag-leg-ok, .ag-marca-dia.ag-marca-ok { background:var(--ag-verde); }
+.ag-leg .ui-icon, .ag-marca-dia .ui-icon { width:12px; height:12px; margin:0; }
+.ag-marca-dia { position:absolute; top:6px; right:6px; width:20px; height:20px; border-radius:999px; display:inline-flex;
+                align-items:center; justify-content:center; font-size:.78rem; font-weight:900; color:#fff; line-height:1; }
+.ag-dia.ag-hoje .ag-marca-dia { right:58px; }
+.ag-dia.ag-dia-atr { border-color:#fca5a5; }
+.ag-dia.ag-dia-atr .ag-qtd { background:var(--ag-vermelho); }
+.ag-dia.ag-dia-ok .ag-qtd { background:var(--ag-verde); }
+.ag-chip.ag-chip-concluido { background:#dcfce7; color:#166534; }
+.ag-chip.ag-chip-atrasado { background:#fee2e2; color:#991b1b; }
+.ag-chip.ag-chip-hoje { background:#ffedd5; color:#9a3412; }
+.ag-chip.ag-chip-cancelado { background:#e2e8f0; color:#475569; }
+.ag-ped.ag-ped-com-marca { display:grid; grid-template-columns:minmax(0,1fr) 190px; gap:12px; }
+.ag-ped-corpo { min-width:0; }
+.ag-ped-entrega { font-size:.8rem; font-weight:700; color:var(--ag-tinta); margin-top:2px; }
+.ag-ped.ag-ped-concluido { border-color:#86efac; background:var(--ag-verde-claro); box-shadow:inset 4px 0 0 var(--ag-verde); }
+.ag-ped.ag-ped-atrasado { border-color:#fca5a5; background:var(--ag-vermelho-claro); box-shadow:inset 4px 0 0 var(--ag-vermelho); }
+.ag-ped.ag-ped-hoje { border-color:#fdba74; background:var(--ag-laranja-claro); box-shadow:inset 4px 0 0 var(--ag-laranja); }
+.ag-ped.ag-ped-cancelado { border-color:#cbd5e1; background:var(--ag-cinza-claro); box-shadow:inset 4px 0 0 #94a3b8; }
+.ag-ped.ag-ped-cancelado .ag-ped-corpo { opacity:.72; }
+.ag-marca { display:flex; flex-direction:column; align-items:stretch; gap:6px; border-left:1px dashed #cbd5e1; padding-left:12px; }
+.ag-marca-estado { align-self:flex-start; display:inline-flex; align-items:center; gap:4px; font-size:.8rem; font-weight:800;
+                   border-radius:999px; padding:4px 11px; background:#eef2f7; color:var(--ag-cinza); outline:none; }
+.ag-marca-estado:focus-visible { outline:3px solid var(--ag-rosa); outline-offset:2px; }
+.ag-est-concluido { background:var(--ag-verde); color:#fff; }
+.ag-est-atrasado { background:var(--ag-vermelho); color:#fff; }
+.ag-est-hoje { background:var(--ag-laranja); color:#fff; }
+.ag-est-cancelado { background:#64748b; color:#fff; }
+.ag-marca-quem { font-size:.75rem; color:var(--ag-cinza); line-height:1.35; }
+.ag-marca-mudou, .ag-marca-erro { font-size:.76rem; font-weight:700; border-radius:8px; padding:6px 8px; line-height:1.35; }
+.ag-marca-mudou { color:#78350f; background:#fde68a; }
+.ag-marca-erro { color:#991b1b; background:#fee2e2; }
+.ag-marca-salvando { font-size:.82rem; font-weight:700; color:var(--ag-cinza); padding:8px 0; }
+.ag-marca-acoes { display:flex; flex-direction:column; gap:6px; margin-top:2px; }
+.ag-marca-pergunta { font-size:.8rem; font-weight:700; color:var(--ag-tinta); }
+.ag-marca-btn { border:none; border-radius:10px; padding:8px 12px; font:inherit; font-size:.84rem; font-weight:800; cursor:pointer;
+                min-height:40px; display:inline-flex; align-items:center; justify-content:center; gap:6px; }
+.ag-marca-btn.ag-marca-ok { background:var(--ag-verde); color:#fff; }
+.ag-marca-btn.ag-marca-ok:hover { background:#166534; }
+.ag-marca-btn.ag-marca-sec { background:#fff; color:var(--ag-tinta); border:1px solid #cbd5e1; }
+.ag-marca-btn.ag-marca-sec:hover { background:var(--ag-fundo); }
+.ag-marca-btn.ag-marca-perigo { background:#475569; color:#fff; }
+.ag-marca-btn.ag-marca-perigo:hover { background:#334155; }
+.ag-marca-btn.ag-marca-link { background:transparent; color:var(--ag-azul); padding:6px 2px; min-height:36px; font-weight:700;
+                              justify-content:flex-start; text-decoration:underline; text-underline-offset:2px; }
+.ag-marca-btn:focus-visible { outline:3px solid var(--ag-rosa); outline-offset:2px; }
+.ag-todos { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:0 0 10px; padding:8px 10px;
+            border:1px dashed #86efac; border-radius:10px; background:var(--ag-verde-claro); }
+.ag-todos-txt { flex:1 1 220px; font-size:.84rem; font-weight:700; color:var(--ag-tinta); }
+.ag-todos-res { flex:1 1 100%; font-size:.82rem; font-weight:700; color:var(--ag-verde); }
+.ag-todos-res.ag-todos-erro { color:#991b1b; }
+.ag-fonte-erro { color:#991b1b; font-weight:700; }
 @media (max-width:650px) {
   .ag-ult-btn { margin-left:0; width:100%; }
+  .ag-atr-btn { width:100%; }
+  .ag-ped.ag-ped-com-marca { grid-template-columns:minmax(0,1fr); gap:10px; }
+  .ag-marca { border-left:none; padding-left:0; border-top:1px dashed #cbd5e1; padding-top:10px; }
+  .ag-marca-acoes { flex-direction:row; flex-wrap:wrap; }
+  .ag-marca-acoes .ag-marca-btn { flex:1 1 auto; }
+  .ag-marca-acoes .ag-marca-pergunta { flex:1 1 100%; }
+  .ag-marca-dia { top:3px; right:3px; width:16px; height:16px; font-size:.66rem; }
+  .ag-dia.ag-hoje .ag-marca-dia { right:3px; }
+  .ag-marca-dia .ui-icon { width:10px; height:10px; }
   .ag .card { padding:14px 12px; }
   .ag-mes { font-size:1.15rem; }
   .ag-nav { width:100%; }
@@ -1872,7 +1947,7 @@ html.menu-trava, html.menu-trava body { overflow: hidden; }
       <div class="ag-cab">
         <div>
           <h2 class="ag-mes" id="ag-titulo">Agenda da Fábrica</h2>
-          <p class="ag-sub">Pedidos de venda de todos os vendedores, pela data de entrega. Só consulta.</p>
+          <p class="ag-sub">Pedidos de venda de todos os vendedores, pela data de entrega. Nada aqui muda o sistema antigo.</p>
         </div>
         <div class="ag-nav" role="group" aria-label="Navegar entre os meses">
           <button type="button" class="ag-btn" id="ag-ant" aria-label="Mês anterior">‹</button>
@@ -1885,6 +1960,7 @@ html.menu-trava, html.menu-trava body { overflow: hidden; }
         <label for="ag-vendedor">Vendedor</label>
         <select id="ag-vendedor" class="ag-sel" disabled><option value="">Todos os vendedores</option></select>
         <button type="button" class="ag-btn ag-ult-btn" id="ag-ultimos" aria-haspopup="dialog" disabled>🕐 Últimos pedidos<span class="ag-ult-badge" id="ag-ultimos-n" hidden></span></button>
+        <button type="button" class="ag-btn ag-atr-btn" id="ag-atrasados" aria-haspopup="dialog" disabled hidden>⚠️ Atrasados<span class="ag-atr-badge" id="ag-atrasados-n" hidden></span></button>
       </div>
       <div class="ag-fonte" id="ag-fonte" aria-live="polite"></div>
       <div class="ag-aviso" id="ag-aviso" role="status" hidden></div>
@@ -1893,6 +1969,7 @@ html.menu-trava, html.menu-trava body { overflow: hidden; }
       <div class="ag-semana" aria-hidden="true"><span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span></div>
       <div class="ag-grade" id="ag-grade"></div>
       <p class="ag-resumo" id="ag-resumo"></p>
+      <p class="ag-legenda" id="ag-legenda" hidden></p>
     </div>
     <div class="card ag-pend" id="ag-pend" hidden>
       <h3>Pedidos sem data de entrega válida</h3>
@@ -1908,7 +1985,7 @@ html.menu-trava, html.menu-trava body { overflow: hidden; }
         <button type="button" class="ag-fechar" id="ag-dia-fechar" aria-label="Fechar a lista do dia">×</button>
       </div>
       <div class="ag-painel-corpo" id="ag-dia-lista"></div>
-      <div class="ag-painel-rod">A contagem é de pedidos, não de bolsas. Produção, entrega e cancelamento não são verificados na origem: “prazo passado” quer dizer só que a data de entrega já passou.</div>
+      <div class="ag-painel-rod" id="ag-dia-rod">A contagem é de pedidos, não de bolsas. Produção, entrega e cancelamento não são verificados na origem: “prazo passado” quer dizer só que a data de entrega já passou.</div>
     </div>
   </div>
 
@@ -5333,9 +5410,10 @@ function moldeResumoPrint() {
 </div>
 
 <script id="agenda-fabrica-js">
-/* ===== Agenda da Fabrica (bloco novo) - versao 1.3, 19/11/2026 (1.2 em 18/11; 1.1 em 17/11; 1.0 em 16/11/2026) =====
-   So leitura. Le agenda_coleta e agenda_pedidos (o banco so entrega a quem tem a secao 'agenda' ou 'admin')
-   e abre vias e layouts por links assinados de 10 minutos do bucket privado 'agenda'. Nao grava nada no banco.
+/* ===== Agenda da Fabrica (bloco novo) - versao 1.4, 24/11/2026 (1.3 em 19/11; 1.2 em 18/11; 1.1 em 17/11; 1.0 em 16/11) =====
+   Le agenda_coleta e agenda_pedidos (o banco so entrega a quem tem a secao 'agenda' ou 'admin') e abre vias e
+   layouts por links assinados de 10 minutos do bucket privado 'agenda'. A unica coisa que grava no banco sao as
+   marcacoes da 1.4, e so pela funcao agenda_marcar (nada vai para o sistema antigo).
    1.1: filtro por vendedor (FABRICA, FABRICA 2025 e ISISBOLSAS = "Fabrica"); a escolha fica guardada so neste
    aparelho. O filtro so organiza a tela: quem tem acesso a Agenda continua lendo os pedidos de todos.
    1.2: link direto. "#agenda" abre a aba; "#agenda/AAAA-MM-DD" abre a aba no mes e a lista do dia (com todos os
@@ -5343,6 +5421,12 @@ function moldeResumoPrint() {
    1.3: botao "Ultimos pedidos": os pedidos feitos nos ultimos 7 dias (pela DATA PEDIDO), do mais novo para o mais
    antigo, separados por dia, seguindo o filtro de vendedor. "Novo" = nao estava na lista da ultima vez que este
    usuario a abriu neste aparelho (o que ja foi visto fica guardado so no aparelho, nunca no banco).
+   1.4: marcacoes de producao. Quem esta na lista do banco (o Vini e o gerente) marca cada pedido "Concluido"
+   (producao pronta) ou "Cancelado", e pode voltar para pendente. "Atrasado" e calculado: a entrega passou e nao ha
+   marcacao (so para entregas a partir da data "desde" do banco). "Vence hoje" = entrega hoje sem marcacao. O cartao
+   do pedido segue a cor; o calendario mostra "!" no dia com atrasado e um visto no dia todo concluido; o botao
+   "Atrasados" lista todos. Quem so ve a agenda ve as cores, sem os botoes. Sem o SQL 04 no banco, a tela fica
+   igual a 1.3.
    Para nao mexer no codigo que ja existe, este bloco "embrulha" cinco funcoes do painel:
    setModo, carregarPermissoes, carregarDados, aplicarPermissoes e fazerLogout. Para desligar a agenda,
    basta retirar os blocos marcados "AGENDA DA FABRICA". */
@@ -5365,11 +5449,17 @@ function moldeResumoPrint() {
   var DIAS_ULTIMOS = 7;
   var PREF_VISTOS = 'agenda-fabrica.vistos.';
   var DIAS_SEMANA = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+  var TRAVA_MS = 700;   // depois de marcar, ignora cliques por um instante (um clique duplo nao desfaz o que marcou)
+  var ROTULO_ESTADO = { concluido: '✓ Concluído', cancelado: 'Cancelado', atrasado: 'Atrasado', hoje: 'Vence hoje',
+                        pendente: 'Pendente' };
+  var CHIP_ESTADO = { concluido: 'concluído', cancelado: 'cancelado', atrasado: 'atrasado', hoje: 'vence hoje' };
 
   var st = { mes: null, dados: null, ultimoBom: null, erro: null, semPermissao: false, carregando: false,
              timer: null, ultimaCarga: 0, diaAberto: null, listaAberta: null, visor: null, links: new Map(),
              pilhaFoco: [], novidadeNaLista: false, vendedor: lerPref(), assinaturaFiltro: null, pedidoLink: null,
-             email: null, ultimos: null };
+             email: null, ultimos: null,
+             marcando: new Set(), erroMarca: new Map(), travaAte: 0, confirmaCancelar: null, confirmaTodos: null,
+             resultadoTodos: null, salvandoTodos: false, recarregarDepois: false };
   var RE_LINK = /^#agenda(?:\/(\d{4})-(\d{2})-(\d{2}))?$/;
 
   function AgErro(tipo, msg) { this.tipo = tipo; this.message = msg; }
@@ -5538,7 +5628,49 @@ function moldeResumoPrint() {
     var d = { coleta: c.data, pedidos: pedidos, grupos: grupos, porDia: new Map(), semData: [], coerente: coerente,
               total: total, carregadoEm: new Date() };
     aplicarFiltro(d);
+    d.marcas = await lerMarcas();
     return d;
+  }
+
+  // marcacoes (1.4): uma chamada traz a data "desde", se este usuario pode marcar e as marcacoes dos pedidos da agenda
+  async function lerMarcas() {
+    var vazio = { ok: false, desde: null, pode: false, mapa: new Map(), erro: null };
+    var r;
+    try { r = await _supa.rpc('agenda_marcas_ler'); }
+    catch (e) { vazio.erro = 'Marcações: não foi possível ler agora.'; return vazio; }
+    if (r.error) {   // sem o SQL 04 no banco (funcao que nao existe): a tela fica igual a 1.3, sem aviso
+      if (r.error.code === 'PGRST202' || /agenda_marcas_ler/.test(r.error.message || '')) return vazio;
+      vazio.erro = 'Marcações: não foi possível ler agora (' + r.error.message + ').';
+      return vazio;
+    }
+    if (!r.data) return vazio;
+    var mapa = new Map();
+    (r.data.marcas || []).forEach(function (m) { mapa.set(String(m.pedido), m); });
+    return { ok: true, desde: r.data.desde || null, pode: r.data.pode_marcar === true, mapa: mapa, erro: null };
+  }
+  function mk() { return st.dados && st.dados.marcas && st.dados.marcas.ok ? st.dados.marcas : null; }
+  // null = sem marcacoes (tela como na 1.3); senao {tipo: concluido|cancelado|atrasado|hoje|pendente, m, mudou}
+  function estadoDe(p, hoje) {
+    var M = mk();
+    if (!M) return null;
+    var m = M.mapa.get(p.source_order_id);
+    if (m) return { tipo: m.estado, m: m, mudou: Number(m.revisao) !== Number(p.source_revision) };
+    if (p.delivery_date && M.desde && p.delivery_date >= M.desde && p.delivery_date < hoje) return { tipo: 'atrasado' };
+    if (p.delivery_date && p.delivery_date === hoje) return { tipo: 'hoje' };
+    return { tipo: 'pendente' };
+  }
+  function emAberto(e) { return !!e && (e.tipo === 'pendente' || e.tipo === 'hoje' || e.tipo === 'atrasado'); }
+  function atrasados(d) {   // segue o filtro de vendedor; do mais antigo para o mais novo
+    if (!d || !d.pedidos || !mk()) return [];
+    var hoje = hojeBahia();
+    return d.pedidos.filter(function (p) {
+      if (st.vendedor && p._vend !== st.vendedor) return false;
+      var e = estadoDe(p, hoje);
+      return !!e && e.tipo === 'atrasado';
+    }).sort(function (a, b) {
+      if (a.delivery_date !== b.delivery_date) return a.delivery_date < b.delivery_date ? -1 : 1;
+      return Number(a.source_order_id) - Number(b.source_order_id);
+    });
   }
 
   async function carregar() {
@@ -5562,6 +5694,10 @@ function moldeResumoPrint() {
         await esperar(1500);
       }
       if (!dados.coerente) throw new AgErro('atualizando', 'A agenda está sendo atualizada neste momento.');
+      if (dados.marcas && dados.marcas.erro && st.ultimoBom && st.ultimoBom.marcas && st.ultimoBom.marcas.ok) {
+        var velho = st.ultimoBom.marcas;   // uma falha passageira nao apaga as cores: fica a ultima leitura boa
+        dados.marcas = { ok: true, desde: velho.desde, pode: velho.pode, mapa: velho.mapa, erro: dados.marcas.erro };
+      }
       var tinhaDados = !!st.dados;
       st.dados = dados; st.ultimoBom = dados; st.erro = null; st.ultimaCarga = Date.now();
       if (tinhaDados) avisarMudancas();
@@ -5584,6 +5720,7 @@ function moldeResumoPrint() {
     var nomeMes = MESES[st.mes.mes - 1];
     $('ag-titulo').textContent = nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1) + ' de ' + st.mes.ano;
     renderFiltro(); renderFonte(); renderAviso(); renderGrade(); renderPendencias(); renderUltimosBotao();
+    renderAtrasadosBotao(); renderLegenda();
     $('ag-atualizar').disabled = st.carregando;
     $('ag-atualizar').textContent = st.carregando ? 'Atualizando…' : '↻ Atualizar';
   }
@@ -5622,6 +5759,8 @@ function moldeResumoPrint() {
     linha('Conferido pela última vez', quando(c.verified_at) || 'desconhecido');
     linha('Varredura completa do sistema antigo', c.last_successful_scan_at ? quando(c.last_successful_scan_at) : 'não verificada');
     linha('Lido nesta tela', quando(d.carregadoEm.toISOString()));
+    if (d.marcas && d.marcas.erro) f.append(el('span', { class: 'ag-fonte-erro', text: d.marcas.erro +
+      (d.marcas.ok ? ' Mostrando as da última leitura.' : '') }));
   }
 
   function renderAviso() {
@@ -5669,12 +5808,25 @@ function moldeResumoPrint() {
       var chave = iso(ano, mes, d);
       var lista = (st.dados && st.dados.porDia.get(chave)) || [];
       noMes += lista.length;
-      var classes = 'ag-dia' + (chave === hoje ? ' ag-hoje' : '') + (chave < hoje ? ' ag-passado' : '');
-      var rotulo = d + ' de ' + MESES[mes - 1] + ': ' + (lista.length ? plural(lista.length, 'pedido', 'pedidos') : 'nenhum pedido nesta coleta') + (chave === hoje ? ' (hoje)' : '');
+      var nAtr = 0, nFeito = 0, nCanc = 0;
+      lista.forEach(function (p) {
+        var e = estadoDe(p, hoje);
+        if (!e) return;
+        if (e.tipo === 'atrasado') nAtr++; else if (e.tipo === 'concluido') nFeito++; else if (e.tipo === 'cancelado') nCanc++;
+      });
+      var tudoFeito = nFeito > 0 && nFeito + nCanc === lista.length;
+      var classes = 'ag-dia' + (chave === hoje ? ' ag-hoje' : '') + (chave < hoje ? ' ag-passado' : '') +
+        (nAtr ? ' ag-dia-atr' : '') + (tudoFeito ? ' ag-dia-ok' : '');
+      var rotulo = d + ' de ' + MESES[mes - 1] + ': ' + (lista.length ? plural(lista.length, 'pedido', 'pedidos') : 'nenhum pedido nesta coleta') +
+        (nAtr ? ', ' + plural(nAtr, 'atrasado', 'atrasados') : '') + (tudoFeito ? ', tudo concluído' : '') + (chave === hoje ? ' (hoje)' : '');
       var botao = el('button', { type: 'button', class: classes, 'aria-label': rotulo, 'data-dia': chave,
         onclick: (function (k) { return function (ev) { abrirDia(k, ev.currentTarget); }; })(chave) },
         el('span', { class: 'ag-num', text: String(d) }),
-        chave === hoje ? el('span', { class: 'ag-hoje-tag', text: 'hoje' }) : null);
+        chave === hoje ? el('span', { class: 'ag-hoje-tag', text: 'hoje' }) : null,
+        nAtr ? el('span', { class: 'ag-marca-dia ag-marca-atr', 'aria-hidden': 'true',
+                            title: plural(nAtr, 'pedido atrasado', 'pedidos atrasados'), text: '!' })
+          : tudoFeito ? el('span', { class: 'ag-marca-dia ag-marca-ok', 'aria-hidden': 'true', title: 'Tudo concluído', text: '✓' })
+          : null);
       if (lista.length) {
         botao.append(el('span', { class: 'ag-qtd' }, el('b', { text: String(lista.length) }),
           el('span', { class: 'ag-qtd-txt', text: lista.length === 1 ? ' pedido' : ' pedidos' })));
@@ -5716,17 +5868,27 @@ function moldeResumoPrint() {
     abrirLista(dataLonga(chave), lista, gatilho, chave);
   }
 
-  function abrirLista(titulo, ids, gatilho, chaveDia) {
-    st.listaAberta = { titulo: titulo, ids: ids, chaveDia: chaveDia || null };
+  function abrirLista(titulo, ids, gatilho, chaveDia, tipo) {
+    st.listaAberta = { titulo: titulo, ids: ids, chaveDia: chaveDia || null, tipo: tipo || null };
     st.novidadeNaLista = false;
+    st.confirmaTodos = null; st.resultadoTodos = null; st.confirmaCancelar = null; st.erroMarca.clear();
     preencherLista();
     abrirJanela($('ag-dia'), gatilho);
+  }
+
+  function abrirAtrasados(gatilho) {
+    if (!st.dados) return;
+    st.diaAberto = null;
+    abrirLista('Pedidos atrasados', atrasados(st.dados).map(function (p) { return p.source_order_id; }), gatilho, null, 'atrasados');
   }
 
   function preencherLista() {
     var L = st.listaAberta;
     $('ag-dia-titulo').textContent = L.titulo;
-    $('ag-dia-sub').textContent = L.ids.length ? plural(L.ids.length, 'pedido', 'pedidos') + deQuem() + ' nesta coleta' : '';
+    $('ag-dia-sub').textContent = L.tipo === 'atrasados'
+      ? (L.ids.length ? plural(L.ids.length, 'pedido', 'pedidos') + deQuem() + ' com a entrega passada e sem “Concluído”' : '')
+      : (L.ids.length ? plural(L.ids.length, 'pedido', 'pedidos') + deQuem() + ' nesta coleta' : '');
+    $('ag-dia-rod').textContent = rodapeLista();
     var corpo = $('ag-dia-lista'); limpar(corpo);
     if (st.novidadeNaLista) {
       corpo.append(el('div', { class: 'ag-aviso ag-info', style: 'margin:0 0 10px' },
@@ -5734,10 +5896,13 @@ function moldeResumoPrint() {
         el('button', { type: 'button', class: 'ag-btn', onclick: function () { recarregarLista(); } }, 'Ver lista atualizada')));
     }
     if (!L.ids.length) {
-      corpo.append(el('p', { class: 'ag-carregando', text: 'Nenhum pedido nesta coleta para esta data.' }));
+      corpo.append(el('p', { class: 'ag-carregando', text: L.tipo === 'atrasados' ? 'Nenhum pedido atrasado' + deQuem() + '.'
+        : 'Nenhum pedido nesta coleta para esta data.' }));
       return;
     }
     var hoje = hojeBahia();
+    var barra = barraTodos(L, hoje);
+    if (barra) corpo.append(barra);
     L.ids.forEach(function (id) {
       var p = pedidoPorId(id);
       if (!p) {
@@ -5745,24 +5910,215 @@ function moldeResumoPrint() {
           el('p', { class: 'ag-cliente ag-ni', text: 'Este pedido não está mais na agenda desta coleta.' })));
         return;
       }
-      corpo.append(cartaoPedido(p, hoje));
+      corpo.append(cartaoPedido(p, hoje, { entrega: L.tipo === 'atrasados' }));
     });
   }
 
   function recarregarLista() {
     var L = st.listaAberta;
     if (L.chaveDia) L.ids = ((st.dados && st.dados.porDia.get(L.chaveDia)) || []).map(function (p) { return p.source_order_id; });
+    if (L.tipo === 'atrasados') L.ids = atrasados(st.dados).map(function (p) { return p.source_order_id; });
     st.novidadeNaLista = false;
     preencherLista();
   }
 
-  function cartaoPedido(p, hoje) {
+  function rodapeLista() {
+    var base = 'A contagem é de pedidos, não de bolsas.';
+    var M = mk();
+    if (!M) return base + ' Produção, entrega e cancelamento não são verificados na origem: “prazo passado” quer dizer só que a data de entrega já passou.';
+    return base + ' “Concluído” = produção pronta. “Atrasado” = a entrega passou sem “Concluído”' +
+      (M.desde ? ' (entregas a partir de ' + diaMes(M.desde) + ')' : '') + '. Nada disso vai para o sistema antigo.';
+  }
+
+  // --- marcacoes (1.4) ------------------------------------------------------------------------------------
+  function botaoMarca(texto, classe, fn, rotulo) {
+    return el('button', { type: 'button', class: 'ag-marca-btn ' + classe, 'aria-label': rotulo || null,
+      onclick: function () { if (Date.now() < st.travaAte) return; fn(); } }, texto);
+  }
+
+  function painelMarca(p, e, comEntrega) {
+    var M = mk();
+    if (!M || !e) return null;
+    var id = p.source_order_id, erro = st.erroMarca.get(id);
+    if (e.tipo === 'pendente' && !M.pode && !erro) return null;   // quem so ve: pendente fica como na 1.3
+    var painel = el('div', { class: 'ag-marca' },
+      el('span', { class: 'ag-marca-estado ag-est-' + e.tipo, tabindex: '-1', text: ROTULO_ESTADO[e.tipo] }));
+    if (e.m) painel.append(el('span', { class: 'ag-marca-quem', text: 'por ' + (e.m.por || '—') + (quando(e.m.em) ? ', ' + quando(e.m.em) : '') }));
+    if (e.tipo === 'atrasado' && !comEntrega) {
+      painel.append(el('span', { class: 'ag-marca-quem', text: 'a entrega era ' + dataCurta(p.delivery_date) }));
+    }
+    if (e.mudou) {
+      painel.append(el('span', { class: 'ag-marca-mudou', text: 'O pedido mudou depois de marcado: agora é a revisão ' +
+        p.source_revision + ' (foi marcado na ' + e.m.revisao + '). Confira.' }));
+    }
+    if (erro) painel.append(el('span', { class: 'ag-marca-erro', role: 'alert', text: erro }));
+    if (!M.pode) return painel;
+    if (st.marcando.has(id)) {
+      painel.append(el('span', { class: 'ag-marca-salvando', role: 'status', text: 'Salvando…' }));
+      return painel;
+    }
+    var acoes = el('div', { class: 'ag-marca-acoes' });
+    if (st.confirmaCancelar === id) {
+      acoes.append(el('span', { class: 'ag-marca-pergunta', text: 'Cancelar este pedido na agenda?' }),
+        botaoMarca('Sim, cancelado', 'ag-marca-perigo', function () { marcarUm(p, 'cancelado'); }),
+        botaoMarca('Não', 'ag-marca-sec ag-marca-nao', function () { st.confirmaCancelar = null; trocarCartoes(id, '.ag-marca-estado'); }));
+    } else if (emAberto(e)) {
+      acoes.append(
+        botaoMarca('✓ Concluído', 'ag-marca-ok', function () { marcarUm(p, 'concluido'); },
+          'Marcar o pedido ' + id + ' como concluído (produção pronta)'),
+        botaoMarca('Cancelado', 'ag-marca-sec', function () { st.confirmaCancelar = id; trocarCartoes(id, '.ag-marca-nao'); },
+          'Marcar o pedido ' + id + ' como cancelado'));
+    } else {
+      if (e.mudou) {
+        acoes.append(botaoMarca(e.tipo === 'concluido' ? '✓ Confirmar concluído' : 'Confirmar cancelado',
+          e.tipo === 'concluido' ? 'ag-marca-ok' : 'ag-marca-sec', function () { marcarUm(p, e.tipo); },
+          'Confirmar que o pedido ' + id + ' continua ' + (e.tipo === 'concluido' ? 'concluído' : 'cancelado') +
+          ' na revisão ' + p.source_revision));
+      }
+      acoes.append(botaoMarca('↩ Voltar para pendente', 'ag-marca-link', function () { marcarUm(p, null); },
+        'Voltar o pedido ' + id + ' para pendente'));
+    }
+    painel.append(acoes);
+    return painel;
+  }
+
+  function chipEstado(p, hoje) {
+    var e = estadoDe(p, hoje);
+    if (!e || e.tipo === 'pendente') return null;
+    return el('span', { class: 'ag-chip ag-chip-estado ag-chip-' + e.tipo, text: CHIP_ESTADO[e.tipo] });
+  }
+
+  function erroDaMarca(err) {
+    var m = (err && err.message) || '';
+    if (/pedido_mudou/.test(m)) {
+      st.recarregarDepois = true;
+      return 'Este pedido mudou no sistema antigo enquanto a tela estava aberta. A agenda foi lida de novo: confira e marque outra vez.';
+    }
+    if (/pedido_fora_da_agenda/.test(m)) { st.recarregarDepois = true; return 'Este pedido não está mais na agenda.'; }
+    if (/sem_permissao/.test(m)) return 'Seu usuário não pode marcar pedidos na agenda.';
+    if (/fetch|network|Load failed/i.test(m)) return 'Sem conexão: não foi possível salvar. Tente de novo.';
+    return 'Não foi possível salvar (' + m + ').';
+  }
+
+  async function gravarMarca(p, estado) {   // devolve null (deu certo) ou a mensagem de erro
+    var id = p.source_order_id, r;
+    try { r = await _supa.rpc('agenda_marcar', { p_pedido: id, p_estado: estado, p_revisao: p.source_revision }); }
+    catch (e) { return 'Sem conexão: não foi possível salvar. Tente de novo.'; }
+    if (r.error) return erroDaMarca(r.error);
+    var M = st.dados && st.dados.marcas;
+    if (M && M.mapa) {
+      if (!r.data || r.data.mudou === false) st.recarregarDepois = true;   // ja estava assim (outra pessoa marcou?)
+      else if (estado) M.mapa.set(id, { pedido: id, estado: estado, revisao: r.data.revisao, por: r.data.por, em: r.data.em });
+      else M.mapa.delete(id);
+    }
+    return null;
+  }
+
+  async function marcarUm(p, estado) {
+    var id = p.source_order_id;
+    if (st.marcando.has(id) || st.salvandoTodos) return;
+    st.marcando.add(id); st.erroMarca.delete(id); st.confirmaCancelar = null;
+    trocarCartoes(id, '.ag-marca-salvando');
+    var erro = await gravarMarca(p, estado);
+    st.marcando.delete(id);
+    if (erro) st.erroMarca.set(id, erro);
+    st.travaAte = Date.now() + TRAVA_MS;
+    trocarCartoes(id, '.ag-marca-estado');
+    render();
+    if (st.recarregarDepois) { st.recarregarDepois = false; carregar(); }
+  }
+
+  // troca, no lugar, os cartoes abertos deste pedido (lista do dia, Atrasados e Ultimos pedidos), sem refazer a lista
+  function trocarCartoes(id, foco) {
+    var hoje = hojeBahia(), p = pedidoPorId(id);
+    if (!p) return;
+    document.querySelectorAll('.ag-ped[data-pedido="' + id + '"]').forEach(function (velho) {
+      var novo = cartaoPedido(p, hoje, { entrega: velho.getAttribute('data-entrega') === '1',
+                                         irParaDia: velho.getAttribute('data-ir') === '1' });
+      velho.replaceWith(novo);
+      var alvo = foco ? novo.querySelector(foco) : null;
+      if (alvo) alvo.focus();
+    });
+    document.querySelectorAll('.ag-ult-item[data-pedido="' + id + '"]').forEach(function (item) {
+      var l1 = item.querySelector('.ag-ult-l1');
+      Array.prototype.forEach.call(l1.querySelectorAll('.ag-chip-estado, .ag-chip-passado'), function (c) { c.remove(); });
+      var chip = chipEstado(p, hoje);
+      if (chip) l1.append(chip);
+      else if (p.delivery_date && p.delivery_date < hoje) l1.append(el('span', { class: 'ag-chip ag-chip-passado', text: 'prazo passado' }));
+    });
+    atualizarBarra();
+  }
+
+  // "Concluir todos do dia": so na lista de um dia, para quem pode marcar, com os pedidos que estao na tela
+  function barraTodos(L, hoje) {
+    var M = mk();
+    if (!M || !M.pode || !L.chaveDia) return null;
+    var pend = L.ids.map(pedidoPorId).filter(function (p) { return p && emAberto(estadoDe(p, hoje)); });
+    var res = st.resultadoTodos;
+    if (!pend.length && !res) return null;
+    var barra = el('div', { class: 'ag-todos' });
+    if (res) barra.append(el('p', { class: 'ag-todos-res' + (res.falhas ? ' ag-todos-erro' : ''), role: 'status', tabindex: '-1',
+                                    text: res.texto }));
+    if (st.salvandoTodos || !pend.length) return barra;
+    var n = pend.length;
+    if (st.confirmaTodos === L.chaveDia) {
+      barra.append(el('span', { class: 'ag-todos-txt', text: 'Marcar ' + (n === 1 ? 'o pedido pendente' : 'os ' + n + ' pedidos pendentes') +
+          ' deste dia como concluídos (produção pronta)?' }),
+        botaoMarca(n === 1 ? 'Sim, concluir' : 'Sim, concluir os ' + n, 'ag-marca-ok', function () { concluirTodos(pend); }),
+        botaoMarca('Não', 'ag-marca-sec ag-todos-nao', function () {
+          st.confirmaTodos = null; atualizarBarra(); focarEm('#ag-dia-lista .ag-todos button');
+        }));
+    } else {
+      barra.append(botaoMarca('✓ Concluir todos do dia (' + n + ')', 'ag-marca-sec', function () {
+        st.confirmaTodos = L.chaveDia; st.resultadoTodos = null; atualizarBarra(); focarEm('#ag-dia-lista .ag-todos-nao');
+      }, 'Concluir todos os ' + n + ' pedidos pendentes deste dia'));
+    }
+    return barra;
+  }
+  function atualizarBarra() {   // refaz so a barra (aparece, muda a contagem ou some), sem mexer nos cartoes
+    var L = st.listaAberta, corpo = $('ag-dia-lista');
+    if (!L || !L.chaveDia || !corpo) return;
+    var velha = corpo.querySelector('.ag-todos'), nova = barraTodos(L, hojeBahia());
+    if (velha && nova) velha.replaceWith(nova);
+    else if (velha) velha.remove();
+    else if (nova) corpo.insertBefore(nova, corpo.querySelector('.ag-ped'));
+  }
+  function focarEm(seletor) { var x = document.querySelector(seletor); if (x) x.focus(); }
+
+  async function concluirTodos(lista) {
+    if (st.salvandoTodos) return;
+    st.salvandoTodos = true; st.confirmaTodos = null;
+    st.resultadoTodos = { texto: 'Salvando ' + plural(lista.length, 'pedido', 'pedidos') + '…', falhas: 0 };
+    lista.forEach(function (p) { st.marcando.add(p.source_order_id); });
+    preencherLista();
+    var ok = 0, falhas = [];
+    for (var i = 0; i < lista.length; i++) {
+      var p = lista[i], erro = await gravarMarca(p, 'concluido');
+      st.marcando.delete(p.source_order_id);
+      if (erro) { falhas.push('o ' + p.source_order_id + ' (' + erro + ')'); st.erroMarca.set(p.source_order_id, erro); }
+      else ok++;
+    }
+    st.salvandoTodos = false;
+    st.travaAte = Date.now() + TRAVA_MS;
+    st.resultadoTodos = { falhas: falhas.length, texto: (ok ? plural(ok, 'pedido marcado', 'pedidos marcados') + ' como concluído' +
+      (ok === 1 ? '.' : 's.') : '') + (falhas.length ? ' Não deu para marcar ' + falhas.join('; ') + '.' : '') };
+    if (st.listaAberta) { preencherLista(); focarEm('#ag-dia-lista .ag-todos-res'); }
+    render();
+    if (st.recarregarDepois) { st.recarregarDepois = false; carregar(); }
+  }
+
+  function cartaoPedido(p, hoje, opc) {
+    opc = opc || {};
+    var e = estadoDe(p, hoje);
     var vend = grupoVendedor(p.seller_original);
     var topo = el('div', { class: 'ag-ped-topo' }, el('span', { class: 'ag-ped-num', text: 'Pedido ' + p.source_order_id }),
       el('span', { class: 'ag-chip ag-chip-vend', title: 'Vendedor no sistema antigo: ' + (p.seller_original || 'não informado'),
         text: vend.rotulo }),
       el('span', { class: 'ag-chip', text: 'revisão ' + p.source_revision }));
-    if (p.delivery_date && p.delivery_date < hoje) topo.append(el('span', { class: 'ag-chip ag-chip-passado', text: 'prazo passado' }));
+    // com marcacao (ou atrasado) o painel do lado ja diz a situacao; "prazo passado" fica para o pendente antigo
+    if (p.delivery_date && p.delivery_date < hoje && (!e || e.tipo === 'pendente')) {
+      topo.append(el('span', { class: 'ag-chip ag-chip-passado', text: 'prazo passado' }));
+    }
     if (!p.delivery_date) topo.append(el('span', { class: 'ag-chip ag-chip-aviso', text: 'sem data de entrega válida' }));
     var cliente = p.customer_display_name
       ? el('p', { class: 'ag-cliente', text: p.customer_display_name })
@@ -5785,14 +6141,22 @@ function moldeResumoPrint() {
         onclick: function (ev) { abrirArtes(p.source_order_id, 0, ev.currentTarget); } },
         nArtes === 0 ? 'Layout não disponível nesta coleta'
           : (nArtes === 1 ? 'Ver layout' : 'Ver layouts (' + nArtes + ')') + (artesOk < nArtes ? ' · ' + (nArtes - artesOk) + ' faltando' : '')));
-    var bloco = el('div', { class: 'ag-ped' }, topo, cliente, itens, total, acoes);
+    if (opc.irParaDia && p.delivery_date) {
+      acoes.append(el('button', { type: 'button', class: 'ag-ped-btn ag-sec',
+        onclick: function () { irParaDia(p.delivery_date); } }, 'Abrir o dia ' + diaMes(p.delivery_date) + ' no calendário'));
+    }
+    var entrega = opc.entrega && p.delivery_date ? el('p', { class: 'ag-ped-entrega', text: 'Entrega: ' + dataCurta(p.delivery_date) }) : null;
+    var corpo = el('div', { class: 'ag-ped-corpo' }, topo, cliente, entrega, itens, total, acoes);
     var avisos = (p.parse_warnings || []);
     if (avisos.length) {
       var ul = el('ul');
       avisos.forEach(function (a) { ul.append(el('li', { text: String(a) })); });
-      bloco.append(el('details', { class: 'ag-avisos-lista' }, el('summary', { text: plural(avisos.length, 'aviso de leitura', 'avisos de leitura') }), ul));
+      corpo.append(el('details', { class: 'ag-avisos-lista' }, el('summary', { text: plural(avisos.length, 'aviso de leitura', 'avisos de leitura') }), ul));
     }
-    return bloco;
+    var painel = painelMarca(p, e, !!entrega);
+    return el('div', { class: 'ag-ped' + (e && e.tipo !== 'pendente' ? ' ag-ped-' + e.tipo : '') + (painel ? ' ag-ped-com-marca' : ''),
+                       'data-pedido': p.source_order_id, 'data-entrega': opc.entrega ? '1' : null,
+                       'data-ir': opc.irParaDia ? '1' : null }, corpo, painel);
   }
 
   // --- ultimos pedidos (1.3) ---------------------------------------------------------------------------------
@@ -5861,6 +6225,33 @@ function moldeResumoPrint() {
     if (novos) b.setAttribute('aria-label', 'Últimos pedidos, ' + plural(novos, 'novo', 'novos'));
     else b.removeAttribute('aria-label');
   }
+  function renderAtrasadosBotao() {   // 1.4: so aparece com as marcacoes no banco; segue o filtro de vendedor
+    var b = $('ag-atrasados'), n = $('ag-atrasados-n');
+    if (!b || !n) return;
+    var M = st.semPermissao || !st.dados ? null : mk();
+    b.hidden = !M;
+    if (!M) return;
+    var qtd = atrasados(st.dados).length;
+    b.disabled = !qtd;
+    n.hidden = !qtd;
+    n.textContent = qtd > 99 ? '99+' : String(qtd);
+    b.title = qtd ? plural(qtd, 'pedido atrasado', 'pedidos atrasados') + deQuem() + ': a entrega passou e ninguém marcou “Concluído”'
+                  : 'Nenhum pedido atrasado' + deQuem();
+    b.setAttribute('aria-label', qtd ? 'Atrasados, ' + qtd : 'Atrasados, nenhum');
+  }
+  function renderLegenda() {
+    var l = $('ag-legenda');
+    if (!l) return;
+    var M = st.semPermissao ? null : mk();
+    l.hidden = !M;
+    limpar(l);
+    if (!M) return;
+    l.append(el('span', { class: 'ag-leg-item' }, el('span', { class: 'ag-leg ag-leg-atr', 'aria-hidden': 'true', text: '!' }),
+        el('span', { text: 'pedido atrasado: a entrega passou e ninguém marcou “Concluído”' +
+          (M.desde ? ' (vale para entregas a partir de ' + diaMes(M.desde) + ')' : '') })),
+      el('span', { class: 'ag-leg-item' }, el('span', { class: 'ag-leg ag-leg-ok', 'aria-hidden': 'true', text: '✓' }),
+        el('span', { text: 'dia com tudo concluído' })));
+  }
   function abrirUltimos(gatilho) {
     if (!st.dados) return;
     st.ultimos = { vistosAntes: lerVistos(), novidade: false };
@@ -5920,17 +6311,14 @@ function moldeResumoPrint() {
       el('span', { class: 'ag-ult-cli' + (p.customer_display_name ? '' : ' ag-ni'),
         text: p.customer_display_name || 'Cliente não informado' }));
     if (novo) l1.append(el('span', { class: 'ag-chip ag-chip-novo', text: 'novo' }));
-    if (p.delivery_date && p.delivery_date < hoje) l1.append(el('span', { class: 'ag-chip ag-chip-passado', text: 'prazo passado' }));
-    var item = el('details', { class: 'ag-ult-item' + (novo ? ' ag-ult-novo' : '') },
+    var chip = chipEstado(p, hoje);
+    if (chip) l1.append(chip);
+    else if (p.delivery_date && p.delivery_date < hoje) l1.append(el('span', { class: 'ag-chip ag-chip-passado', text: 'prazo passado' }));
+    var item = el('details', { class: 'ag-ult-item' + (novo ? ' ag-ult-novo' : ''), 'data-pedido': p.source_order_id },
       el('summary', { class: 'ag-ult-resumo' }, l1, el('span', { class: 'ag-ult-l2', text: vend.rotulo + ' · ' + qtd + ' · ' + entrega })));
     item.addEventListener('toggle', function () {   // o cartao completo so e montado quando a pessoa abre a linha
       if (!item.open || item.querySelector('.ag-ped')) return;
-      var cartao = cartaoPedido(p, hoje);
-      if (p.delivery_date) {
-        cartao.querySelector('.ag-ped-acoes').append(el('button', { type: 'button', class: 'ag-ped-btn ag-sec',
-          onclick: function () { irParaDia(p.delivery_date); } }, 'Abrir o dia ' + diaMes(p.delivery_date) + ' no calendário'));
-      }
-      item.append(cartao);
+      item.append(cartaoPedido(pedidoPorId(p.source_order_id) || p, hojeBahia(), { irParaDia: true }));
     });
     return item;
   }
@@ -5965,7 +6353,10 @@ function moldeResumoPrint() {
       }
     }
     if (ov.id === 'ag-visor') { st.visor = null; $('ag-img').removeAttribute('src'); }
-    if (ov.id === 'ag-dia') { st.listaAberta = null; st.diaAberto = null; }
+    if (ov.id === 'ag-dia') {
+      st.listaAberta = null; st.diaAberto = null;
+      st.confirmaTodos = null; st.resultadoTodos = null; st.confirmaCancelar = null;
+    }
     if (ov.id === 'ag-ult') st.ultimos = null;
   }
   function teclado(ev, ov) {
@@ -6239,6 +6630,8 @@ function moldeResumoPrint() {
     fecharJanela($('ag-visor')); fecharJanela($('ag-dia')); fecharJanela($('ag-ult'));
     st.dados = null; st.ultimoBom = null; st.erro = null; st.semPermissao = false; st.links.clear(); st.mes = null;
     st.pedidoLink = null; st.email = null;
+    st.marcando.clear(); st.erroMarca.clear(); st.confirmaCancelar = null; st.confirmaTodos = null;
+    st.resultadoTodos = null; st.salvandoTodos = false; st.recarregarDepois = false;
     var sec = $('secao-agenda'); if (sec) sec.style.display = 'none';
     var btn = $('btnAgenda'); if (btn) { btn.classList.remove('ativo'); btn.style.display = 'none'; }
   }
@@ -6260,6 +6653,7 @@ function moldeResumoPrint() {
     $('ag-dia').addEventListener('keydown', function (ev) { teclado(ev, $('ag-dia')); });
     $('ag-dia').addEventListener('click', function (ev) { if (ev.target === $('ag-dia')) fecharJanela($('ag-dia')); });
     $('ag-ultimos').addEventListener('click', function (ev) { abrirUltimos(ev.currentTarget); });
+    $('ag-atrasados').addEventListener('click', function (ev) { abrirAtrasados(ev.currentTarget); });
     $('ag-ult-fechar').addEventListener('click', function () { fecharJanela($('ag-ult')); });
     $('ag-ult').addEventListener('keydown', function (ev) { teclado(ev, $('ag-ult')); });
     $('ag-ult').addEventListener('click', function (ev) { if (ev.target === $('ag-ult')) fecharJanela($('ag-ult')); });

@@ -1738,6 +1738,36 @@ input, select, textarea { transition: border-color .16s ease, box-shadow .16s ea
   .fin-comp-tab .fin-comp-u { width:64px; }
   .fin-comp-tab .fin-comp-t { width:76px; }
 }
+/* 1.4: o fechamento do representante */
+.fin-rep-topo { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.fin-rep-topo .fin-rotulo { width:100%; }
+.fin-rep-topo .fin-rep-sel { flex:1 1 260px; }
+.fin-fech-caixa { max-width:880px; }
+.fin-fech-periodo { display:flex; align-items:flex-end; gap:10px; flex-wrap:wrap; margin:6px 0 2px; }
+.fin-fech-periodo label { display:flex; flex-direction:column; gap:4px; }
+.fin-fech-periodo .fin-in { min-height:40px; }
+.fin-fech-cartoes { margin:10px 0 12px; }
+.fin-fech-saldo { border-radius:12px; padding:12px 14px; margin:0 0 14px; font-weight:800; font-size:1rem;
+                  display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap; }
+.fin-fech-saldo b { font-size:1.3rem; font-variant-numeric:tabular-nums; }
+.fin-fech-deve { background:var(--fin-vermelho-fundo); border:1px solid #fca5a5; color:var(--fin-vermelho); }
+.fin-fech-credito { background:#ecfdf5; border:1px solid #a7f3d0; color:#047857; }
+.fin-fech-zero { background:var(--fin-fundo); border:1px solid var(--fin-linha); color:var(--fin-tinta); }
+.fin-fech-sec { font-size:.78rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; color:var(--fin-cinza);
+                margin:14px 0 6px; }
+.fin-fech-cr { color:#047857; font-weight:700; }
+.fin-fech-db { color:var(--fin-vermelho); font-weight:700; }
+.fin-fech-aviso { font-size:.84rem; color:#92400e; background:var(--fin-ambar-fundo); border:1px solid #fcd34d;
+                  border-radius:10px; padding:8px 10px; margin:0 0 10px; }
+.fin-fech-fonte { font-size:.8rem; color:var(--fin-cinza); margin:0 0 8px; }
+.fin-fech-mov td { overflow-wrap:break-word; }
+@media (max-width:600px) {
+  .fin-fech-periodo label { flex:1 1 130px; }
+  .fin-fech-saldo { font-size:.92rem; }
+  .fin-fech-mov .fin-fech-tipo { display:none; }
+  .fin-res-tab.fin-fech-mov { table-layout:auto; font-size:.8rem; }
+  .fin-fech-mov td:first-child { white-space:nowrap; }
+}
 </style>
 <style id="menu-isis-css">
 /* ===== Menu do painel (Menu 1.0 de 22/11/2026; segue as cores e cantos do tema Isis) =====
@@ -2301,6 +2331,7 @@ tr.pc-var td:first-child { padding-left:34px; }
         <div class="fin-rep-topo">
           <label class="fin-rotulo" for="fin-rep-sel">Representante</label>
           <select id="fin-rep-sel" class="fin-in fin-rep-sel"></select>
+          <button type="button" class="fin-btn fin-btn-pri fin-fech-abrir" id="fin-rep-fech" hidden>Fechamento</button>
         </div>
         <div id="fin-rep-corpo" hidden>
           <div class="fin-filtro fin-rep-filtro">
@@ -2350,6 +2381,28 @@ tr.pc-var td:first-child { padding-left:34px; }
           <button type="button" class="fin-btn fin-btn-perigo" id="fin-rep-cancelar-res" hidden>Cancelar este resumo</button>
         </div>
         <p class="fin-miudo" id="fin-rep-modal-nota"></p>
+      </div>
+    </div>
+
+    <div class="fin-modal" id="fin-fech-modal" role="dialog" aria-modal="true" aria-labelledby="fin-fech-titulo" hidden>
+      <div class="fin-modal-caixa fin-fech-caixa">
+        <div class="fin-modal-cab">
+          <h3 class="fin-h3" id="fin-fech-titulo">Fechamento</h3>
+          <button type="button" class="fin-x" id="fin-fech-fechar" aria-label="Fechar">×</button>
+        </div>
+        <form class="fin-fech-periodo" id="fin-fech-form" autocomplete="off">
+          <label class="fin-rotulo">De <input type="date" class="fin-in" id="fin-fech-de" required></label>
+          <label class="fin-rotulo">Até <input type="date" class="fin-in" id="fin-fech-ate" required></label>
+          <button type="submit" class="fin-btn" id="fin-fech-ver">Ver</button>
+        </form>
+        <p class="fin-miudo">O período vale para a data de saída dos pedidos e para a data dos lançamentos, como no fechamento do sistema da fábrica.</p>
+        <div id="fin-fech-corpo" class="fin-modal-corpo" aria-live="polite"></div>
+        <div class="fin-modal-acoes">
+          <button type="button" class="fin-btn" id="fin-fech-copiar">Copiar texto</button>
+          <button type="button" class="fin-btn" id="fin-fech-imprimir">Imprimir</button>
+          <button type="button" class="fin-btn" id="fin-fech-pdf">Baixar PDF</button>
+        </div>
+        <p class="fin-miudo" id="fin-fech-nota"></p>
       </div>
     </div>
   </section>
@@ -7841,7 +7894,13 @@ function moldeResumoPrint() {
 })();
 </script>
 <script id="financeiro-isis-js">
-/* ===== Financeiro (bloco novo) - versao 1.3, 23/11/2026 (1.2 e 1.1 de 23 e 22/11, 1.0 de 19/11) =====
+/* ===== Financeiro (bloco novo) - versao 1.4, 23/11/2026 (1.3, 1.2 e 1.1 de 23 e 22/11, 1.0 de 19/11) =====
+   1.4: o FECHAMENTO do representante (pedido do Vini em 23/11). Botao "Fechamento" ao lado do representante: escolhe o
+   periodo (De/Ate) e ve os pedidos entregues com o valor da fabrica (tela Comercial > Representantes do sistema), os
+   lancamentos e vales da Folha do Representante e o saldo (creditos - produtos - debitos = quanto ele deve ou o
+   credito dele), com Copiar texto, Imprimir e Baixar PDF. So o lado fabrica<->representante (regra do Vini). Vem de
+   fin_rep_fech_estado / _itens / _vales / _lanc, com a mesma tranca do resto. O site nao grava nada; o periodo usado
+   por ultimo (o "De") fica so neste navegador. Representante sem pedido em aberto, mas com fechamento, tambem aparece.
    1.3: a janela do resumo tem "Resumido | Completo". O completo mostra, de cada pedido, as bolsas (codigo, produto,
    descricoes, quantidade, preco e total, da Via Cliente que o PC da recepcao le) e a referencia (observacao). Os dois
    formatos tem Copiar texto, Imprimir e Baixar PDF (jsPDF + autotable do cdnjs, com versao e impressao digital fixas,
@@ -7872,6 +7931,11 @@ function moldeResumoPrint() {
   var COLUNAS_VIA = 'id_pedido,quantidade,total,desconto,total_geral,observacao,coletado_em,n_itens';           // 1.3
   var COLUNAS_ITEM = 'id_pedido,item,codigo,produto,material,detalhe,logo,quantidade,preco_unit,total';
   var CHAVE_MODO_RES = 'fin-res-modo';
+  var COLUNAS_FECH_EST = 'rep_id,representante,janela_de,janela_ate,coletado_em,n_itens,n_vales,n_lanc,erro,erro_em'; // 1.4
+  var COLUNAS_FECH_ITEM = 'id_item,id_pedido,data_saida,produto,cliente,quantidade,unit_fabrica,total_fabrica,obs';
+  var COLUNAS_FECH_VALE = 'id_vale,data,valor';
+  var COLUNAS_FECH_LANC = 'id_lanc,debcre,forma,descricao,observacao,data,valor';
+  var CHAVE_FECH = 'fin-fech-de';
   var LIBS_PDF = [
     { src: 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
       sri: 'sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==' },
@@ -7885,7 +7949,8 @@ function moldeResumoPrint() {
   var st = { situacao: null, linhas: null, estado: null, fator: null, ocupado: false, periodo: 'todos', busca: '',
              carregadoEm: 0, aba: 'boletos',
              ped: null, estadoRep: null, resumos: null, carregadoRepEm: 0, rep: null, repPeriodo: '6m', repBusca: '',
-             repSoSem: false, sel: {}, modal: null, voltaFoco: null, salvando: false, modoRes: 'resumido', pdf: false };
+             repSoSem: false, sel: {}, modal: null, voltaFoco: null, salvando: false, modoRes: 'resumido', pdf: false,
+             fechEst: null, fech: null, voltaFocoFech: null };
 
   function $(id) { return document.getElementById(id); }
   function esc(s) {
@@ -8167,6 +8232,8 @@ function moldeResumoPrint() {
         return;
       }
       res = await lerResumos();
+      var fe = await lerFechEstado();   // 1.4: sem as tabelas do fechamento (ou erro), segue sem ele
+      st.fechEst = fe || [];
       st.ped = ped.data;
       st.estadoRep = est.data[0];
       st.resumos = res || [];
@@ -8190,6 +8257,15 @@ function moldeResumoPrint() {
       g[k].n++; g[k].total += Number(p.total_pedido || 0);
       if (p.data_pedido && p.data_pedido >= maisDias(hoje(), -DIAS_RECENTES)) g[k].recentes++;
     });
+    // 1.4: representante sem pedido em aberto, mas com fechamento lido, tambem aparece
+    var porChave = {};
+    Object.keys(g).forEach(function (k) { porChave[chaveRep(k)] = k; });
+    (st.fechEst || []).forEach(function (e) {
+      if (!e.representante || !(Number(e.n_itens || 0) + Number(e.n_vales || 0) + Number(e.n_lanc || 0))) return;
+      if (porChave[chaveRep(e.representante)] !== undefined) return;
+      g[e.representante] = { n: 0, total: 0, recentes: 0, soFech: true };
+      porChave[chaveRep(e.representante)] = e.representante;
+    });
     return g;
   }
 
@@ -8197,10 +8273,12 @@ function moldeResumoPrint() {
     var g = grupos();
     var nomes = Object.keys(g).sort(function (a, b) { return nomeRep(a).localeCompare(nomeRep(b), 'pt-BR'); });
     if (st.rep !== null && !(st.rep in g)) st.rep = null;
-    var html = ['<option value="">Escolha o representante… (' + nomes.length + ' com pedido em aberto)</option>'];
+    var comPedido = nomes.filter(function (k) { return g[k].n > 0; }).length;
+    var html = ['<option value="">Escolha o representante… (' + comPedido + ' com pedido em aberto)</option>'];
     nomes.forEach(function (k, i) {
       html.push('<option value="' + i + '"' + (k === st.rep ? ' selected' : '') + '>' + esc(nomeRep(k)) + ' — ' +
-                g[k].n + ' pedido' + (g[k].n === 1 ? '' : 's') + ' · ' + esc(brl(g[k].total)) + '</option>');
+                (g[k].soFech ? 'sem pedido em aberto · tem fechamento' :
+                  g[k].n + ' pedido' + (g[k].n === 1 ? '' : 's') + ' · ' + esc(brl(g[k].total))) + '</option>');
     });
     var sel = $('fin-rep-sel');
     sel.innerHTML = html.join('');
@@ -8254,6 +8332,7 @@ function moldeResumoPrint() {
 
   function renderRep() {
     var temRep = st.rep !== null && st.ped;
+    $('fin-rep-fech').hidden = !temRep;   // 1.4
     $('fin-rep-corpo').hidden = !temRep;
     $('fin-rep-salvos-card').hidden = !temRep;
     var e = st.estadoRep || {};
@@ -8836,8 +8915,376 @@ function moldeResumoPrint() {
   }
 
   // --- limpeza e ligacoes ----------------------------------------------------------------------------------
+  // ===== 1.4: o fechamento do representante =====================================================================
+  function chaveRep(nome) { return String(nome || '').replace(/\s+/g, ' ').trim().toUpperCase(); }
+
+  async function lerFechEstado() {
+    var r = await _supa.from('fin_rep_fech_estado').select(COLUNAS_FECH_EST).limit(1000);
+    return r.error ? null : (r.data || []);
+  }
+
+  function fechDoRep(nome) {
+    var k = chaveRep(nome);
+    return (st.fechEst || []).filter(function (e) { return e.representante && chaveRep(e.representante) === k; })[0] || null;
+  }
+
+  async function lerDoRep(tabela, colunas, repId, ordem) {
+    // o Supabase entrega no maximo 1000 linhas por pedido: le em paginas
+    var todos = [], de = 0, passo = 1000;
+    for (var volta = 0; volta < 20; volta++) {
+      var r = await _supa.from(tabela).select(colunas).eq('rep_id', repId).order(ordem, { ascending: true })
+        .range(de, de + passo - 1);
+      if (r.error) return { error: r.error };
+      todos = todos.concat(r.data || []);
+      if (!r.data || r.data.length < passo) return { data: todos };
+      de += passo;
+    }
+    return { data: todos };
+  }
+
+  function periodoPadrao(rep) {
+    // "De" = o ultimo usado para este representante neste navegador; senao o dia 1 do mes. "Ate" = hoje.
+    var h = hoje(), de = null;
+    try { de = (JSON.parse(localStorage.getItem(CHAVE_FECH) || '{}') || {})[chaveRep(rep)] || null; } catch (e) { de = null; }
+    if (!(typeof de === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(de) && de <= h)) de = h.slice(0, 8) + '01';
+    return { de: de, ate: h };
+  }
+
+  function guardaDe(rep, de) {
+    try {
+      var m = JSON.parse(localStorage.getItem(CHAVE_FECH) || '{}') || {};
+      m[chaveRep(rep)] = de;
+      localStorage.setItem(CHAVE_FECH, JSON.stringify(m));
+    } catch (e) { /* sem armazenamento: tudo bem */ }
+  }
+
+  function centavos(v) { return Math.round(Number(v || 0) * 100) / 100; }
+
+  function contasFech(f) {
+    var dentro = function (d) { return !!d && d >= f.de && d <= f.ate; };
+    var soma = function (a, k) { return a.reduce(function (s, x) { return s + Number(x[k] || 0); }, 0); };
+    var itens = f.itens.filter(function (i) { return dentro(i.data_saida); });
+    var vales = f.vales.filter(function (v) { return dentro(v.data); });
+    var lanc = f.lanc.filter(function (l) { return dentro(l.data); });
+    var produtos = centavos(soma(itens, 'total_fabrica')), vt = centavos(soma(vales, 'valor'));
+    var db = centavos(soma(lanc.filter(function (l) { return l.debcre === 'DB'; }), 'valor'));
+    var cr = centavos(soma(lanc.filter(function (l) { return l.debcre === 'CR'; }), 'valor'));
+    var ped = {}, pedidos = [];
+    itens.slice().sort(function (a, b) {
+      return a.data_saida < b.data_saida ? -1 : (a.data_saida > b.data_saida ? 1 : (a.id_pedido - b.id_pedido) || (a.id_item - b.id_item));
+    }).forEach(function (i) {
+      if (!ped[i.id_pedido]) { ped[i.id_pedido] = { id: i.id_pedido, data: i.data_saida, cliente: i.cliente, itens: [], qtd: 0, total: 0 }; pedidos.push(ped[i.id_pedido]); }
+      var p = ped[i.id_pedido];
+      p.itens.push(i); p.qtd += Number(i.quantidade || 0); p.total = centavos(p.total + Number(i.total_fabrica || 0));
+    });
+    var mov = vales.map(function (v) {
+      return { data: v.data, tipo: 'DB', forma: 'VALE', descricao: '', observacao: '', valor: Number(v.valor || 0) };
+    }).concat(lanc.map(function (l) {
+      return { data: l.data, tipo: l.debcre, forma: l.forma || '', descricao: l.descricao || '', observacao: l.observacao || '',
+               valor: Number(l.valor || 0) };
+    })).sort(function (a, b) { return a.data < b.data ? -1 : (a.data > b.data ? 1 : 0); });
+    return { pedidos: pedidos, mov: mov, produtos: produtos, vales: vt, db: db, cr: cr, debitos: centavos(db + vt),
+             saldo: centavos(cr - (produtos + db + vt)), qtd: soma(itens, 'quantidade'),
+             semValor: itens.filter(function (i) { return !Number(i.total_fabrica || 0); }).length };
+  }
+
+  function saldoFech(c) {
+    if (Math.abs(c.saldo) < 0.005) return { cls: 'fin-fech-zero', rot: 'Saldo zerado', val: brl(0) };
+    return c.saldo < 0 ? { cls: 'fin-fech-deve', rot: 'O representante deve', val: brl(-c.saldo) } :
+                         { cls: 'fin-fech-credito', rot: 'Crédito do representante', val: brl(c.saldo) };
+  }
+
+  function avisosFech(f, c) {
+    var e = f.est, a = [];
+    if (e.erro) a.push('A última leitura deste representante não conferiu (' + e.erro + '). Mostrando a leitura anterior.');
+    if (coletaVelha(e.coletado_em)) {
+      a.push('A leitura é de ' + quando(e.coletado_em) + ': pode estar desatualizada (o PC da recepção pode estar desligado).');
+    }
+    if (e.janela_de && f.de < e.janela_de) {
+      a.push('O período começa antes do que o PC da recepção lê (desde ' + dataBR(e.janela_de) + '): o que for de antes não aparece.');
+    }
+    if (c.semValor) {
+      a.push(c.semValor + (c.semValor === 1 ? ' item ainda sem' : ' itens ainda sem') + ' valor da fábrica: no sistema, ' +
+             'o fechamento ainda não foi confirmado (V. Tabela, Acréscimo e Frete). Contam como zero.');
+    }
+    return a;
+  }
+
+  function cartaoFech(rot, valor, sub) {
+    return '<div class="fin-cartao"><span>' + esc(rot) + '</span><b>' + esc(valor) + '</b><small>' + esc(sub) + '</small></div>';
+  }
+
+  function descMov(m) {
+    return [m.descricao, m.observacao].filter(function (x) { return x && String(x).trim(); }).join(' · ');
+  }
+
+  function htmlFech(f, c) {
+    var s = saldoFech(c), h = [], periodo = dataBR(f.de) + ' a ' + dataBR(f.ate);
+    h.push('<p class="fin-fech-fonte">Do sistema da fábrica (Comercial › Representantes e Folha do Representante), lido em ' +
+           esc(quando(f.est.coletado_em)) + '. Valores da fábrica para o representante.</p>');
+    avisosFech(f, c).forEach(function (a) { h.push('<p class="fin-fech-aviso">' + esc(a) + '</p>'); });
+    h.push('<div class="fin-resumo fin-fech-cartoes">' +
+      cartaoFech('Produtos (DB)', brl(c.produtos), c.pedidos.length + ' pedido' + (c.pedidos.length === 1 ? '' : 's') + ' · ' +
+                 pecas(c.qtd) + ' peças') +
+      cartaoFech('Débitos (DB)', brl(c.debitos), c.vales ? 'inclui ' + brl(c.vales) + ' de vale' : 'lançamentos DB') +
+      cartaoFech('Créditos (CR)', brl(c.cr), 'pagamentos e créditos') + '</div>');
+    h.push('<div class="fin-fech-saldo ' + s.cls + '"><span>' + esc(s.rot) + '</span><b>' + esc(s.val) + '</b></div>');
+    h.push('<h4 class="fin-fech-sec">Pedidos entregues (saída de ' + esc(periodo) + ')</h4>');
+    if (!c.pedidos.length) h.push('<p class="fin-vazio">Nenhum pedido com saída neste período.</p>');
+    c.pedidos.forEach(function (p) {
+      h.push('<div class="fin-comp-ped"><div class="fin-comp-cab"><b>Nº ' + p.id + '</b><span>saída ' + esc(dataBR(p.data)) +
+        '</span></div>' + (p.cliente ? '<div class="fin-comp-cli">' + esc(p.cliente) + '</div>' : '') +
+        '<table class="fin-res-tab fin-comp-tab"><thead><tr><th>Bolsa</th><th class="fin-num fin-comp-q">Qtd</th>' +
+        '<th class="fin-num fin-comp-u">Unit. fábrica</th><th class="fin-num fin-comp-t">Total fábrica</th></tr></thead><tbody>' +
+        p.itens.map(function (i) {
+          var t = Number(i.total_fabrica || 0), u = Number(i.unit_fabrica || 0);
+          return '<tr><td>' + esc(i.produto || '') + (i.obs ? '<div class="fin-comp-desc">' + esc(i.obs) + '</div>' : '') +
+            '</td><td class="fin-num">' + esc(pecas(i.quantidade)) + '</td><td class="fin-num">' + (u ? esc(brl(u)) : '—') +
+            '</td><td class="fin-num">' + (t ? esc(brl(t)) : '<span class="fin-tag fin-tag-sem">sem valor</span>') + '</td></tr>';
+        }).join('') + '</tbody><tfoot><tr><td>Total do pedido</td><td class="fin-num">' + esc(pecas(p.qtd)) +
+        '</td><td></td><td class="fin-num">' + esc(brl(p.total)) + '</td></tr></tfoot></table></div>');
+    });
+    h.push('<h4 class="fin-fech-sec">Lançamentos e vales da Folha (' + esc(periodo) + ')</h4>');
+    if (!c.mov.length) {
+      h.push('<p class="fin-vazio">Nenhum lançamento nem vale neste período.</p>');
+    } else {
+      h.push('<table class="fin-res-tab fin-fech-mov"><thead><tr><th>Data</th><th class="fin-fech-tipo">Tipo</th>' +
+        '<th>Lançamento</th><th class="fin-num">Valor</th></tr></thead><tbody>' + c.mov.map(function (m) {
+          var cr = m.tipo === 'CR', cls = cr ? 'fin-fech-cr' : 'fin-fech-db', d = descMov(m);
+          return '<tr><td>' + esc(dataBR(m.data)) + '</td><td class="fin-fech-tipo ' + cls + '">' + (cr ? 'Crédito' : 'Débito') +
+            '</td><td><b>' + esc(m.forma) + '</b>' + (d ? '<div class="fin-comp-desc">' + esc(d) + '</div>' : '') +
+            '</td><td class="fin-num ' + cls + '">' + (cr ? '+ ' : '− ') + esc(brl(m.valor)) + '</td></tr>';
+        }).join('') + '</tbody></table>');
+    }
+    return h.join('');
+  }
+
+  function renderFech() {
+    var f = st.fech; if (!f) return;
+    var corpo = $('fin-fech-corpo'), pronto = !!(f.est && !f.carregando && !f.falhou);
+    ['fin-fech-copiar', 'fin-fech-imprimir', 'fin-fech-pdf'].forEach(function (id) { $(id).disabled = !pronto; });
+    if (!f.est) {
+      corpo.innerHTML = '<p class="fin-vazio">Ainda não chegou o fechamento deste representante do sistema da fábrica. O PC ' +
+        'da recepção lê de hora em hora, em dia útil.</p>';
+      return;
+    }
+    if (f.carregando) { corpo.innerHTML = '<p class="fin-vazio">Lendo o fechamento…</p>'; return; }
+    if (f.falhou) { corpo.innerHTML = '<p class="fin-vazio">Não deu para ler o fechamento agora. Tente de novo em instantes.</p>'; return; }
+    corpo.innerHTML = htmlFech(f, contasFech(f));
+  }
+
+  async function abrirFech() {
+    if (st.rep === null) return;
+    var rep = st.rep, est = fechDoRep(rep), p = periodoPadrao(rep);
+    var f = { rep: rep, est: est, de: p.de, ate: p.ate, itens: [], vales: [], lanc: [], carregando: !!est, falhou: false };
+    st.fech = f;
+    st.voltaFocoFech = document.activeElement;
+    $('fin-fech-titulo').textContent = 'Fechamento — ' + nomeRep(rep);
+    $('fin-fech-de').value = p.de; $('fin-fech-ate').value = p.ate;
+    $('fin-fech-nota').textContent = 'Só consulta. Marcar entregue, preencher os valores e lançar os pagamentos continua no ' +
+      'sistema da fábrica; o site mostra depois da próxima leitura do PC da recepção (de hora em hora, em dia útil).';
+    renderFech();
+    $('fin-fech-modal').hidden = false;
+    document.body.style.overflow = 'hidden';
+    setTimeout(function () { try { $('fin-fech-fechar').focus(); } catch (x) { /* nada */ } }, 30);
+    if (!est) return;
+    var r = await Promise.all([lerDoRep('fin_rep_fech_itens', COLUNAS_FECH_ITEM, est.rep_id, 'id_item'),
+                               lerDoRep('fin_rep_fech_vales', COLUNAS_FECH_VALE, est.rep_id, 'id_vale'),
+                               lerDoRep('fin_rep_fech_lanc', COLUNAS_FECH_LANC, est.rep_id, 'id_lanc')]);
+    if (st.fech !== f) return;   // fechou ou trocou no meio
+    f.carregando = false;
+    if (r[0].error || r[1].error || r[2].error) { f.falhou = true; } else { f.itens = r[0].data; f.vales = r[1].data; f.lanc = r[2].data; }
+    renderFech();
+  }
+
+  function fecharFech() {
+    if (!$('fin-fech-modal') || $('fin-fech-modal').hidden) return;
+    $('fin-fech-modal').hidden = true;
+    $('fin-fech-corpo').innerHTML = '';
+    document.body.style.overflow = '';
+    st.fech = null;
+    if (st.voltaFocoFech && st.voltaFocoFech.focus) { try { st.voltaFocoFech.focus(); } catch (e) { /* nada */ } }
+  }
+
+  function mudaPeriodo(ev) {
+    if (ev) ev.preventDefault();
+    var f = st.fech; if (!f) return;
+    var de = $('fin-fech-de').value, ate = $('fin-fech-ate').value;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(de) || !/^\d{4}-\d{2}-\d{2}$/.test(ate) || de > ate) {
+      $('fin-fech-nota').textContent = 'Escolha um período válido (a data "De" não pode ser depois da "Até").';
+      return;
+    }
+    f.de = de; f.ate = ate;
+    guardaDe(f.rep, de);
+    renderFech();
+  }
+
+  function fechPronto() { var f = st.fech; return f && f.est && !f.carregando && !f.falhou ? f : null; }
+
+  function textoFech(f) {
+    var c = contasFech(f), s = saldoFech(c), L = [];
+    L.push('*Fechamento — ' + nomeRep(f.rep) + '*');
+    L.push('Período: ' + dataBR(f.de) + ' a ' + dataBR(f.ate));
+    L.push('');
+    L.push('*Pedidos entregues* (' + c.pedidos.length + ' pedido' + (c.pedidos.length === 1 ? '' : 's') + ' · ' + pecas(c.qtd) + ' peças)');
+    c.pedidos.forEach(function (p) {
+      L.push('• Nº ' + p.id + ' · saída ' + dataBR(p.data).slice(0, 5) + (p.cliente ? ' · ' + p.cliente : '') + ' — ' +
+             pecas(p.qtd) + ' pç — ' + brl(p.total));
+    });
+    if (!c.pedidos.length) L.push('(nenhum)');
+    L.push('');
+    L.push('*Lançamentos*');
+    c.mov.forEach(function (m) {
+      var d = descMov(m);
+      L.push((m.tipo === 'CR' ? '+ ' : '− ') + dataBR(m.data).slice(0, 5) + ' ' + m.forma + (d ? ' · ' + d : '') + ' — ' + brl(m.valor));
+    });
+    if (!c.mov.length) L.push('(nenhum)');
+    L.push('');
+    L.push('Produtos (DB): ' + brl(c.produtos));
+    L.push('Débitos (DB): ' + brl(c.debitos));
+    L.push('Créditos (CR): ' + brl(c.cr));
+    L.push('*' + s.rot + ': ' + s.val + '*');
+    if (c.semValor) L.push('(' + c.semValor + (c.semValor === 1 ? ' item ainda sem' : ' itens ainda sem') + ' valor da fábrica, contando como zero)');
+    return L.join('\n');
+  }
+
+  async function copiarFech() {
+    var f = fechPronto(); if (!f) return;
+    var texto = textoFech(f), ok = false;
+    try { await navigator.clipboard.writeText(texto); ok = true; } catch (e) {
+      var ta = document.createElement('textarea');
+      ta.value = texto; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { ok = document.execCommand('copy'); } catch (x) { ok = false; }
+      document.body.removeChild(ta);
+    }
+    $('fin-fech-nota').textContent = ok ? 'Texto copiado. É só colar no WhatsApp.' :
+      'Não deu para copiar automaticamente. Use Imprimir ou o PDF.';
+  }
+
+  function imprimirFech() {
+    var f = fechPronto(); if (!f) return;
+    var w = window.open('', '_blank', 'width=900,height=700');
+    if (!w) { $('fin-fech-nota').textContent = 'O navegador bloqueou a janela de impressão. Libere pop-ups deste site.'; return; }
+    var css = 'body{font-family:Inter,Arial,sans-serif;color:#1a2e4a;margin:24px}h1{font-size:18px;margin:0 0 4px}' +
+      'h4{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#64748b;margin:16px 0 6px}' +
+      'p{margin:0 0 8px;font-size:12px;color:#475569}table{width:100%;border-collapse:collapse;font-size:12px}' +
+      'th,td{border-bottom:1px solid #cbd5e1;padding:5px 6px;text-align:left;vertical-align:top}.fin-num{text-align:right;white-space:nowrap}' +
+      'tfoot td{font-weight:700;border-top:2px solid #1a2e4a}.fin-resumo{display:flex;gap:8px;margin:8px 0}' +
+      '.fin-cartao{flex:1;border:1px solid #cbd5e1;border-radius:8px;padding:6px 8px}.fin-cartao span,.fin-cartao small{display:block;' +
+      'font-size:10px;color:#64748b}.fin-cartao b{display:block;font-size:14px}.fin-fech-saldo{display:flex;justify-content:space-between;' +
+      'font-weight:800;font-size:14px;border:2px solid #1a2e4a;border-radius:8px;padding:8px 10px;margin:0 0 10px}' +
+      '.fin-comp-ped{border:1px solid #cbd5e1;border-radius:8px;padding:6px 8px;margin:0 0 8px;break-inside:avoid}' +
+      '.fin-comp-cab b{color:#1A3580;margin-right:8px}.fin-comp-cab span,.fin-comp-desc,.fin-fech-fonte{color:#64748b;font-size:11px}' +
+      '.fin-comp-cli{font-weight:700;font-size:12px}.fin-fech-aviso{color:#92400e;font-size:11px}.fin-fech-cr{color:#047857}' +
+      '.fin-fech-db{color:#b91c1c}.fin-tag{font-size:10px;color:#92400e}';
+    var c = contasFech(f);
+    w.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Fechamento — ' +
+      esc(nomeRep(f.rep)) + '</title><style>' + css + '</style></head><body><h1>Fechamento — ' + esc(nomeRep(f.rep)) +
+      '</h1><p>Isis Bolsas · período ' + esc(dataBR(f.de)) + ' a ' + esc(dataBR(f.ate)) + '</p>' + htmlFech(f, c) +
+      '<p class="fin-fech-fonte">Valores da fábrica para o representante (sem o preço de venda ao cliente).</p></body></html>');
+    w.document.close();
+    w.focus();
+    setTimeout(function () { try { w.print(); } catch (e) { /* nada */ } }, 300);
+  }
+
+  function slugNome(nome) {
+    return String(nome).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '').slice(0, 40) || 'representante';
+  }
+
+  function montaPdfFech(doc, f) {
+    var M = 12, W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight();
+    var AZUL = [26, 53, 128], TINTA = [26, 46, 74], CINZA = [100, 116, 139], AMBAR = [146, 64, 14];
+    var c = contasFech(f), s = saldoFech(c), y;
+    var cor = function (rgb) { doc.setTextColor(rgb[0], rgb[1], rgb[2]); };
+    var escreve = function (texto, x, yy, largura, alt) {
+      var linhas = doc.splitTextToSize(String(texto), largura);
+      doc.text(linhas, x, yy);
+      return yy + linhas.length * alt;
+    };
+    var estilo = { font: 'helvetica', fontSize: 8.5, cellPadding: 1.6, textColor: TINTA, lineColor: [226, 232, 240],
+                   lineWidth: 0.1, overflow: 'linebreak' };
+    var cab = { fillColor: AZUL, textColor: 255, fontStyle: 'bold' };
+    var pe = { fillColor: [241, 245, 249], textColor: TINTA, fontStyle: 'bold' };
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(14); cor(TINTA);
+    y = escreve('Fechamento — ' + nomeRep(f.rep), M, 16, W - 2 * M, 6);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); cor(CINZA);
+    y = escreve('Isis Bolsas · período ' + dataBR(f.de) + ' a ' + dataBR(f.ate) + ' · lido do sistema da fábrica em ' +
+                quando(f.est.coletado_em), M, y, W - 2 * M, 4.5) + 2;
+    avisosFech(f, c).forEach(function (a) { cor(AMBAR); y = escreve(a, M, y, W - 2 * M, 4.2); });
+    doc.autoTable({ startY: y + 1, margin: { left: M, right: M }, styles: estilo, headStyles: cab,
+      head: [['Produtos (DB)', 'Débitos (DB)', 'Créditos (CR)', s.rot]],
+      body: [[brl(c.produtos), brl(c.debitos) + (c.vales ? '\n(inclui ' + brl(c.vales) + ' de vale)' : ''), brl(c.cr), s.val]],
+      columnStyles: { 3: { fontStyle: 'bold' } } });
+    y = doc.lastAutoTable.finalY + 6;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5); cor(AZUL);
+    doc.text('Pedidos entregues (' + c.pedidos.length + ' pedido' + (c.pedidos.length === 1 ? '' : 's') + ' · ' + pecas(c.qtd) + ' peças)', M, y);
+    var corpoP = [];
+    c.pedidos.forEach(function (p) {
+      p.itens.forEach(function (i, k) {
+        var t = Number(i.total_fabrica || 0), u = Number(i.unit_fabrica || 0);
+        corpoP.push([k ? '' : String(p.id), k ? '' : dataBR(p.data), k ? '' : (p.cliente || ''), (i.produto || '') + (i.obs ? '\n' + i.obs : ''),
+                     pecas(i.quantidade), u ? brl(u) : '—', t ? brl(t) : 'sem valor']);
+      });
+    });
+    doc.autoTable({ startY: y + 2, margin: { left: M, right: M }, styles: estilo, headStyles: cab, footStyles: pe,
+      showFoot: 'lastPage', rowPageBreak: 'avoid',
+      head: [['Nº', 'Saída', 'Cliente', 'Bolsa', 'Qtd', 'Unit.', 'Total']],
+      body: corpoP.length ? corpoP : [['', '', '', 'Nenhum pedido com saída neste período.', '', '', '']],
+      foot: [['', '', '', 'Total', pecas(c.qtd), '', brl(c.produtos)]],
+      columnStyles: { 0: { cellWidth: 14 }, 1: { cellWidth: 17 }, 2: { cellWidth: 34 }, 4: { halign: 'right', cellWidth: 13 },
+                      5: { halign: 'right', cellWidth: 20 }, 6: { halign: 'right', cellWidth: 24 } },
+      didParseCell: function (h) { if ((h.section === 'head' || h.section === 'foot') && h.column.index >= 4) h.cell.styles.halign = 'right'; } });
+    y = doc.lastAutoTable.finalY + 6;
+    if (y > H - 40) { doc.addPage(); y = 16; }
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5); cor(AZUL);
+    doc.text('Lançamentos e vales da Folha', M, y);
+    doc.autoTable({ startY: y + 2, margin: { left: M, right: M }, styles: estilo, headStyles: cab, footStyles: pe,
+      showFoot: 'lastPage', rowPageBreak: 'avoid',
+      head: [['Data', 'Tipo', 'Forma', 'Descrição', 'Valor']],
+      body: c.mov.length ? c.mov.map(function (m) {
+        // no PDF so hifen: a fonte padrao do PDF nao tem o sinal de menos (U+2212) e o texto sairia embaralhado
+        return [dataBR(m.data), m.tipo === 'CR' ? 'Crédito' : 'Débito', m.forma, descMov(m), (m.tipo === 'CR' ? '+ ' : '- ') + brl(m.valor)];
+      }) : [['', '', '', 'Nenhum lançamento nem vale neste período.', '']],
+      foot: [['', '', '', s.rot, s.val]],
+      columnStyles: { 0: { cellWidth: 20 }, 1: { cellWidth: 18 }, 2: { cellWidth: 32 }, 4: { halign: 'right', cellWidth: 28 } },
+      didParseCell: function (h) {
+        if ((h.section === 'head' || h.section === 'foot') && h.column.index === 4) h.cell.styles.halign = 'right';
+        if (h.section === 'body' && (h.column.index === 1 || h.column.index === 4) && c.mov.length) {
+          h.cell.styles.textColor = c.mov[h.row.index].tipo === 'CR' ? [4, 120, 87] : [185, 28, 28];
+        }
+      } });
+    var n = doc.internal.getNumberOfPages();
+    for (var k = 1; k <= n; k++) {
+      doc.setPage(k); doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); cor(CINZA);
+      doc.text('Valores da fábrica para o representante (sem o preço de venda ao cliente).', M, H - 6);
+      doc.text('Página ' + k + ' de ' + n, W - M, H - 6, { align: 'right' });
+    }
+  }
+
+  async function pdfFech() {
+    var f = fechPronto(); if (!f || st.pdf) return;
+    st.pdf = true; $('fin-fech-pdf').disabled = true;
+    $('fin-fech-nota').textContent = 'Montando o PDF…';
+    try {
+      var JsPDF = await carregaPdf();
+      var doc = new JsPDF({ unit: 'mm', format: 'a4' });
+      if (typeof doc.autoTable !== 'function') throw new Error('a biblioteca da tabela do PDF não apareceu');
+      montaPdfFech(doc, f);
+      var nome = 'fechamento-' + slugNome(nomeRep(f.rep)) + '-' + f.de + '-a-' + f.ate + '.pdf';
+      doc.save(nome);
+      $('fin-fech-nota').textContent = 'PDF baixado: ' + nome + '. No celular, ele fica em Downloads (dá para mandar no WhatsApp).';
+    } catch (e) {
+      $('fin-fech-nota').textContent = 'Não deu para montar o PDF agora (' + ((e && e.message) || 'erro') +
+        '). Use Imprimir e escolha "Salvar como PDF".';
+    } finally { st.pdf = false; $('fin-fech-pdf').disabled = !fechPronto(); }
+  }
+
   function limparRep() {
     st.ped = null; st.estadoRep = null; st.resumos = null; st.sel = {}; st.rep = null; st.repBusca = ''; st.repSoSem = false;
+    st.fechEst = null;
+    fecharFech();
     fecharResumo();
     if ($('fin-rep-lista')) $('fin-rep-lista').innerHTML = '';
     if ($('fin-rep-cartoes')) $('fin-rep-cartoes').innerHTML = '';
@@ -8934,7 +9381,20 @@ function moldeResumoPrint() {
     });
     $('fin-rep-fechar').addEventListener('click', fecharResumo);
     $('fin-rep-modal').addEventListener('click', function (ev) { if (ev.target === $('fin-rep-modal')) fecharResumo(); });
-    document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && st.modal) fecharResumo(); });
+    document.addEventListener('keydown', function (ev) {
+      if (ev.key !== 'Escape') return;
+      if (st.fech) fecharFech(); else if (st.modal) fecharResumo();
+    });
+    // 1.4: o fechamento
+    $('fin-rep-fech').addEventListener('click', abrirFech);
+    $('fin-fech-fechar').addEventListener('click', fecharFech);
+    $('fin-fech-modal').addEventListener('click', function (ev) { if (ev.target === $('fin-fech-modal')) fecharFech(); });
+    $('fin-fech-form').addEventListener('submit', mudaPeriodo);
+    $('fin-fech-de').addEventListener('change', mudaPeriodo);
+    $('fin-fech-ate').addEventListener('change', mudaPeriodo);
+    $('fin-fech-copiar').addEventListener('click', copiarFech);
+    $('fin-fech-imprimir').addEventListener('click', imprimirFech);
+    $('fin-fech-pdf').addEventListener('click', pdfFech);
     $('fin-rep-copiar').addEventListener('click', copiarResumo);
     $('fin-rep-imprimir').addEventListener('click', imprimirResumo);
     $('fin-rep-pdf').addEventListener('click', baixarPdf);
@@ -8945,7 +9405,7 @@ function moldeResumoPrint() {
     $('fin-rep-salvar').addEventListener('click', salvarResumo);
     $('fin-rep-cancelar-res').addEventListener('click', cancelarResumo);
     document.addEventListener('visibilitychange', function () {
-      if (document.visibilityState !== 'visible' || modoAtual !== 'financeiro' || st.modal) return;
+      if (document.visibilityState !== 'visible' || modoAtual !== 'financeiro' || st.modal || st.fech) return;
       if (st.aba === 'boletos' && st.linhas && Date.now() - st.carregadoEm > 120000) carregarBoletos();
       if (st.aba === 'rep' && st.ped && Date.now() - st.carregadoRepEm > 120000) carregarRep();
     });

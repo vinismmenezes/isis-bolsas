@@ -1927,6 +1927,21 @@ tr.pc-var td:first-child { padding-left:34px; }
 }
 @media (prefers-reduced-motion:reduce) { .pc-ov, .pc-modal { animation:none !important; transition:none !important; } }
 </style>
+<style id="atualiza-isis-css">
+/* ===== Atualiza 1.0 (bloco novo, 24/11/2026): "Atualizado as HH:MM" em Precos e em Costura ===== */
+.at-linha { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:8px; font-size:.78rem;
+  color:var(--t-suave-texto, #64748b); }
+.at-linha[hidden] { display:none !important; }
+.at-linha.at-alerta .at-txt { color:#92400e; font-weight:700; }
+.at-btn { display:inline-flex; align-items:center; gap:.3em; min-height:32px; padding:4px 10px; border:1px solid var(--t-borda, #e2e8f0);
+  border-radius:8px; background:#fff; color:var(--t-texto-2, #334155); font:inherit; font-size:.78rem; font-weight:600; cursor:pointer; }
+.at-btn:hover { background:var(--t-suave, #f1f5f9); }
+.at-btn:focus-visible { outline:3px solid var(--isis-rosa, #E5007D); outline-offset:2px; }
+.at-btn[disabled] { opacity:.55; cursor:default; }
+#at-costura { margin:0 0 8px; }
+@media (max-width:650px) { .at-btn { min-height:36px; } }
+@media print { .at-linha { display:none !important; } }
+</style>
 </head>
 <body>
 <svg class="icon-sprite" aria-hidden="true" focusable="false">
@@ -10052,6 +10067,203 @@ function moldeResumoPrint() {
     };
   }
   window.__precos = { versao: '1.0', estado: st, norm: norm, num: num };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ligar); else ligar();
+})();
+</script>
+<script id="atualiza-isis-js">
+/* ===== Atualiza 1.0 (bloco novo, 24/11/2026): Precos e Costura deixam de ficar com os valores de quando a pagina abriu =====
+   Auditoria de 24/11, item G2. Antes, produtos e costura eram lidos uma vez, no login.
+   - Com a aba Precos ou Costura na tela, a cada 10 minutos (e ao voltar para a pagina ou a conexao voltar) este bloco
+     LE de novo os valores e compara com o que esta na tela. Se nada mudou, so acerta o horario. Se mudou, chama o
+     carregarDados() do painel, que redesenha.
+   - Nunca troca a tela por vazio: se a leitura falhar, ficam os valores que estavam, com o horario deles.
+   - Nao atualiza sozinho enquanto alguem esta editando (Costura em edicao, Precos em edicao ou janela aberta) nem com
+     o painel Admin, o Dashboard ou a calculadora abertos.
+   - Mostra "Atualizado as HH:MM" e um botao para atualizar na hora, em Precos e em Costura.
+   Embrulha carregarDados (so para guardar o horario e proteger a tela). Para desligar, retire os blocos "atualiza-isis". */
+(function () {
+  'use strict';
+  var IDADE_MS = 10 * 60 * 1000;      // de quanto em quanto tempo confere
+  var PASSO_MS = 30 * 1000;           // de quanto em quanto tempo olha se ja passou a hora
+  var ESPERA_FALHA_MS = 2 * 60 * 1000; // depois de uma leitura que falhou, quanto espera para tentar sozinho de novo
+  var st = { ultima: 0, verificando: false, aviso: '', avisoDeOcupado: false, relogioRecado: null, ligado: false, protegendo: false,
+             cargaFalhou: false, esperaAte: 0 };
+
+  function $(id) { return document.getElementById(id); }
+  function logado() { try { return typeof userEmail === 'string' && !!userEmail; } catch (e) { return false; } }
+  function tem(secao) { try { return typeof temPermissao === 'function' && temPermissao(secao); } catch (e) { return false; } }
+  function modo() { try { return modoAtual; } catch (e) { return ''; } }
+  function abaDeValores() { var m = modo(); return m === 'rapido' || m === 'avancado' || m === 'costura'; }
+  function visivel(seletor) {
+    var e = document.querySelector(seletor);
+    return !!e && e.getClientRects().length > 0;      // vale tambem para janela fixa (que nao tem offsetParent)
+  }
+  function ocupado() {          // alguem editando ou com uma janela do painel aberta: nao mexe na tela sozinho
+    try {
+      var c = window.__costura && window.__costura.estado, p = window.__precos && window.__precos.estado;
+      if (c && c.editando) return 'Costura em edição';
+      if (p && (p.editando || p.form || Object.keys(p.sujos || {}).length)) return 'Preços em edição';
+    } catch (e) { /* segue */ }
+    if (visivel('#adm-overlay') || visivel('#dash-overlay') || visivel('#molde-overlay') || visivel('#adm-pw-overlay')) return 'janela aberta';
+    return '';
+  }
+  function hora(ms) { return new Date(ms).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); }
+  function fmt(v) { return v != null && v !== '' && !isNaN(parseFloat(v)) ? parseFloat(v).toFixed(2).replace('.', ',') : ''; }
+  function porId(a, b) { return String(a[0]) < String(b[0]) ? -1 : String(a[0]) > String(b[0]) ? 1 : 0; }
+
+  // "retrato" do que esta na tela e do que esta no banco, no mesmo formato, para comparar
+  function retratoProdutos(lista, daTela) {
+    return JSON.stringify((lista || []).map(function (p) {
+      return [p.id, p.nome || '', p.familia || '', p.tabela || '', p.material || '', p.medidas || '', daTela ? (p.preco || '') : fmt(p.preco),
+              p.updated_at || '', p.preco_atualizado_em || ''];
+    }).sort(porId));
+  }
+  function retratoCostura(lista, daTela) {
+    return JSON.stringify((lista || []).map(function (c) {
+      return [c.id, c.nome || '', c.grupo || '', daTela ? (c.valor || '') : fmt(c.valor), fmt(c.valor_acabamento), c.obs || '',
+              c.updated_at || '', c.atualizado_por || ''];
+    }).sort(porId));
+  }
+
+  // o recado "termine a edicao" some assim que a edicao acaba: olha de segundo em segundo, so enquanto ele esta na tela
+  function vigiarRecado() {
+    if (st.relogioRecado) return;
+    st.relogioRecado = setInterval(function () {
+      if (st.avisoDeOcupado && ocupado()) return;
+      clearInterval(st.relogioRecado);
+      st.relogioRecado = null;
+      if (st.avisoDeOcupado) { st.avisoDeOcupado = false; st.aviso = ''; desenhar(); }
+    }, 1000);
+  }
+
+  // ---------------------------------------------------------------- conferir
+  async function conferir(forcado) {
+    if (st.verificando || !logado() || typeof _supa === 'undefined') return 'nada';
+    if (!tem('produtos') && !tem('costura')) return 'nada';       // quem so tem a Agenda nao le precos nem costura
+    var motivo = ocupado();
+    if (motivo) {
+      if (forcado) { st.aviso = 'Termine a edição (ou feche a janela) para atualizar.'; st.avisoDeOcupado = true; desenhar(); vigiarRecado(); }
+      return 'ocupado';
+    }
+    st.avisoDeOcupado = false;
+    st.verificando = true;
+    desenhar();
+    var resultado = 'igual';
+    try {
+      if (navigator.onLine === false) throw new Error('sem conexão');
+      var mudou = false;
+      if (tem('produtos')) {
+        var rp = await _supa.from('produtos').select('*').eq('ativo', true).order('nome');   // a mesma consulta do painel
+        if (rp.error) throw rp.error;
+        if (retratoProdutos(rp.data, false) !== retratoProdutos(produtos, true)) mudou = true;
+      }
+      if (!mudou && tem('costura')) {
+        var rc = await _supa.from('costura').select('*').order('nome');                      // a mesma consulta do painel
+        if (rc.error) throw rc.error;
+        if (retratoCostura(rc.data, false) !== retratoCostura(costuraPadrao, true)) mudou = true;
+      }
+      if (mudou && ocupado()) { resultado = 'ocupado'; }          // comecou a editar enquanto eu lia: fica para a proxima
+      else if (mudou) {
+        st.protegendo = true;
+        st.cargaFalhou = false;
+        try { await carregarDados(); } finally { st.protegendo = false; }
+        if (st.cargaFalhou) resultado = 'falhou';                  // o recado ja foi posto pelo embrulho do carregarDados
+        else {
+          resultado = 'mudou';
+          if (modo() === 'costura' && typeof costuraRender === 'function') costuraRender();
+        }
+      } else {
+        st.ultima = Date.now();
+      }
+      if (resultado === 'igual' || resultado === 'mudou') { st.aviso = ''; st.esperaAte = 0; }
+    } catch (e) {
+      resultado = 'falhou';
+      st.aviso = 'Sem conexão para conferir agora. Os valores na tela são os das ' + (st.ultima ? hora(st.ultima) : 'últimas leituras') + '.';
+    }
+    if (resultado === 'falhou') st.esperaAte = Date.now() + ESPERA_FALHA_MS;   // nao insiste a cada 30 s quando esta fora do ar
+    st.verificando = false;
+    desenhar();
+    return resultado;
+  }
+
+  // ---------------------------------------------------------------- o horario na tela
+  function linha(id, onde, antesDe) {
+    var e = $(id);
+    if (e || !onde) return e;
+    e = document.createElement('div');
+    e.className = 'at-linha';
+    e.id = id;
+    e.innerHTML = '\x3cspan class="at-txt" role="status">\x3c/span>\x3cbutton type="button" class="at-btn" title="Lê de novo os valores agora">' +
+      '\x3csvg class="ui-icon ti ti-txt" aria-hidden="true">\x3cuse href="#ti-refresh-cw">\x3c/use>\x3c/svg>Atualizar\x3c/button>';
+    if (antesDe && antesDe.parentNode === onde) onde.insertBefore(e, antesDe); else onde.appendChild(e);
+    e.querySelector('.at-btn').addEventListener('click', function () { conferir(true); });
+    return e;
+  }
+  function desenhar() {
+    var info = $('info'), cinfo = $('costura-info');
+    var linhas = [linha('at-precos', info ? info.parentNode : null, info ? info.nextSibling : null),
+                  linha('at-costura', cinfo ? cinfo.parentNode : null, cinfo)];
+    var faixa = $('avisoConexao');     // com a faixa "sem conexao" do painel na tela (lista vazia), o horario nao aparece
+    var mostra = logado() && st.ultima > 0 && !(faixa && faixa.style.display !== 'none');
+    var texto = st.verificando ? 'Conferindo os valores…' : st.aviso || ('Atualizado às ' + hora(st.ultima));
+    linhas.forEach(function (l) {
+      if (!l) return;
+      l.hidden = !mostra;
+      l.classList.toggle('at-alerta', !!st.aviso && !st.verificando);
+      l.querySelector('.at-txt').textContent = texto;
+      l.querySelector('.at-btn').disabled = st.verificando;
+    });
+  }
+
+  // ---------------------------------------------------------------- quando conferir
+  function naHora() {
+    var agora = Date.now();
+    return logado() && abaDeValores() && document.visibilityState === 'visible' && agora - st.ultima >= IDADE_MS && agora >= st.esperaAte;
+  }
+  function ligar() {
+    if (st.ligado) return;
+    st.ligado = true;
+    setInterval(function () { if (naHora()) conferir(false); }, PASSO_MS);
+    document.addEventListener('visibilitychange', function () { if (naHora()) conferir(false); });
+    window.addEventListener('online', function () { if (logado() && abaDeValores() && st.aviso) conferir(false); });
+    desenhar();
+  }
+
+  // ---------------------------------------------------------------- encaixe no painel
+  var _carregarDados = window.carregarDados, _fazerLogout = window.fazerLogout;
+  window.carregarDados = async function () {
+    var protege = st.protegendo, antesP = null, antesC = null;
+    if (protege) { try { antesP = produtos; antesC = costuraPadrao; } catch (e) { /* segue */ } }
+    var r = await _carregarDados.apply(this, arguments);
+    var aviso = $('avisoConexao'), falhou = !!aviso && aviso.style.display !== 'none';
+    st.cargaFalhou = falhou;
+    if (falhou && protege) {
+      // a leitura automatica falhou no meio: a lista que voltou vazia fica com o que estava na tela, em vez de sumir
+      var sobrou = false;
+      try {
+        if (antesP && antesP.length && !produtos.length) produtos = antesP;
+        if (antesC && antesC.length && !costuraPadrao.length) costuraPadrao = antesC;
+        sobrou = produtos.length > 0 || costuraPadrao.length > 0;
+        if (sobrou) {
+          aviso.style.display = 'none';
+          if (typeof filtrar === 'function') filtrar();
+          if (modo() === 'costura' && typeof costuraRender === 'function') costuraRender();
+        }
+      } catch (e) { /* segue */ }
+      if (sobrou) st.aviso = 'Sem conexão para atualizar agora. Os valores na tela são os das ' + (st.ultima ? hora(st.ultima) : 'últimas leituras') + '.';
+    } else if (!falhou) {
+      st.ultima = Date.now();
+      st.aviso = '';
+      st.esperaAte = 0;
+    }
+    desenhar();
+    return r;
+  };
+  if (typeof _fazerLogout === 'function') {
+    window.fazerLogout = async function () { st.ultima = 0; st.aviso = ''; st.avisoDeOcupado = false; desenhar(); return _fazerLogout.apply(this, arguments); };
+  }
+  window.__atualiza = { versao: '1.0', estado: st, conferir: conferir, IDADE_MS: IDADE_MS };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ligar); else ligar();
 })();

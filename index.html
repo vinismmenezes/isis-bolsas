@@ -1942,6 +1942,17 @@ tr.pc-var td:first-child { padding-left:34px; }
 @media (max-width:650px) { .at-btn { min-height:36px; } }
 @media print { .at-linha { display:none !important; } }
 </style>
+<style id="sem-costureiras-isis-css">
+/* ===== Sem Costureiras 1.0 (bloco novo, 25/11/2026) =====
+   A tela de Costureiras (envio de bolsas para costureiras) saiu de uso: pedido do Vini em 24/11.
+   A aba ja estava escondida; aqui somem tambem o botao e a lista do Painel Admin e a janela de envio.
+   A aba Costura (valores de costura) NAO e esta: ela continua igual. */
+#btnCostureiras,
+#secao-costureiras,
+#adm-btn-costureiras,
+#adm-costureiras-section,
+#costureiras-modal { display: none !important; }
+</style>
 </head>
 <body>
 <svg class="icon-sprite" aria-hidden="true" focusable="false">
@@ -10266,6 +10277,45 @@ function moldeResumoPrint() {
   window.__atualiza = { versao: '1.0', estado: st, conferir: conferir, IDADE_MS: IDADE_MS };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ligar); else ligar();
+})();
+</script>
+<script id="sem-costureiras-isis-js">
+/* ===== Sem Costureiras 1.0 (bloco novo, 25/11/2026): a tela de Costureiras saiu de uso (pedido do Vini em 24/11) =====
+   - O CSS deste bloco esconde o botao e a lista de Costureiras do Painel Admin e a janela de envio.
+   - Aqui: a coluna "Costureiras" sai da tabela de usuarios do Dashboard, depois de cada vez que ele e desenhado.
+   - Nada e apagado: o codigo antigo fica na pagina, so sem caminho para chegar nele. No banco, o pacote 08 fecha
+     a tabela (os dados ficam). A aba Costura (valores de costura) nao e esta e continua igual.
+   Para desligar, retire os blocos "sem-costureiras-isis". */
+(function () {
+  'use strict';
+
+  // acha a coluna pelo titulo dela (e nao pela posicao), para nunca tirar a coluna errada
+  function tirarColuna() {
+    var tab = document.getElementById('dash-perm-table');
+    if (!tab || !tab.tHead || !tab.tHead.rows.length) return 0;
+    var ths = tab.tHead.rows[0].cells, idx = -1, i, pequeno;
+    for (i = 0; i < ths.length; i++) {
+      pequeno = ths[i].querySelector('small');
+      if (pequeno && (pequeno.textContent || '').trim() === 'Costureiras') { idx = i; break; }
+    }
+    if (idx < 0) return 0;
+    var total = ths.length, tirou = 0;
+    Array.prototype.forEach.call(tab.rows, function (linha) {
+      if (linha.cells.length === total) { linha.deleteCell(idx); tirou++; }   // so linha com o mesmo numero de colunas
+    });
+    return tirou;
+  }
+
+  var _dashAtualizar = window.dashAtualizar;
+  if (typeof _dashAtualizar === 'function') {
+    window.dashAtualizar = async function () {
+      var r = await _dashAtualizar.apply(this, arguments);
+      try { tirarColuna(); } catch (e) { /* segue: uma coluna a mais nao quebra nada */ }
+      return r;
+    };
+  }
+
+  window.__semCostureiras = { versao: '1.0', tirarColuna: tirarColuna };
 })();
 </script>
 </body>
